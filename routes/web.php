@@ -12,7 +12,6 @@ use App\Http\Controllers\KardexController;
 use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\ProfesoreController;
 
-
 Route::get('/', function () {
     return view('welcome');
 });

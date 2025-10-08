@@ -18,11 +18,8 @@
 
                              <div class="float-right">
                                 <a href="{{ route('carreras.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
+                                  {{ __('Nueva Carrera') }}
                                 </a>
-                              </div>
-                              <div>
-                                <x-back-button class="mb-3" data-placement="left"/>
                               </div>
                         </div>
                     </div>
@@ -37,20 +34,15 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
-									<th >Id Carrera</th>
-									<th >Nombre Carr</th>
+									<th >Número de carrera</th>
+									<th >Nombre de carrera</th>
 									<th >Capacidad</th>
-
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($carreras as $carrera)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
 										<td >{{ $carrera->id_carrera }}</td>
 										<td >{{ $carrera->nombre_carr }}</td>
 										<td >{{ $carrera->capacidad }}</td>
@@ -69,6 +61,9 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
+                    </div>
                     </div>
                 </div>
                 {!! $carreras->withQueryString()->links() !!}

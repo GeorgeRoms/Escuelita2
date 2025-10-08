@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $carrera->name ?? __('Show') . " " . __('Carrera') }}
+    {{ $carrera->name ?? __('Información de') . " " . __('Carrera') }}
 @endsection
 
 @section('content')
@@ -11,10 +11,10 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Carrera</span>
+                            <span class="card-title">{{ __('Información de') }} Carrera</span>
                         </div>
                         <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('carreras.index') }}"> {{ __('Back') }}</a>
+                            <a class="btn btn-primary btn-sm" href="{{ route('carreras.index') }}"> {{ __('Atrás') }}</a>
                         </div>
                     </div>
 
@@ -25,7 +25,7 @@
                                     {{ $carrera->id_carrera }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Nombre Carr:</strong>
+                                    <strong>Nombre de la Carrera:</strong>
                                     {{ $carrera->nombre_carr }}
                                 </div>
                                 <div class="form-group mb-2 mb20">

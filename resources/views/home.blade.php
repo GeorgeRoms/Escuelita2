@@ -18,7 +18,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Home</title>
+    <title>Inicio</title>
 
     {{-- Si ya cargas Bootstrap/FontAwesome en tu layout, puedes quitar estas 2 líneas --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -28,13 +28,20 @@
         body { background:#0f1226; } .card{ border:0; border-radius:1rem }
         .card-title{ font-weight:700 } .app-title{ color:#fff } .emoji { font-size: 1.25rem; line-height: 1; }
     </style>
+
 </head>
 <body>
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="app-title m-0">Panel principal</h1>
-        {{-- Ejemplo: botón para crear algo global o salir --}}
-        {{-- <a href="{{ route('logout') }}" class="btn btn-outline-light btn-sm">Salir</a> --}}
+        @if (\Illuminate\Support\Facades\Route::has('logout'))
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="btn btn-primary">
+                Log Out
+            </button>
+        </form>
+        @endif
     </div>
 
     <div class="row g-3">
