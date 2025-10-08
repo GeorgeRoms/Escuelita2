@@ -14,9 +14,9 @@ class AlumnoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $alumnos = Alumno::paginate();
+        $alumnos = \App\Models\Alumno::with('carrera')->paginate();
 
         return view('alumno.index', compact('alumnos'))
             ->with('i', ($request->input('page', 1) - 1) * $alumnos->perPage());

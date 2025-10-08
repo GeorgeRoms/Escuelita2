@@ -34,14 +34,12 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
-									<th >No Control</th>
+									<th >No. de Control</th>
 									<th >Nombre</th>
-									<th >Apellido Pat</th>
-									<th >Apellido Mat</th>
+									<th >Apellido Paterno</th>
+									<th >Apellido Materno</th>
 									<th >Genero</th>
-									<th >Fk Carrera</th>
+									<th >Carrera</th>
 
                                         <th></th>
                                     </tr>
@@ -49,14 +47,12 @@
                                 <tbody>
                                     @foreach ($alumnos as $alumno)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
 										<td >{{ $alumno->no_control }}</td>
 										<td >{{ $alumno->nombre }}</td>
 										<td >{{ $alumno->apellido_pat }}</td>
 										<td >{{ $alumno->apellido_mat }}</td>
 										<td >{{ $alumno->genero }}</td>
-										<td >{{ $alumno->fk_carrera }}</td>
+										<td >{{ $alumno->carrera->nombre_carr ?? '—' }}</td>
 
                                             <td>
                                                 <form action="{{ route('alumnos.destroy', $alumno->no_control) }}" method="POST">
