@@ -22,7 +22,6 @@ class KardexRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'id_kardex' => 'required',
 			'fk_alumno' => 'required',
 			'fk_curso' => 'required',
 			'fecha_inscri' => 'required',

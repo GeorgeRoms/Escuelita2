@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Kardexes
+    Kardex de alumnos
 @endsection
 
 @section('content')
@@ -13,12 +13,12 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Kardexes') }}
+                                {{ __('Kardex de alumnos') }}
                             </span>
 
                              <div class="float-right">
                                 <a href="{{ route('kardexes.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
+                                  {{ __('Registrar Kardex') }}
                                 </a>
                               </div>
                         </div>
@@ -34,51 +34,46 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
-									<th >Id Kardex</th>
-									<th >Fk Alumno</th>
-									<th >Fk Curso</th>
-									<th >Fecha Inscri</th>
-									<th >Estado</th>
-									<th >Promedio</th>
-									<th >Oportunidad</th>
-									<th >Intento</th>
-									<th >Semestre</th>
-									<th >Unidades Reprobadas</th>
-
-                                        <th></th>
+									<th>Código de kardex</th>
+                                    <th>Alumno</th>
+                                    <th>Materia (Curso)</th>
+                                    <th>Estado</th>
+                                    <th>Promedio</th>
+                                    <th>Semestre</th>
+                                    <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($kardexes as $kardex)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
 										<td >{{ $kardex->id_kardex }}</td>
-										<td >{{ $kardex->fk_alumno }}</td>
-										<td >{{ $kardex->fk_curso }}</td>
-										<td >{{ $kardex->fecha_inscri }}</td>
+										<td >
+                                            @if($kardex->alumno)
+                                            {{ $kardex->alumno->no_control }} — {{ trim($kardex->alumno->nombre.' '.$kardex->alumno->apellido_pat.' '.($kardex->alumno->apellido_mat ?? '')) }}
+                                            @else
+                                            {{ $kardex->fk_alumno }}
+                                            @endif
+                                        </td>
+										<td >{{ $kardex->curso->materia->nombre_mat ?? '—' }} ({{ $kardex->fk_curso }})</td>
 										<td >{{ $kardex->estado }}</td>
 										<td >{{ $kardex->promedio }}</td>
-										<td >{{ $kardex->oportunidad }}</td>
-										<td >{{ $kardex->intento }}</td>
 										<td >{{ $kardex->semestre }}</td>
-										<td >{{ $kardex->unidades_reprobadas }}</td>
-
                                             <td>
                                                 <form action="{{ route('kardexes.destroy', $kardex->id_kardex) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('kardexes.show', $kardex->id_kardex) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('kardexes.edit', $kardex->id_kardex) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('kardexes.show', $kardex->id_kardex) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('kardexes.edit', $kardex->id_kardex) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Está seguro de querer borrar kardex?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>

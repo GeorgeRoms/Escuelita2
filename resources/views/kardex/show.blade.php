@@ -13,9 +13,6 @@
                         <div class="float-left">
                             <span class="card-title">{{ __('Show') }} Kardex</span>
                         </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('kardexes.index') }}"> {{ __('Back') }}</a>
-                        </div>
                     </div>
 
                     <div class="card-body bg-white">
@@ -61,6 +58,9 @@
                                     {{ $kardex->unidades_reprobadas }}
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="kardexes.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

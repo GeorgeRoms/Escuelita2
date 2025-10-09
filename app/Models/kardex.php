@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Concerns\HasCustomPrimaryKey;
 
 /**
  * Class Kardex
@@ -29,37 +28,34 @@ use App\Models\Concerns\HasCustomPrimaryKey;
 class Kardex extends Model
 {
 
-    use HasCustomPrimaryKey; // opcional, pero útil para binding y $modelo->id
-
-    // 👇 Dile a Eloquent cómo se llama realmente tu tabla
     protected $table = 'kardex';
-
-    // Ajusta tu PK real (cámbiala si es otra)
     protected $primaryKey = 'id_kardex';
-    public $incrementing = true;   // false si tu PK no es autoincremental
+    public $incrementing = true;
     protected $keyType = 'int';
-    
+
     protected $perPage = 20;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['id_kardex', 'fk_alumno', 'fk_curso', 'fecha_inscri', 'estado', 'promedio', 'oportunidad', 'intento', 'semestre', 'unidades_reprobadas'];
+    protected $fillable = [
+        'fk_alumno',
+        'fk_curso',
+        'fecha_inscri',
+        'estado',
+        'promedio',
+        'oportunidad',
+        'intento',
+        'semestre',
+        'unidades_reprobadas',
+        // Si tu columna existe, descomenta/ajusta:
+        // 'creditos_aprobados',
+    ];
 
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    /** Alumno relacionado (no_control) */
     public function alumno()
     {
         return $this->belongsTo(\App\Models\Alumno::class, 'fk_alumno', 'no_control');
     }
-    
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+
+    /** Curso relacionado (id_curso) */
     public function curso()
     {
         return $this->belongsTo(\App\Models\Curso::class, 'fk_curso', 'id_curso');
