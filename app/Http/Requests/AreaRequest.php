@@ -22,9 +22,14 @@ class AreaRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'nombre_area' => ['required','string','max:60','unique:areas,nombre_area'],
-            'fk_edificio' => ['nullable','integer','exists:edificios,id_edificio'],
-            'fk_jefe'     => ['nullable','integer','exists:profesores,id_profesor','unique:areas,fk_jefe'],
-        ];
+        'nombre_area' => 'required|string|max:60',
+
+        // ANTES (mal):  'exists:edificios,id_edificio'
+        // AHORA (bien):
+        'fk_edificio' => 'required|integer|exists:edificios,edificio',
+
+        // si 'fk_jefe' apunta a profesores.id_profesor:
+        'fk_jefe'     => 'nullable|integer|exists:profesores,id_profesor',
+    ];
     }
 }

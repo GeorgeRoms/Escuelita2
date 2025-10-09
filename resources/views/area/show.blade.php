@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $area->name ?? __('Show') . " " . __('Area') }}
+    {{ $area->name ?? __('Información del') . " " . __('area') }}
 @endsection
 
 @section('content')
@@ -11,32 +11,34 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Area</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('areas.index') }}"> {{ __('Back') }}</a>
+                            <span class="card-title">{{ __('Información del') }} area</span>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Id Area:</strong>
+                                    <strong>Código:</strong>
                                     {{ $area->id_area }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Nombre Area:</strong>
+                                    <strong>Nombre de area:</strong>
                                     {{ $area->nombre_area }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Fk Edificio:</strong>
-                                    {{ $area->fk_edificio }}
+                                    <strong>Edificio / Salón:</strong>
+                                    @php($e = $area->edificio ?? null)
+                                    {{ $e ? ($e->salon ?? $e->edificio ?? $area->fk_edificio) : $area->fk_edificio }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Fk Jefe:</strong>
-                                    {{ $area->fk_jefe }}
+                                    <strong>Jefe de área:</strong>
+                                    @php($j = $area->jefe ?? null)
+                                    {{ $j ? trim($j->nombre.' '.$j->apellido_pat.' '.($j->apellido_mat ?? '')) : '—' }}
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="areas.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

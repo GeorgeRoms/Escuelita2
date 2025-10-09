@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AreaRequest;
 use App\Models\Area;
+use App\Models\Edificio;
+use App\Models\Profesore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\AreaRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -16,7 +18,10 @@ class AreaController extends Controller
      */
     public function index(Request $request): View
     {
-        $areas = Area::paginate();
+        // Cargamos relaciones para evitar N+1 y ordenamos por nombre
+        $areas = Area::with(['edificio', 'jefe'])
+            ->orderBy('nombre_area')
+            ->paginate();
 
         return view('area.index', compact('areas'))
             ->with('i', ($request->input('page', 1) - 1) * $areas->perPage());
@@ -29,7 +34,29 @@ class AreaController extends Controller
     {
         $area = new Area();
 
-        return view('area.create', compact('area'));
+        // Catálogo de edificios: id => etiqueta legible
+        // Asumimos PK = 'edificio' y campo 'salon' (según tu esquema).
+        $edificios = Edificio::orderBy('edificio')->get()
+            ->mapWithKeys(function ($e) {
+                $label = $e->salon ? "Edificio {$e->edificio} — {$e->salon}" : "Edificio {$e->edificio}";
+                return [$e->edificio => $label];
+            });
+
+        // Catálogo de profesores: id_profesor => "Nombre Apellidos"
+        $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
+            ->mapWithKeys(function ($p) {
+                $nom = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
+                return [$p->id_profesor => $nom];
+            });
+
+        // Paso ambos alias para que tus blades funcionen sin cambios
+        return view('area.create', [
+            'area'             => $area,
+            'edificios'        => $edificios,
+            'catalEdificios'   => $edificios,
+            'profesores'       => $profesores,
+            'catalProfesores'  => $profesores,
+        ]);
     }
 
     /**
@@ -40,15 +67,16 @@ class AreaController extends Controller
         Area::create($request->validated());
 
         return Redirect::route('areas.index')
-            ->with('success', 'Area created successfully.');
+            ->with('success', 'Área creada correctamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show(Area $area): View
     {
-        $area = Area::find($id);
+        // Cargamos relaciones para mostrar nombres en el show
+        $area->load(['edificio', 'jefe']);
 
         return view('area.show', compact('area'));
     }
@@ -56,11 +84,28 @@ class AreaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(Area $area): View
     {
-        $area = Area::find($id);
+        // Catálogos (mismo criterio que en create)
+        $edificios = Edificio::orderBy('edificio')->get()
+            ->mapWithKeys(function ($e) {
+                $label = $e->salon ? "Edificio {$e->edificio} — {$e->salon}" : "Edificio {$e->edificio}";
+                return [$e->edificio => $label];
+            });
 
-        return view('area.edit', compact('area'));
+        $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
+            ->mapWithKeys(function ($p) {
+                $nom = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
+                return [$p->id_profesor => $nom];
+            });
+
+        return view('area.edit', [
+            'area'             => $area,
+            'edificios'        => $edificios,
+            'catalEdificios'   => $edificios,
+            'profesores'       => $profesores,
+            'catalProfesores'  => $profesores,
+        ]);
     }
 
     /**
@@ -71,14 +116,17 @@ class AreaController extends Controller
         $area->update($request->validated());
 
         return Redirect::route('areas.index')
-            ->with('success', 'Area updated successfully');
+            ->with('success', 'Área actualizada correctamente.');
     }
 
-    public function destroy($id): RedirectResponse
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Area $area): RedirectResponse
     {
-        Area::find($id)->delete();
+        $area->delete();
 
         return Redirect::route('areas.index')
-            ->with('success', 'Area deleted successfully');
+            ->with('success', 'Área eliminada correctamente.');
     }
 }

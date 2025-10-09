@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactosProfesore;
+use App\Models\Profesore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\ContactosProfesoreRequest;
@@ -16,10 +17,15 @@ class ContactosProfesoreController extends Controller
      */
     public function index(Request $request): View
     {
-        $contactosProfesores = ContactosProfesore::paginate();
+        $contactosProfesores = ContactosProfesore::with('profesor')
+            ->orderBy('id_contacto')->paginate();
 
-        return view('contactos-profesore.index', compact('contactosProfesores'))
-            ->with('i', ($request->input('page', 1) - 1) * $contactosProfesores->perPage());
+        // Paso ambos nombres por si tu blade usa uno u otro
+        return view('contactos-profesore.index', [
+            'contactosProfesores' => $contactosProfesores,
+            'contactos'           => $contactosProfesores,
+            'i'                   => ($request->input('page', 1) - 1) * $contactosProfesores->perPage(),
+        ]);
     }
 
     /**
@@ -29,7 +35,20 @@ class ContactosProfesoreController extends Controller
     {
         $contactosProfesore = new ContactosProfesore();
 
-        return view('contactos-profesore.create', compact('contactosProfesore'));
+        $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
+            ->mapWithKeys(function ($p) {
+                $nom = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
+                return [$p->id_profesor => $nom];
+            });
+
+        return view('contactos-profesore.create', [
+            // objeto del form con varios alias
+            'contactosProfesore' => $contactosProfesore,
+            'contacto'           => $contactosProfesore,
+            // catálogo con dos alias
+            'profesores'        => $profesores,
+            'catalProfesores'   => $profesores,
+        ]);
     }
 
     /**
@@ -38,47 +57,47 @@ class ContactosProfesoreController extends Controller
     public function store(ContactosProfesoreRequest $request): RedirectResponse
     {
         ContactosProfesore::create($request->validated());
-
-        return Redirect::route('contactos-profesores.index')
-            ->with('success', 'ContactosProfesore created successfully.');
+        return redirect()->route('contactos-profesores.index')->with('success', 'Contacto creado.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($id): View
+    public function show(ContactosProfesore $contactos_profesore): View
     {
-        $contactosProfesore = ContactosProfesore::find($id);
+        $contactos_profesore->load('profesor');
 
-        return view('contactos-profesore.show', compact('contactosProfesore'));
+        return view('contactos-profesore.show', [
+            'contactosProfesore' => $contactos_profesore,
+            'contacto'           => $contactos_profesore,
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(ContactosProfesore $contactos_profesore): View
     {
-        $contactosProfesore = ContactosProfesore::find($id);
+        $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
+            ->mapWithKeys(function ($p) {
+                $nom = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
+                return [$p->id_profesor => $nom];
+            });
 
-        return view('contactos-profesore.edit', compact('contactosProfesore'));
+        return view('contactos-profesore.edit', [
+            'contactosProfesore' => $contactos_profesore,
+            'contacto'           => $contactos_profesore,
+            'profesores'         => $profesores,
+            'catalProfesores'    => $profesores,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ContactosProfesoreRequest $request, ContactosProfesore $contactosProfesore): RedirectResponse
+    public function update(ContactosProfesoreRequest $request, ContactosProfesore $contactos_profesore): RedirectResponse
     {
-        $contactosProfesore->update($request->validated());
-
-        return Redirect::route('contactos-profesores.index')
-            ->with('success', 'ContactosProfesore updated successfully');
+        $contactos_profesore->update($request->validated());
+        return redirect()->route('contactos-profesores.index')->with('success', 'Contacto actualizado.');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(ContactosProfesore $contactos_profesore): RedirectResponse
     {
-        ContactosProfesore::find($id)->delete();
-
-        return Redirect::route('contactos-profesores.index')
-            ->with('success', 'ContactosProfesore deleted successfully');
+        $contactos_profesore->delete();
+        return redirect()->route('contactos-profesores.index')->with('success', 'Contacto eliminado.');
     }
 }

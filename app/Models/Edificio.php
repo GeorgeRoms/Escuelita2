@@ -19,19 +19,16 @@ use App\Models\Concerns\HasCustomPrimaryKey;
 class Edificio extends Model
 {
 
-    use HasCustomPrimaryKey;
+    protected $table = 'edificios';
 
+    // Tu PK es 'edificio'
     protected $primaryKey = 'edificio';
-    public $incrementing = false;
-    protected $keyType = 'string';
-    
-    protected $perPage = 20;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    // Si NO es auto-incremental, deja esto en false (por tu DDL parece que no lo es)
+    public $incrementing = true;
+
+    protected $keyType = 'int';
+
     protected $fillable = ['salon'];
 
     public function areas()

@@ -21,20 +21,18 @@ use App\Models\Concerns\HasCustomPrimaryKey;
 class ContactosProfesore extends Model
 {
 
-    use HasCustomPrimaryKey;
-
+    protected $table = 'contactos_profesores';
     protected $primaryKey = 'id_contacto';
     public $incrementing = true;
     protected $keyType = 'int';
-    
-    protected $perPage = 20;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['id_contacto', 'correo', 'telefono', 'direccion'];
+    protected $fillable = ['correo', 'telefono', 'direccion', 'fk_profesor'];
 
+
+    public function profesor()
+    {
+        // Tu modelo de profesor es "Profesore"
+        return $this->belongsTo(\App\Models\Profesore::class, 'fk_profesor', 'id_profesor');
+    }
 
 }

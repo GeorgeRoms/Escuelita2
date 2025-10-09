@@ -1,11 +1,11 @@
 <div class="row padding-1 p-1">
     <div class="col-md-12">
         
-        <div class="form-group mb-2 mb20">
+        {{-- <div class="form-group mb-2 mb20">
             <label for="id_contacto" class="form-label">{{ __('Id Contacto') }}</label>
             <input type="text" name="id_contacto" class="form-control @error('id_contacto') is-invalid @enderror" value="{{ old('id_contacto', $contactosProfesore?->id_contacto) }}" id="id_contacto" placeholder="Id Contacto">
             {!! $errors->first('id_contacto', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
-        </div>
+        </div> --}}
         <div class="form-group mb-2 mb20">
             <label for="correo" class="form-label">{{ __('Correo') }}</label>
             <input type="text" name="correo" class="form-control @error('correo') is-invalid @enderror" value="{{ old('correo', $contactosProfesore?->correo) }}" id="correo" placeholder="Correo">
@@ -22,8 +22,19 @@
             {!! $errors->first('direccion', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
 
+        <div class="form-group mb-2 mb20">
+            <label class="form-label">Profesor</label>
+            <select name="fk_profesor" class="form-select @error('fk_profesor') is-invalid @enderror">
+            <option value="">— Selecciona —</option>
+            @foreach($profesores as $id => $nom)
+            <option value="{{ $id }}" @selected(old('fk_profesor', $contacto?->fk_profesor)==$id)>{{ $nom }}</option>
+            @endforeach
+            </select>
+            {!! $errors->first('fk_profesor','<div class="invalid-feedback">:message</div>') !!}
+        </div>
+
     </div>
     <div class="col-md-12 mt20 mt-2">
-        <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
+        <button type="submit" class="btn btn-primary">{{ __('Guardar') }}</button>
     </div>
 </div>
