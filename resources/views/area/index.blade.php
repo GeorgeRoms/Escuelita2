@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Materias
+    Areas
 @endsection
 
 @section('content')
@@ -13,12 +13,12 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Materias') }}
+                                {{ __('Areas') }}
                             </span>
 
                              <div class="float-right">
-                                <a href="{{ route('materias.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Registrar Materia') }}
+                                <a href="{{ route('areas.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
+                                  {{ __('Create New') }}
                                 </a>
                               </div>
                         </div>
@@ -34,29 +34,33 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Código de materia</th>
-									<th >Nombre de materia</th>
-									<th >Créditos</th>
-									<th >Prerrequisito</th>
+                                        <th>No</th>
+                                        
+									<th >Id Area</th>
+									<th >Nombre Area</th>
+									<th >Fk Edificio</th>
+									<th >Fk Jefe</th>
 
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($materias as $materia)
+                                    @foreach ($areas as $area)
                                         <tr>
-										<td >{{ $materia->id_materia }}</td>
-										<td >{{ $materia->nombre_mat }}</td>
-										<td >{{ $materia->creditos }}</td>
-										<td>{{ $materia->prerrequisito->nombre_mat ?? '—' }}</td>
+                                            <td>{{ ++$i }}</td>
+                                            
+										<td >{{ $area->id_area }}</td>
+										<td >{{ $area->nombre_area }}</td>
+										<td >{{ $area->fk_edificio }}</td>
+										<td >{{ $area->fk_jefe }}</td>
 
                                             <td>
-                                                <form action="{{ route('materias.destroy', $materia->id_materia) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('materias.show', $materia->id_materia) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('materias.edit', $materia->id_materia) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
+                                                <form action="{{ route('areas.destroy', $area->id_area) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('areas.show', $area->id_area) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('areas.edit', $area->id_area) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Está seguro de que quieres borrar la materia?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
@@ -64,12 +68,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex gap-2">
-                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
-                        </div>
                     </div>
                 </div>
-                {!! $materias->withQueryString()->links() !!}
+                {!! $areas->withQueryString()->links() !!}
             </div>
         </div>
     </div>

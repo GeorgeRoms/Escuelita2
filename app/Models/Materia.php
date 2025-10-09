@@ -21,20 +21,35 @@ use App\Models\Concerns\HasCustomPrimaryKey;
 class Materia extends Model
 {
 
-    use HasCustomPrimaryKey;
-
     protected $primaryKey = 'id_materia';
     public $incrementing = true;
     protected $keyType = 'int';
-    
-    protected $perPage = 20;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['id_materia', 'nombre_mat', 'creditos', 'fk_cadena'];
+    protected $fillable = ['nombre_mat','creditos','fk_cadena'];
+
+    // Padre (prerrequisito inmediato)
+    public function prerrequisito()
+    {
+        return $this->belongsTo(self::class, 'fk_cadena', 'id_materia');
+    }
+
+    // Hijas (materias que dependen de esta)
+    public function seriadas()
+    {
+        return $this->hasMany(self::class, 'fk_cadena', 'id_materia');
+    }
+
+    // Cadena de prerrequisitos hacia arriba (A <- B <- C)
+    public function cadenaHaciaArriba(): \Illuminate\Support\Collection
+    {
+        $out = collect();
+        $m = $this->prerrequisito;
+        while ($m) {
+            $out->push($m);
+            $m = $m->prerrequisito;
+        }
+        return $out; // [inmediato, abuelo, ...]
+    }
 
 
 }

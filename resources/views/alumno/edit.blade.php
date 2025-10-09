@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ __('Update') }} Alumno
+    {{ __('Edición de datos del') }} alumno
 @endsection
 
 @section('content')
@@ -11,7 +11,7 @@
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Alumno</span>
+                        <span class="card-title">{{ __('Edición de datos del') }} alumno</span>
                     </div>
                     <div class="card-body bg-white">
                         <form method="POST" action="{{ route('alumnos.update', $alumno->no_control) }}"  role="form" enctype="multipart/form-data">

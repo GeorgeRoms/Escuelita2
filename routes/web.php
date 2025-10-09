@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\AreaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CarreraController;
 use App\Http\Controllers\ContactosAlumnoController;
@@ -28,5 +29,6 @@ Route::resource('historials', HistorialController::class);
 Route::resource('cursos', CursoController::class);
 Route::resource('contactos-alumnos', ContactosAlumnoController::class);
 Route::resource('contactos-profesores', ContactosProfesoreController::class);
+Route::resource('areas', AreaController::class);
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', fn () => redirect()->route('home'));

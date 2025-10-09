@@ -36,7 +36,12 @@ class Profesore extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['id_profesor', 'nombre', 'apellido_pat', 'apellido_mat', 'area', 'tipo'];
+    protected $fillable = ['nombre','apellido_pat','apellido_mat','fk_area','tipo'];
+
+    public function area()
+    {
+        return $this->belongsTo(\App\Models\Area::class, 'fk_area', 'id_area');
+    }
 
 
 }

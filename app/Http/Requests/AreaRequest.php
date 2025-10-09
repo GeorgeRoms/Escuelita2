@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProfesoreRequest extends FormRequest
+class AreaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,9 @@ class ProfesoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nombre'       => ['required','string','max:30'],
-            'apellido_pat' => ['required','string','max:30'],
-            'apellido_mat' => ['nullable','string','max:30'],
-            'fk_area'      => ['required','integer','exists:areas,id_area'],
-            'tipo'         => ['required','string','max:15'],
+			'nombre_area' => ['required','string','max:60','unique:areas,nombre_area'],
+            'fk_edificio' => ['nullable','integer','exists:edificios,id_edificio'],
+            'fk_jefe'     => ['nullable','integer','exists:profesores,id_profesor','unique:areas,fk_jefe'],
         ];
     }
 }

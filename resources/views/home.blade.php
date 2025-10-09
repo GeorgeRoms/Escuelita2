@@ -11,6 +11,7 @@
         ['label' => 'Contactos Alumnos',      'route' => 'contactos-alumnos.index',      'emoji' => '&#x1F4C7;'],
         ['label' => 'Contactos Profesores',   'route' => 'contactos-profesores.index',   'emoji' => '&#x1F4C7;'],
         ['label' => 'Kardex',                 'route' => 'kardexes.index',               'emoji' => '&#x1F4CB;'],
+        ['label' => 'Areas',                 'route' => 'areas.index',               'emoji' => '&#x1F4CB;'],
     ];
 @endphp
 

@@ -32,7 +32,12 @@ class Edificio extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['edificio', 'salon'];
+    protected $fillable = ['salon'];
+
+    public function areas()
+    {
+        return $this->hasMany(\App\Models\Area::class, 'fk_edificio', 'id_edificio');
+    }
 
 
 }

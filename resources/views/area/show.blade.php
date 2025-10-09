@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $materia->name ?? __('Información de') . " " . __('Materia') }}
+    {{ $area->name ?? __('Show') . " " . __('Area') }}
 @endsection
 
 @section('content')
@@ -11,32 +11,32 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Información de') }} Materia</span>
+                            <span class="card-title">{{ __('Show') }} Area</span>
+                        </div>
+                        <div class="float-right">
+                            <a class="btn btn-primary btn-sm" href="{{ route('areas.index') }}"> {{ __('Back') }}</a>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Código de materia:</strong>
-                                    {{ $materia->id_materia }}
+                                    <strong>Id Area:</strong>
+                                    {{ $area->id_area }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Nombre de la materia:</strong>
-                                    {{ $materia->nombre_mat }}
+                                    <strong>Nombre Area:</strong>
+                                    {{ $area->nombre_area }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Número de créditos:</strong>
-                                    {{ $materia->creditos }}
+                                    <strong>Fk Edificio:</strong>
+                                    {{ $area->fk_edificio }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Prerrequisito:</strong>
-                                    {{ $materia->prerrequisito->nombre_mat ?? '—' }}
+                                    <strong>Fk Jefe:</strong>
+                                    {{ $area->fk_jefe }}
                                 </div>
 
-                    </div>
-                    <div class="d-flex gap-2">
-                        <x-back to="materias.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

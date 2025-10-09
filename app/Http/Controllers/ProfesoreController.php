@@ -6,6 +6,7 @@ use App\Models\Profesore;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProfesoreRequest;
+use App\Models\Area;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -16,7 +17,9 @@ class ProfesoreController extends Controller
      */
     public function index(Request $request): View
     {
-        $profesores = Profesore::paginate();
+        $profesores = Profesore::with('area')   // para mostrar nombre de área sin N+1
+            ->orderBy('nombre')
+            ->paginate();
 
         return view('profesore.index', compact('profesores'))
             ->with('i', ($request->input('page', 1) - 1) * $profesores->perPage());
@@ -27,9 +30,10 @@ class ProfesoreController extends Controller
      */
     public function create(): View
     {
-        $profesore = new Profesore();
+        $profesore = new Profesore(); // <- FALTABA
+        $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
 
-        return view('profesore.create', compact('profesore'));
+        return view('profesore.create', compact('profesore', 'catalAreas'));
     }
 
     /**
@@ -39,28 +43,27 @@ class ProfesoreController extends Controller
     {
         Profesore::create($request->validated());
 
-        return Redirect::route('profesores.index')
-            ->with('success', 'Profesore created successfully.');
+        return redirect()->route('profesores.index')
+            ->with('success', 'Profesor creado correctamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show(Profesore $profesore): View
     {
-        $profesore = Profesore::find($id);
-
+        $profesore->load('area');
         return view('profesore.show', compact('profesore'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(Profesore $profesore): View
     {
-        $profesore = Profesore::find($id);
+        $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
 
-        return view('profesore.edit', compact('profesore'));
+        return view('profesore.edit', compact('profesore', 'catalAreas'));
     }
 
     /**
@@ -70,15 +73,15 @@ class ProfesoreController extends Controller
     {
         $profesore->update($request->validated());
 
-        return Redirect::route('profesores.index')
-            ->with('success', 'Profesore updated successfully');
+        return redirect()->route('profesores.index')
+            ->with('success', 'Profesor actualizado.');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(Profesore $profesore): RedirectResponse
     {
-        Profesore::find($id)->delete();
+        $profesore->delete();
 
-        return Redirect::route('profesores.index')
-            ->with('success', 'Profesore deleted successfully');
+        return redirect()->route('profesores.index')
+            ->with('success', 'Profesor eliminado.');
     }
 }

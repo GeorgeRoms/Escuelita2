@@ -13,9 +13,6 @@
                         <div class="float-left">
                             <span class="card-title">{{ __('Información de') }} Carrera</span>
                         </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('carreras.index') }}"> {{ __('Atrás') }}</a>
-                        </div>
                     </div>
 
                     <div class="card-body bg-white">
@@ -33,6 +30,9 @@
                                     {{ $carrera->capacidad }}
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="carreras.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MateriaRequest;
 use App\Models\Materia;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\MateriaRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -14,12 +14,14 @@ class MateriaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request): \Illuminate\View\View
     {
-        $materias = Materia::paginate();
+        $materias = \App\Models\Materia::with('prerrequisito') 
+        ->orderBy('nombre_mat')
+        ->paginate();
 
-        return view('materia.index', compact('materias'))
-            ->with('i', ($request->input('page', 1) - 1) * $materias->perPage());
+    return view('materia.index', compact('materias'))
+        ->with('i', ($request->input('page', 1) - 1) * $materias->perPage());
     }
 
     /**
@@ -27,9 +29,11 @@ class MateriaController extends Controller
      */
     public function create(): View
     {
-        $materia = new Materia();
+        $materia = new Materia(); // <- para que el form tenga el objeto
+        $candidatas = Materia::orderBy('nombre_mat')
+            ->pluck('nombre_mat', 'id_materia'); // [id => nombre]
 
-        return view('materia.create', compact('materia'));
+        return view('materia.create', compact('materia', 'candidatas'));
     }
 
     /**
@@ -38,47 +42,42 @@ class MateriaController extends Controller
     public function store(MateriaRequest $request): RedirectResponse
     {
         Materia::create($request->validated());
-
-        return Redirect::route('materias.index')
-            ->with('success', 'Materia created successfully.');
+        return redirect()->route('materias.index')->with('success', 'Materia creada.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show(Materia $materia): View
     {
-        $materia = Materia::find($id);
-
+        // si quieres ver también el prerrequisito:
+        $materia->load('prerrequisito');
         return view('materia.show', compact('materia'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(Materia $materia): View
     {
-        $materia = Materia::find($id);
+        $candidatas = Materia::where('id_materia', '!=', $materia->id_materia)
+            ->orderBy('nombre_mat')
+            ->pluck('nombre_mat', 'id_materia');
 
-        return view('materia.edit', compact('materia'));
+        return view('materia.edit', compact('materia', 'candidatas'));
     }
-
     /**
      * Update the specified resource in storage.
      */
     public function update(MateriaRequest $request, Materia $materia): RedirectResponse
     {
         $materia->update($request->validated());
-
-        return Redirect::route('materias.index')
-            ->with('success', 'Materia updated successfully');
+        return redirect()->route('materias.index')->with('success', 'Materia actualizada.');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(Materia $materia): RedirectResponse
     {
-        Materia::find($id)->delete();
-
-        return Redirect::route('materias.index')
-            ->with('success', 'Materia deleted successfully');
+        $materia->delete();
+        return redirect()->route('materias.index')->with('success', 'Materia borrada satisfactoriamente.');
     }
 }
