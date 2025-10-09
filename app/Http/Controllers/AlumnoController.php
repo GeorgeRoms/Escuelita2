@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\AlumnoRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\Carrera;
 
 class AlumnoController extends Controller
 {
@@ -25,11 +26,13 @@ class AlumnoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create()
     {
-        $alumno = new Alumno();
+        $alumno = new \App\Models\Alumno();
+        $carreras = Carrera::orderBy('nombre_carr')
+        ->pluck('nombre_carr', 'id_carrera'); // [id => nombre]
 
-        return view('alumno.create', compact('alumno'));
+        return view('alumno.create', compact('alumno','carreras'));
     }
 
     /**
@@ -37,30 +40,28 @@ class AlumnoController extends Controller
      */
     public function store(AlumnoRequest $request): RedirectResponse
     {
-        Alumno::create($request->validated());
-
-        return Redirect::route('alumnos.index')
-            ->with('success', 'Alumno created successfully.');
+        \App\Models\Alumno::create($request->validated());
+        return redirect()->route('alumnos.index')->with('success', 'Alumno creado.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show(\App\Models\Alumno $alumno)
     {
-        $alumno = Alumno::find($id);
-
+        $alumno->load('carrera');  // para evitar N+1
         return view('alumno.show', compact('alumno'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(\App\Models\Alumno $alumno)
     {
-        $alumno = Alumno::find($id);
+        $carreras = Carrera::orderBy('nombre_carr')
+        ->pluck('nombre_carr', 'id_carrera');
 
-        return view('alumno.edit', compact('alumno'));
+        return view('alumno.edit', compact('alumno','carreras'));
     }
 
     /**
@@ -70,8 +71,7 @@ class AlumnoController extends Controller
     {
         $alumno->update($request->validated());
 
-        return Redirect::route('alumnos.index')
-            ->with('success', 'Alumno updated successfully');
+        return redirect()->route('alumnos.index')->with('success', 'Alumno actualizado.');
     }
 
     public function destroy($id): RedirectResponse

@@ -22,12 +22,24 @@ class AlumnoRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'no_control' => 'required',
-			'nombre' => 'required|string',
-			'apellido_pat' => 'required|string',
-			'apellido_mat' => 'required|string',
-			'genero' => 'required|string',
-			'fk_carrera' => 'required',
+            'nombre'        => ['required','string','max:255'],
+            'apellido_pat'  => ['required','string','max:255'],
+            'apellido_mat'  => ['nullable','string','max:255'],
+            'genero'        => ['required','in:M,F'],
+            'fk_carrera'    => ['required','exists:carreras,id_carrera'],
+            'anio'          => ['required','integer','between:2000,2100'],
+            'periodo'       => ['required','integer','in:1,2,3'],
+            // no_control NO se valida porque lo generas en el modelo
         ];
     }
+
+    // (Opcional) mensajes en español
+     public function messages(): array
+     {
+         return [
+             'fk_carrera.exists' => 'La carrera seleccionada no existe.',
+             'genero.in'         => 'El género debe ser M, F u O.',
+             'periodo.in'        => 'Periodo debe ser 1 (Ene-Jun), 2 (Ago-Dic) o 3 (Verano).',
+         ];
+     }
 }
