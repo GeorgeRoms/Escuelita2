@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $edificio->name ?? __('Show') . " " . __('Edificio') }}
+    {{ $edificio->name ?? __('Datos del') . " " . __('edificio') }}
 @endsection
 
 @section('content')
@@ -11,10 +11,7 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Edificio</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('edificios.index') }}"> {{ __('Back') }}</a>
+                            <span class="card-title">{{ __('Datos del') }} edificio</span>
                         </div>
                     </div>
 
@@ -29,6 +26,9 @@
                                     {{ $edificio->salon }}
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="edificios.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

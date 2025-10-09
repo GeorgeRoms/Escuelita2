@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactosAlumno;
+use App\Models\Alumno;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\ContactosAlumnoRequest;
@@ -16,7 +17,9 @@ class ContactosAlumnoController extends Controller
      */
     public function index(Request $request): View
     {
-        $contactosAlumnos = ContactosAlumno::paginate();
+        $contactosAlumnos = ContactosAlumno::with('alumno')  // para mostrar nombre sin N+1
+            ->orderBy('id_contacto')
+            ->paginate();
 
         return view('contactos-alumno.index', compact('contactosAlumnos'))
             ->with('i', ($request->input('page', 1) - 1) * $contactosAlumnos->perPage());
@@ -29,7 +32,14 @@ class ContactosAlumnoController extends Controller
     {
         $contactosAlumno = new ContactosAlumno();
 
-        return view('contactos-alumno.create', compact('contactosAlumno'));
+        // no_control => "no_control — Nombre Apellido"
+        $alumnos = Alumno::orderBy('no_control')->get()
+            ->mapWithKeys(function ($a) {
+                $nombre = trim($a->nombre.' '.$a->apellido_pat.' '.($a->apellido_mat ?? ''));
+                return [$a->no_control => $a->no_control.' — '.$nombre];
+            });
+
+        return view('contactos-alumno.create', compact('contactosAlumno', 'alumnos'));
     }
 
     /**
@@ -39,39 +49,47 @@ class ContactosAlumnoController extends Controller
     {
         ContactosAlumno::create($request->validated());
 
-        return Redirect::route('contactos-alumnos.index')
-            ->with('success', 'ContactosAlumno created successfully.');
+        return redirect()->route('contactos-alumnos.index')
+            ->with('success', 'Contacto creado correctamente.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id): View
+    public function show(ContactosAlumno $contactos_alumno): View
     {
-        $contactosAlumno = ContactosAlumno::find($id);
+        $contactos_alumno->load('alumno');
 
-        return view('contactos-alumno.show', compact('contactosAlumno'));
+        // Ojo: tu vista espera $contactosAlumno
+        return view('contactos-alumno.show', ['contactosAlumno' => $contactos_alumno]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(ContactosAlumno $contactos_alumno): View
     {
-        $contactosAlumno = ContactosAlumno::find($id);
+        $alumnos = Alumno::orderBy('no_control')->get()
+            ->mapWithKeys(function ($a) {
+                $nombre = trim($a->nombre.' '.$a->apellido_pat.' '.($a->apellido_mat ?? ''));
+                return [$a->no_control => $a->no_control.' — '.$nombre];
+            });
 
-        return view('contactos-alumno.edit', compact('contactosAlumno'));
+        return view('contactos-alumno.edit', [
+            'contactosAlumno' => $contactos_alumno,
+            'alumnos'         => $alumnos,
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(ContactosAlumnoRequest $request, ContactosAlumno $contactosAlumno): RedirectResponse
+    public function update(ContactosAlumnoRequest $request, ContactosAlumno $contactos_alumno): RedirectResponse
     {
-        $contactosAlumno->update($request->validated());
+        $contactos_alumno->update($request->validated());
 
-        return Redirect::route('contactos-alumnos.index')
-            ->with('success', 'ContactosAlumno updated successfully');
+        return redirect()->route('contactos-alumnos.index')
+            ->with('success', 'Contacto actualizado correctamente.');
     }
 
     public function destroy($id): RedirectResponse

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $contactosAlumno->name ?? __('Show') . " " . __('Contactos Alumno') }}
+    {{ $contactosAlumno->name ?? __('Contacto del') . " " . __('alumno') }}
 @endsection
 
 @section('content')
@@ -11,17 +11,14 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Contactos Alumno</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('contactos-alumnos.index') }}"> {{ __('Back') }}</a>
+                            <span class="card-title">{{ __('Contacto del') }} alumno</span>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Id Contacto:</strong>
+                                    <strong>Código de contacto:</strong>
                                     {{ $contactosAlumno->id_contacto }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
@@ -33,10 +30,19 @@
                                     {{ $contactosAlumno->telefono }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Direccion:</strong>
+                                    <strong>Dirección:</strong>
                                     {{ $contactosAlumno->direccion }}
                                 </div>
 
+                                <div class="form-group mb-2 mb20">
+                                    <strong>Alumno:</strong>
+                                    @php($a = $contactosAlumno->alumno)
+                                    {{ $a ? $a->no_control.' — '.trim($a->nombre.' '.$a->apellido_pat.' '.($a->apellido_mat ?? '')) : '—' }}
+                                </div>
+
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="contactos-alumnos.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

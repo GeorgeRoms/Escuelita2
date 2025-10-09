@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $curso->name ?? __('Show') . " " . __('Curso') }}
+    {{ $curso->name ?? __('Información del') . " " . __('curso') }}
 @endsection
 
 @section('content')
@@ -11,17 +11,14 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Curso</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('cursos.index') }}"> {{ __('Back') }}</a>
+                            <span class="card-title">{{ __('Información del') }} curso</span>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Id Curso:</strong>
+                                    <strong>Código:</strong>
                                     {{ $curso->id_curso }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
@@ -29,18 +26,28 @@
                                     {{ $curso->cupo }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Fk Materia:</strong>
-                                    {{ $curso->fk_materia }}
+                                    <strong>Materia:</strong>
+                                    {{ $curso->materia->nombre_mat ?? '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Fk Profesor:</strong>
-                                    {{ $curso->fk_profesor }}
+                                    <strong>Profesor:</strong>
+                                    @php($p = $curso->profesor)
+                                    {{ $p ? trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? '')) : '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Fk Edificio:</strong>
-                                    {{ $curso->fk_edificio }}
+                                    <strong>Edificio:</strong>
+                                    @php($e = $curso->edificio)
+                                    @if($e)
+                                    {{-- si tu Edificio tiene id_edificio úsalo; si no, muestra el número de edificio --}}
+                                    {{ ($e->edificio ?? $e->edificio) }} — {{ $e->salon }}
+                                    @else
+                                    —
+                                    @endif
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="cursos.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

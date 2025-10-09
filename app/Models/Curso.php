@@ -36,7 +36,7 @@ class Curso extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['id_curso', 'cupo', 'fk_materia', 'fk_profesor', 'fk_edificio'];
+    protected $fillable = ['cupo', 'fk_materia', 'fk_profesor', 'fk_edificio'];
 
 
     /**
@@ -45,6 +45,29 @@ class Curso extends Model
     public function kardexes()
     {
         return $this->hasMany(\App\Models\Kardex::class, 'id_curso', 'fk_curso');
+    }
+
+    public function materia()
+    {
+        return $this->belongsTo(\App\Models\Materia::class, 'fk_materia', 'id_materia');
+    }
+
+    public function profesor()
+    {
+        // tu modelo se llama Profesore
+        return $this->belongsTo(\App\Models\Profesore::class, 'fk_profesor', 'id_profesor');
+    }
+
+    public function carrera()
+    {
+        return $this->belongsTo(\App\Models\Carrera::class, 'fk_carrera', 'id_carrera');
+    }
+
+    // (opcional) si curso guarda edificio o salón
+    public function edificio()
+    {
+        // cambia 'fk_edificio' y PK de edificios según tu esquema
+        return $this->belongsTo(\App\Models\Edificio::class, 'fk_edificio', 'edificio');
     }
     
 }

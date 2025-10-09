@@ -22,28 +22,17 @@ use App\Models\Concerns\HasCustomPrimaryKey;
 class ContactosAlumno extends Model
 {
 
-    use HasCustomPrimaryKey;
-
+    protected $table = 'contactos_alumnos';
     protected $primaryKey = 'id_contacto';
-    public $incrementing = true;
+    public $incrementing = true;       // funciona perfecto con AUTO_INCREMENT
     protected $keyType = 'int';
-    
-    protected $perPage = 20;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['id_contacto', 'correo', 'telefono', 'direccion'];
+    protected $fillable = ['correo','telefono','direccion','fk_alumno'];
 
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function alumno()
     {
-        return $this->belongsTo(\App\Models\Alumno::class, 'id_contacto', 'no_control');
+        // alumnos.no_control es VARCHAR(24)
+        return $this->belongsTo(\App\Models\Alumno::class, 'fk_alumno', 'no_control');
     }
     
 }

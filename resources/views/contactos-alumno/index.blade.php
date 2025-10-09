@@ -18,7 +18,7 @@
 
                              <div class="float-right">
                                 <a href="{{ route('contactos-alumnos.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
+                                  {{ __('Registrar contacto') }}
                                 </a>
                               </div>
                         </div>
@@ -34,12 +34,11 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
 									<th >Id Contacto</th>
 									<th >Correo</th>
 									<th >Telefono</th>
-									<th >Direccion</th>
+									<th >Dirección</th>
+                                    <th>Alumno</th>
 
                                         <th></th>
                                     </tr>
@@ -47,26 +46,31 @@
                                 <tbody>
                                     @foreach ($contactosAlumnos as $contactosAlumno)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
 										<td >{{ $contactosAlumno->id_contacto }}</td>
 										<td >{{ $contactosAlumno->correo }}</td>
 										<td >{{ $contactosAlumno->telefono }}</td>
 										<td >{{ $contactosAlumno->direccion }}</td>
+                                        <td>
+                                            @php($a = $contactosAlumno->alumno)
+                                            {{ $a ? $a->no_control.' — '.trim($a->nombre.' '.$a->apellido_pat.' '.($a->apellido_mat ?? '')) : '—' }}
+                                        </td>
 
                                             <td>
                                                 <form action="{{ route('contactos-alumnos.destroy', $contactosAlumno->id_contacto) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('contactos-alumnos.show', $contactosAlumno->id_contacto) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('contactos-alumnos.edit', $contactosAlumno->id_contacto) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('contactos-alumnos.show', $contactosAlumno->id_contacto) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('contactos-alumnos.edit', $contactosAlumno->id_contacto) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Está seguro de querer borrar este contacto?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>

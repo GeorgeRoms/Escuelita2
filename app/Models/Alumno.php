@@ -94,7 +94,7 @@ class Alumno extends Model
      */
     public function contactosAlumno()
     {
-        return $this->hasOne(\App\Models\ContactosAlumno::class, 'no_control', 'id_contacto');
+        return $this->hasOne(\App\Models\ContactosAlumno::class, 'fk_alumno', 'no_control');
     }
     
     /**

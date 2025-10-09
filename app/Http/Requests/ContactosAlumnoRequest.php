@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ContactosAlumnoRequest extends FormRequest
 {
@@ -21,11 +22,16 @@ class ContactosAlumnoRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('contactos_alumno')?->id_contacto; // binding
+
         return [
-			'id_contacto' => 'required',
-			'correo' => 'required|string',
-			'telefono' => 'required|string',
-			'direccion' => 'required|string',
+            'correo'   => [
+                'required','email','max:100',
+                Rule::unique('contactos_alumnos','correo')->ignore($id,'id_contacto'),
+            ],
+            'telefono' => ['required','string','max:20'],
+            'direccion'=> ['required','string','max:120'],
+            'fk_alumno'=> ['required','string','max:24','exists:alumnos,no_control'],
         ];
     }
 }

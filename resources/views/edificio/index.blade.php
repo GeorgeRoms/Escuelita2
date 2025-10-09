@@ -13,12 +13,12 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Edificios') }}
+                                {{ __('Edificios/Salones') }}
                             </span>
 
                              <div class="float-right">
                                 <a href="{{ route('edificios.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
+                                  {{ __('Registrar Edificio/Salón') }}
                                 </a>
                               </div>
                         </div>
@@ -34,8 +34,6 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
 									<th >Edificio</th>
 									<th >Salon</th>
 
@@ -45,24 +43,25 @@
                                 <tbody>
                                     @foreach ($edificios as $edificio)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
 										<td >{{ $edificio->edificio }}</td>
 										<td >{{ $edificio->salon }}</td>
 
                                             <td>
                                                 <form action="{{ route('edificios.destroy', $edificio->edificio) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('edificios.show', $edificio->edificio) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('edificios.edit', $edificio->edificio) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('edificios.show', $edificio->edificio) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('edificios.edit', $edificio->edificio) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>
