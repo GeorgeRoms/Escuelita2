@@ -32,3 +32,6 @@ Route::resource('contactos-profesores', ContactosProfesoreController::class);
 Route::resource('areas', AreaController::class);
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', fn () => redirect()->route('home'));
+// Página de error genérico (GET)
+Route::view('/error/general', 'error.general')->name('error.general');
+
