@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Edificio
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Edificio extends Model
 {
+    use SoftDeletes;
     
     protected $perPage = 20;
 
@@ -27,7 +29,8 @@ class Edificio extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['codigo', 'nombre'];
+
+    protected $fillable = ['codigo','nombre'];
 
 
     /**
@@ -35,7 +38,7 @@ class Edificio extends Model
      */
     public function aulas()
     {
-        return $this->hasMany(Aula::class);
+        return $this->hasMany(\App\Models\Aula::class, 'edificio_id');
     }
     
 }

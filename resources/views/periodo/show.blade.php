@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $periodo->name ?? __('Show') . " " . __('Periodo') }}
+    {{ $periodo->name ?? __('Información del') . " " . __('periodo') }}
 @endsection
 
 @section('content')
@@ -11,17 +11,14 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Periodo</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('periodos.index') }}"> {{ __('Back') }}</a>
+                            <span class="card-title">{{ __('Información del') }} periodo</span>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Anio:</strong>
+                                    <strong>Año:</strong>
                                     {{ $periodo->anio }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
@@ -29,6 +26,9 @@
                                     {{ $periodo->nombre }}
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="periodos.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

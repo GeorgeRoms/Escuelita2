@@ -18,7 +18,7 @@
 
                              <div class="float-right">
                                 <a href="{{ route('periodos.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
+                                  {{ __('Registrar periodo') }}
                                 </a>
                               </div>
                         </div>
@@ -34,9 +34,7 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
-									<th >Anio</th>
+									<th >Año</th>
 									<th >Nombre</th>
 
                                         <th></th>
@@ -45,24 +43,25 @@
                                 <tbody>
                                     @foreach ($periodos as $periodo)
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
 										<td >{{ $periodo->anio }}</td>
 										<td >{{ $periodo->nombre }}</td>
 
                                             <td>
                                                 <form action="{{ route('periodos.destroy', $periodo->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('periodos.show', $periodo->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('periodos.edit', $periodo->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('periodos.show', $periodo->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('periodos.edit', $periodo->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Estás seguro de eliminar el periodo?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>

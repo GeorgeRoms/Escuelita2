@@ -2,7 +2,7 @@
     <div class="col-md-12">
         
         <div class="form-group mb-2 mb20">
-            <label for="codigo" class="form-label">{{ __('Codigo') }}</label>
+            <label for="codigo" class="form-label">{{ __('Código') }}</label>
             <input type="text" name="codigo" class="form-control @error('codigo') is-invalid @enderror" value="{{ old('codigo', $edificio?->codigo) }}" id="codigo" placeholder="Codigo">
             {!! $errors->first('codigo', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
@@ -14,6 +14,6 @@
 
     </div>
     <div class="col-md-12 mt20 mt-2">
-        <button type="submit" class="btn btn-primary">{{ __('Submit') }}</button>
+        <button type="submit" class="btn btn-primary">{{ __('Guardar') }}</button>
     </div>
 </div>

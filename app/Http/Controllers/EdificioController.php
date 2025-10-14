@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\EdificioRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class EdificioController extends Controller
 {
@@ -35,12 +36,35 @@ class EdificioController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(EdificioRequest $request): RedirectResponse
+    public function store(EdificioRequest $request)
     {
-        Edificio::create($request->validated());
+        $data = $request->validated();
 
-        return Redirect::route('edificios.index')
-            ->with('success', 'Edificio created successfully.');
+    // ¿Existe (aunque esté borrado lógicamente)?
+    $existente = Edificio::withTrashed()->where('codigo', $data['codigo'])->first();
+
+    if ($existente) {
+        if ($existente->trashed()) {
+            // Reactivar y actualizar datos
+            $existente->restore();
+            $existente->update([
+                'nombre' => $data['nombre'],
+            ]);
+
+            return redirect()->route('edificios.index')
+                ->with('success', 'Edificio reactivado y actualizado.');
+        }
+
+        // Ya existe activo → error amable
+        throw ValidationException::withMessages([
+            'codigo' => 'Ya existe un edificio con este código.',
+        ]);
+    }
+
+    // No existía → crear
+    Edificio::create($data);
+
+    return redirect()->route('edificios.index')->with('success', 'Edificio creado.');
     }
 
     /**
@@ -71,14 +95,17 @@ class EdificioController extends Controller
         $edificio->update($request->validated());
 
         return Redirect::route('edificios.index')
-            ->with('success', 'Edificio updated successfully');
+            ->with('success', 'Edificio actualizado correctamente');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(\App\Models\Edificio $edificio)
     {
-        Edificio::find($id)->delete();
-
-        return Redirect::route('edificios.index')
-            ->with('success', 'Edificio deleted successfully');
+        try {
+            $edificio->delete(); // baja lógica; NO toca las aulas
+            return redirect()->route('edificios.index')->with('success','Edificio deshabilitado.');
+        } catch (\Throwable $e) {
+            return redirect()->route('edificios.index')
+                ->withErrors('No se pudo deshabilitar el edificio: '.$e->getMessage());
+    }
     }
 }

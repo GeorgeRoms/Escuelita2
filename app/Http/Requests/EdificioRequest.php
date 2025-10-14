@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class EdificioRequest extends FormRequest
 {
@@ -21,9 +22,16 @@ class EdificioRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-			'codigo' => 'required|string',
-			'nombre' => 'string',
-        ];
+        $id = $this->route('edificio')?->id;
+
+    return [
+        'codigo' => [
+            'required','string','max:10',
+            Rule::unique('edificios','codigo')
+                ->ignore($id)              // ignora el actual
+                ->whereNull('deleted_at'), // sólo compara contra activos
+        ],
+        'nombre' => ['required','string','max:255'],
+    ];
     }
 }
