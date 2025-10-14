@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * Class Inscripcione
+ *
+ * @property $id
+ * @property $alumno_no_control
+ * @property $curso_id
+ * @property $estado
+ * @property $oportunidad
+ * @property $intento
+ * @property $semestre
+ * @property $created_at
+ * @property $updated_at
+ *
+ * @property Alumno $alumno
+ * @property Curso $curso
+ * @package App
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
+class Inscripcione extends Model
+{
+    
+    protected $perPage = 20;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = ['alumno_no_control', 'curso_id', 'estado', 'oportunidad', 'intento', 'semestre'];
+
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function alumno()
+    {
+        return $this->belongsTo(Alumno::class,'alumno_no_control','no_control');
+    }
+    
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function curso()
+    {
+        return $this->belongsTo(Curso::class,'curso_id','id_curso');
+    }
+    
+}

@@ -5,19 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Edificio
+ * Class Periodo
  *
  * @property $id
- * @property $codigo
+ * @property $anio
  * @property $nombre
  * @property $created_at
  * @property $updated_at
  *
- * @property Aula[] $aulas
+ * @property Curso[] $cursos
  * @package App
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
-class Edificio extends Model
+class Periodo extends Model
 {
     
     protected $perPage = 20;
@@ -27,15 +27,15 @@ class Edificio extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['codigo', 'nombre'];
+    protected $fillable = ['anio', 'nombre'];
 
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function aulas()
+    public function cursos()
     {
-        return $this->hasMany(Aula::class);
+        return $this->hasMany(Curso::class,'periodo_id');
     }
     
 }

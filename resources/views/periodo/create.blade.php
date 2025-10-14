@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ __('Create') }} Edificio
+    {{ __('Create') }} Periodo
 @endsection
 
 @section('content')
@@ -11,13 +11,13 @@
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Create') }} Edificio</span>
+                        <span class="card-title">{{ __('Create') }} Periodo</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('edificios.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('periodos.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
-                            @include('edificio.form')
+                            @include('periodo.form')
 
                         </form>
                     </div>

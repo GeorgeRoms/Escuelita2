@@ -7,19 +7,31 @@
         ['label' => 'Carreras',               'route' => 'carreras.index',               'emoji' => '&#x1F393;'],
         ['label' => 'Alumnos',                'route' => 'alumnos.index',                'emoji' => '&#x1F465;'],
         ['label' => 'Materias',               'route' => 'materias.index',               'emoji' => '&#x1F4DA;'],
+
+        // Oferta académica
         ['label' => 'Cursos',                 'route' => 'cursos.index',                 'emoji' => '&#x1F4DD;'],
-        ['label' => 'Profesores',             'route' => 'profesores.index',             'emoji' => '&#x1F9D1;&#x200D;&#x1F3EB;'],
+        ['label' => 'Aulas',                  'route' => 'aulas.index',                  'emoji' => '&#x1F3EB;'],
         ['label' => 'Edificios',              'route' => 'edificios.index',              'emoji' => '&#x1F3E2;'],
+        ['label' => 'Periodos',               'route' => 'periodos.index',               'emoji' => '&#x1F4C5;'],
+
+        // Operación principal
+        ['label' => 'Inscripciones',          'route' => 'inscripciones.index',          'emoji' => '&#x270D;&#xFE0F;'],
+
+        // (Opcional) Módulos nuevos recomendados
+        ['label' => 'Carreras por Alumno',    'route' => 'alumno-carreras.index',         'emoji' => '&#x1F517;'],
+
+
+        // Otros existentes
+        ['label' => 'Profesores',             'route' => 'profesores.index',             'emoji' => '&#x1F9D1;&#x200D;&#x1F3EB;'],
         ['label' => 'Contactos Alumnos',      'route' => 'contactos-alumnos.index',      'emoji' => '&#x1F4C7;'],
         ['label' => 'Contactos Profesores',   'route' => 'contactos-profesores.index',   'emoji' => '&#x1F4C7;'],
-        ['label' => 'Kardex',                 'route' => 'kardexes.index',               'emoji' => '&#x1F4CB;'],
         ['label' => 'Áreas',                  'route' => 'areas.index',                  'emoji' => '&#x1F4C1;'],
+        
     ];
 @endphp
 
 @section('content')
 
-{{-- Estilito rápido usando las variables del layout --}}
 <style>
     .home-hero{
         background: linear-gradient(135deg, var(--brand) 0%, var(--brand-3) 60%);
@@ -46,7 +58,7 @@
             <img src="{{ asset('images/escuelita-logo2.png') }}" alt="Escuelita" width="100" height="100" class="rounded-1">
             <div>
                 <h1 class="h3 mb-1">Panel principal</h1>
-                <p class="mb-0 opacity-75">Elige un módulo para administrar.</p>
+                <p class="mb-0 opacity-75">Administra carreras, oferta (cursos, aulas, periodos) e inscripciones.</p>
             </div>
         </div>
 
@@ -81,4 +93,5 @@
     @endforeach
 </div>
 @endsection
+
 

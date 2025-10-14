@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Edificios
+    Alumno Carreras
 @endsection
 
 @section('content')
@@ -13,11 +13,11 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Edificios') }}
+                                {{ __('Alumno Carreras') }}
                             </span>
 
                              <div class="float-right">
-                                <a href="{{ route('edificios.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
+                                <a href="{{ route('alumno-carreras.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
                                   {{ __('Create New') }}
                                 </a>
                               </div>
@@ -36,24 +36,30 @@
                                     <tr>
                                         <th>No</th>
                                         
-									<th >Codigo</th>
-									<th >Nombre</th>
+									<th >Alumno No Control</th>
+									<th >Carrera Id</th>
+									<th >Estatus</th>
+									<th >Fecha Inicio</th>
+									<th >Fecha Fin</th>
 
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($edificios as $edificio)
+                                    @foreach ($alumnoCarreras as $alumnoCarrera)
                                         <tr>
                                             <td>{{ ++$i }}</td>
                                             
-										<td >{{ $edificio->codigo }}</td>
-										<td >{{ $edificio->nombre }}</td>
+										<td >{{ $alumnoCarrera->alumno_no_control }}</td>
+										<td >{{ $alumnoCarrera->carrera_id }}</td>
+										<td >{{ $alumnoCarrera->estatus }}</td>
+										<td >{{ $alumnoCarrera->fecha_inicio }}</td>
+										<td >{{ $alumnoCarrera->fecha_fin }}</td>
 
                                             <td>
-                                                <form action="{{ route('edificios.destroy', $edificio->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('edificios.show', $edificio->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('edificios.edit', $edificio->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                <form action="{{ route('alumno-carreras.destroy', $alumnoCarrera->id) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('alumno-carreras.show', $alumnoCarrera->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('alumno-carreras.edit', $alumnoCarrera->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
@@ -66,7 +72,7 @@
                         </div>
                     </div>
                 </div>
-                {!! $edificios->withQueryString()->links() !!}
+                {!! $alumnoCarreras->withQueryString()->links() !!}
             </div>
         </div>
     </div>

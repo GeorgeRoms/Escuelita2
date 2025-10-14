@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $edificio->name ?? __('Show') . " " . __('Edificio') }}
+    {{ $aula->name ?? __('Show') . " " . __('Aula') }}
 @endsection
 
 @section('content')
@@ -11,22 +11,22 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Edificio</span>
+                            <span class="card-title">{{ __('Show') }} Aula</span>
                         </div>
                         <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('edificios.index') }}"> {{ __('Back') }}</a>
+                            <a class="btn btn-primary btn-sm" href="{{ route('aulas.index') }}"> {{ __('Back') }}</a>
                         </div>
                     </div>
 
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Codigo:</strong>
-                                    {{ $edificio->codigo }}
+                                    <strong>Edificio Id:</strong>
+                                    {{ $aula->edificio_id }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Nombre:</strong>
-                                    {{ $edificio->nombre }}
+                                    <strong>Salon:</strong>
+                                    {{ $aula->salon }}
                                 </div>
 
                     </div>

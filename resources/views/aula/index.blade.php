@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    Edificios
+    Aulas
 @endsection
 
 @section('content')
@@ -13,11 +13,11 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Edificios') }}
+                                {{ __('Aulas') }}
                             </span>
 
                              <div class="float-right">
-                                <a href="{{ route('edificios.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
+                                <a href="{{ route('aulas.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
                                   {{ __('Create New') }}
                                 </a>
                               </div>
@@ -36,24 +36,24 @@
                                     <tr>
                                         <th>No</th>
                                         
-									<th >Codigo</th>
-									<th >Nombre</th>
+									<th >Edificio Id</th>
+									<th >Salon</th>
 
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($edificios as $edificio)
+                                    @foreach ($aulas as $aula)
                                         <tr>
                                             <td>{{ ++$i }}</td>
                                             
-										<td >{{ $edificio->codigo }}</td>
-										<td >{{ $edificio->nombre }}</td>
+										<td >{{ $aula->edificio_id }}</td>
+										<td >{{ $aula->salon }}</td>
 
                                             <td>
-                                                <form action="{{ route('edificios.destroy', $edificio->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('edificios.show', $edificio->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('edificios.edit', $edificio->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                <form action="{{ route('aulas.destroy', $aula->id) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('aulas.show', $aula->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('aulas.edit', $aula->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
@@ -66,7 +66,7 @@
                         </div>
                     </div>
                 </div>
-                {!! $edificios->withQueryString()->links() !!}
+                {!! $aulas->withQueryString()->links() !!}
             </div>
         </div>
     </div>

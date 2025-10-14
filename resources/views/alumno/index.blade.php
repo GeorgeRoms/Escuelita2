@@ -29,6 +29,14 @@
                         </div>
                     @endif
 
+                    @if ($errors->any())
+                        <div class="alert alert-success m-4">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $e) <li>{{ $e }}</li> @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="card-body bg-white">
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">
@@ -52,7 +60,7 @@
 										<td >{{ $alumno->apellido_pat }}</td>
 										<td >{{ $alumno->apellido_mat }}</td>
 										<td >{{ $alumno->genero }}</td>
-										<td >{{ $alumno->carrera->nombre_carr ?? '—' }}</td>
+										<td >{{ $alumno->carreras->pluck('nombre_carr')->implode(', ') ?: '—' }}</td>
 
                                             <td>
                                                 <form action="{{ route('alumnos.destroy', $alumno->no_control) }}" method="POST">

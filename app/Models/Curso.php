@@ -69,5 +69,20 @@ class Curso extends Model
         // cambia 'fk_edificio' y PK de edificios según tu esquema
         return $this->belongsTo(\App\Models\Edificio::class, 'fk_edificio', 'edificio');
     }
+
+    public function aula()
+    { 
+        return $this->belongsTo(Aula::class,'aula_id'); 
+    }
+
+    public function periodo()
+    { 
+        return $this->belongsTo(Periodo::class,'periodo_id'); 
+    }
+
+    public function inscripciones()
+    { 
+        return $this->hasMany(Inscripcione::class,'curso_id','id_curso'); 
+    }
     
 }
