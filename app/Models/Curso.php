@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\HasCustomPrimaryKey;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Curso
@@ -24,7 +25,9 @@ class Curso extends Model
 {
 
     use HasCustomPrimaryKey;
+    use SoftDeletes;
 
+    protected $table = 'cursos';
     protected $primaryKey = 'id_curso';
     public $incrementing = true;
     protected $keyType = 'int';
@@ -36,7 +39,15 @@ class Curso extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['cupo', 'fk_materia', 'fk_profesor', 'fk_edificio'];
+    protected $fillable = [
+        'cupo',
+        'fk_materia',
+        'fk_profesor',
+        'aula_id',
+        'periodo_id',
+        'turno',
+        'grupo',
+    ];
 
 
     /**
@@ -82,7 +93,7 @@ class Curso extends Model
 
     public function inscripciones()
     { 
-        return $this->hasMany(Inscripcione::class,'curso_id','id_curso'); 
+        return $this->hasMany(\App\Models\Inscripcione::class,'curso_id','id_curso');
     }
     
 }

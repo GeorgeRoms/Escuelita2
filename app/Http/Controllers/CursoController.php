@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Curso;
+use App\Models\Aula;
+use App\Models\Profesor;
+use App\Models\Periodo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Requests\CursoRequest;
@@ -11,16 +14,22 @@ use Illuminate\View\View;
 use App\Models\Materia;
 use App\Models\Profesore;
 use App\Models\Edificio;
+use Illuminate\Support\Facades\DB;
 
 class CursoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): \Illuminate\View\View
+    public function index(Request $request)
     {
-        $cursos = \App\Models\Curso::with(['materia','profesor','carrera']) // agrega 'edificio' si aplica
-            ->orderBy('id_curso') // o el campo que uses
+        $cursos = Curso::with([
+                'materia',
+                'profesor',
+                'aula.edificio',   // aula + edificio (join implícito por relación)
+                'periodo',
+            ])
+            ->orderBy('id_curso')
             ->paginate();
 
         return view('curso.index', compact('cursos'))
@@ -34,40 +43,47 @@ class CursoController extends Controller
     {
         $curso = new \App\Models\Curso();
 
-    $materias = Materia::orderBy('nombre_mat')
-        ->pluck('nombre_mat', 'id_materia'); // [id => nombre]
+        // Materias
+        $materias = Materia::orderBy('nombre_mat')
+            ->pluck('nombre_mat', 'id_materia');
 
-    // nombre completo del profe
-    $profesores = Profesore::query()
-        ->orderBy('nombre')
-        ->orderBy('apellido_pat')
-        ->get()
-        ->mapWithKeys(function ($p) {
-            $nombre = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
-            return [$p->id_profesor => $nombre];
-        });
+        // Profesores (nombre completo)
+        $profesores = Profesore::query()
+            ->orderBy('apellido_pat')
+            ->orderBy('apellido_mat')
+            ->orderBy('nombre')
+            ->get()
+            ->mapWithKeys(function ($p) {
+                $nombre = trim($p->apellido_pat.' '.$p->apellido_mat.', '.$p->nombre);
+                return [$p->id_profesor => $nombre];
+            });
 
-    // Si tu tabla edificios NO tiene id_edificio, usa 'edificio' como clave:
-    $edificios = Edificio::orderBy('edificio')->orderBy('salon')->get()
-        ->mapWithKeys(function ($e) {
-            $label = 'Edif '.$e->edificio.' — Salón '.$e->salon;
-            // usa $e->id_edificio si lo tienes; si no, usa $e->edificio
-            $value = property_exists($e, 'id_edificio') ? $e->id_edificio : $e->edificio;
-            return [$value => $label];
-        });
+        // Aulas: "A - 101" (join edificios)
+        $aulas = \App\Models\Aula::join('edificios','edificios.id','=','aulas.edificio_id')
+            ->orderBy('edificios.codigo')
+            ->orderBy('aulas.salon')
+            ->get([
+                'aulas.id',
+                DB::raw("CONCAT(edificios.codigo,' - ',aulas.salon) AS label")
+                ])->pluck('label','id'); // [id => "A - 101"]
+                
+                // Periodos (si los usas en el form)
+                $periodos = \App\Models\Periodo::orderBy('anio','desc')->orderBy('nombre')
+                ->get()
+                ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
 
-    return view('curso.create', compact('curso','materias','profesores','edificios'));
+                return view('curso.create', compact('curso','materias','profesores','aulas','periodos'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(CursoRequest $request): RedirectResponse
+    public function store(CursoRequest $request)
     {
-        Curso::create($request->validated());
+        $data = $request->validated();
+        Curso::create($data);
 
-        return Redirect::route('cursos.index')
-            ->with('success', 'Curso created successfully.');
+        return redirect()->route('cursos.index')->with('success','Curso creado correctamente.');
     }
 
     /**
@@ -75,7 +91,7 @@ class CursoController extends Controller
      */
     public function show(\App\Models\Curso $curso)
     {
-        $curso->load(['materia','profesor','edificio']); // agrega 'carrera' si la tienes
+        $curso->load(['materia','profesor','aula.edificio','periodo']); // agrega 'carrera' si la tienes
         return view('curso.show', compact('curso'));
     }
 
@@ -83,42 +99,65 @@ class CursoController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(\App\Models\Curso $curso)
-    {
-        // mismas listas que en create()
-    $materias = Materia::orderBy('nombre_mat')->pluck('nombre_mat', 'id_materia');
+{
+    // Materias
+    $materias = \App\Models\Materia::orderBy('nombre_mat')
+        ->pluck('nombre_mat', 'id_materia');
 
-    $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
+    // Profesores: nombre completo
+    $profesores = \App\Models\Profesore::query()
+        ->orderBy('apellido_pat')->orderBy('apellido_mat')->orderBy('nombre')
+        ->get()
         ->mapWithKeys(function ($p) {
-            $nombre = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
+            $nombre = trim($p->apellido_pat.' '.$p->apellido_mat.', '.$p->nombre);
             return [$p->id_profesor => $nombre];
         });
 
-    $edificios = Edificio::orderBy('edificio')->orderBy('salon')->get()
-        ->mapWithKeys(function ($e) {
-            $label = 'Edif '.$e->edificio.' — Salón '.$e->salon;
-            $value = property_exists($e, 'id_edificio') ? $e->id_edificio : $e->edificio;
-            return [$value => $label];
-        });
+    // Aulas: "CODIGO - SALON" (e.g., "A - 101")
+    $aulas = \App\Models\Aula::join('edificios','edificios.id','=','aulas.edificio_id')
+        ->orderBy('edificios.codigo')->orderBy('aulas.salon')
+        ->get([
+            'aulas.id',
+            DB::raw("CONCAT(edificios.codigo,' - ',aulas.salon) AS label")
+        ])
+        ->pluck('label','id'); // [id => "A - 101"]
 
-    return view('curso.edit', compact('curso','materias','profesores','edificios'));
-    }
+    // Periodos (si los usas en el form)
+    $periodos = \App\Models\Periodo::orderBy('anio','desc')->orderBy('nombre')
+        ->get()
+        ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
+
+    return view('curso.edit', compact('curso','materias','profesores','aulas','periodos'));
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(CursoRequest $request, Curso $curso): RedirectResponse
+    public function update(CursoRequest $request, Curso $curso)
     {
-        $curso->update($request->validated());
+        $data = $request->validated();
+        $curso->fill($data)->save();
 
-        return Redirect::route('cursos.index')
-            ->with('success', 'Curso updated successfully');
+        return redirect()->route('cursos.index')->with('success','Curso actualizado.');
     }
 
-    public function destroy($id): RedirectResponse
-    {
-        Curso::find($id)->delete();
+    public function destroy(\App\Models\Curso $curso)
+{
+    try {
+        DB::transaction(function () use ($curso) {
+            // (opcional) marca las inscripciones como "Baja/Cancelado"
+            DB::table('inscripciones')
+              ->where('curso_id', $curso->id_curso)
+              ->update(['estado' => 'Baja', 'updated_at' => now()]);
 
-        return Redirect::route('cursos.index')
-            ->with('success', 'Curso deleted successfully');
+            // Soft delete del curso (no rompe FKs)
+            $curso->delete();
+        });
+
+        return redirect()->route('cursos.index')->with('success','Curso cancelado');
+    } catch (\Throwable $e) {
+        return redirect()->route('cursos.index')
+            ->withErrors('No se pudo cancelar el curso: '.$e->getMessage());
     }
+}
 }

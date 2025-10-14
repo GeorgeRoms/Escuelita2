@@ -25,7 +25,7 @@
             {!! $errors->first('fk_materia', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
         <div class="form-group mb-2 mb20">
-            <label for="fk_profesor" class="form-label">{{ __('Fk Profesor') }}</label>
+            <label for="fk_profesor" class="form-label">{{ __('Profesor') }}</label>
             <select name="fk_profesor" id="fk_profesor"
               class="form-select @error('fk_profesor') is-invalid @enderror" required>
             <option value="">Selecciona…</option>
@@ -38,17 +38,26 @@
             {!! $errors->first('fk_profesor', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div>
         <div class="form-group mb-2 mb20">
-            <label for="fk_edificio" class="form-label">{{ __('Fk Edificio') }}</label>
-            <select name="fk_edificio" id="fk_edificio"
-              class="form-select @error('fk_edificio') is-invalid @enderror" required>
-            <option value="">Selecciona…</option>
-            @foreach($edificios as $id => $label)
-            <option value="{{ $id }}" @selected(old('fk_edificio', $curso?->fk_edificio) == $id)>
+            <label for="aula_id" class="form-label">{{ __('Edificio - Aula') }}</label>
+            <select name="aula_id" id="aula_id"
+              class="form-select @error('aula_id') is-invalid @enderror" required>
+            <option value="">— Sin aula asignada —</option>
+            @foreach($aulas as $id => $label)
+            <option value="{{ $id }}" @selected(old('aula_id', $curso->aula_id ?? null) == $id)>
             {{ $label }}
             </option>
             @endforeach
             </select>
-            {!! $errors->first('fk_edificio', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+            @error('aula_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+        </div>
+        <div class="form-group mb-2 mb20">
+            <label class="form-label">Periodo</label>
+            <select name="periodo_id" class="form-select">
+            <option value="">— Sin periodo —</option>
+            @foreach($periodos as $id => $label)
+            <option value="{{ $id }}" @selected(old('periodo_id', $curso->periodo_id) == $id)>{{ $label }}</option>
+            @endforeach
+        </select>
         </div>
 
     </div>

@@ -35,19 +35,20 @@
                                     {{ $p ? trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? '')) : '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Edificio:</strong>
-                                    @php($e = $curso->edificio)
-                                    @if($e)
-                                    {{-- si tu Edificio tiene id_edificio úsalo; si no, muestra el número de edificio --}}
-                                    {{ ($e->edificio ?? $e->edificio) }} — {{ $e->salon }}
-                                    @else
-                                    —
-                                    @endif
+                                    <strong>Aula:</strong>
+                                    @php($a = $curso->aula)
+                                    @php($e = $a?->edificio)
+                                    {{ $a && $e ? ($e->codigo.' - '.$a->salon) : '—' }}
                                 </div>
-
-                    </div>
-                    <div class="d-flex gap-2">
+                                
+                                <div class="form-group mb-2 mb20">
+                                    <strong>Periodo:</strong>
+                                    {{ $curso->periodo ? ($curso->periodo->anio.' '.$curso->periodo->nombre) : '—' }}
+                                </div>
+                        </div>
+                        <div class="d-flex gap-2">
                         <x-back to="cursos.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
+                    </div>
                     </div>
                 </div>
             </div>

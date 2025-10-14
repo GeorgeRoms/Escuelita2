@@ -22,10 +22,13 @@ class CursoRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'fk_materia'  => ['required','integer','exists:materias,id_materia'],
-            'fk_profesor' => ['required','integer','exists:profesores,id_profesor'],
-            'fk_edificio' => ['required','integer','exists:edificios,edificio'],
-            'cupo'        => ['required','integer','min:1'],
+			'fk_materia' => ['required','exists:materias,id_materia'],
+            'fk_profesor'=> ['required','exists:profesores,id_profesor'],
+            'aula_id'     => ['nullable','integer','exists:aulas,id'],
+            'periodo_id'  => ['nullable','integer','exists:periodos,id'],
+            'turno'      => ['nullable','in:Matutino,Vespertino,Nocturno'],
+            'cupo'       => ['required','integer','min:1'],
+            'grupo'       => ['nullable','string','max:10'],
         ];
     }
 }

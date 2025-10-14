@@ -22,7 +22,7 @@
                         </form>
                     </div>
                     <div class="d-flex gap-2">
-                        <x-back to="cursos.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
+                        <x-back to="cursos.index" label="Cancelar" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

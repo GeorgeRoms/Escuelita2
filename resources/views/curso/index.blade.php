@@ -38,12 +38,19 @@
 									<th >Cupo</th>
 									<th >Materia</th>
 									<th >Profesor</th>
-									<th >Edificio</th>
+									<th>Aula</th>
+                                    <th>Periodo</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($cursos as $curso)
+                                    @php
+                                    $p = $curso->profesor;
+                                    $a = $curso->aula;
+                                    $e = $a?->edificio;
+                                    $periodoLabel = $curso->periodo ? ($curso->periodo->nombre.' '.$curso->periodo->anio) : '—';
+                                    @endphp
                                         <tr>
 										<td >{{ $curso->id_curso }}</td>
 										<td >{{ $curso->cupo }}</td>
@@ -51,7 +58,8 @@
 										<td >@php $p = $curso->profesor; @endphp
                                             {{ $p ? trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? '')) : '—' }}
                                         </td>
-										<td >{{ $curso->fk_edificio }}</td>
+										<td >{{ $a && $e ? ($e->codigo.' - '.$a->salon) : '—' }}</td>
+                                        <td>{{ $periodoLabel }}</td>
 
                                             <td>
                                                 <form action="{{ route('cursos.destroy', $curso->id_curso) }}" method="POST">
@@ -59,7 +67,7 @@
                                                     <a class="btn btn-sm btn-success" href="{{ route('cursos.edit', $curso->id_curso) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Está seguro de querer borrar curso?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Está seguro de querer cancelar el curso?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Cancelar') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
