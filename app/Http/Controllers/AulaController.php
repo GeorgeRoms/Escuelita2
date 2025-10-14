@@ -14,12 +14,22 @@ class AulaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $aulas = Aula::paginate();
+        $aulas = \App\Models\Aula::with('edificio')
+            ->join('edificios','edificios.id','=','aulas.edificio_id') // sólo para ordenar bonito
+            ->orderBy('edificios.codigo')->orderBy('aulas.salon')
+            ->select('aulas.*') // importante para no romper el paginator
+            ->paginate();
 
         return view('aula.index', compact('aulas'))
             ->with('i', ($request->input('page', 1) - 1) * $aulas->perPage());
+    }
+    private function catalogoEdificios(): array
+    {
+        return \App\Models\Edificio::orderBy('codigo')->orderBy('nombre')->get()
+            ->mapWithKeys(fn($e) => [$e->id => ($e->codigo.' — '.$e->nombre)])
+            ->toArray();
     }
 
     /**
@@ -27,9 +37,9 @@ class AulaController extends Controller
      */
     public function create(): View
     {
-        $aula = new Aula();
-
-        return view('aula.create', compact('aula'));
+        $aula = new \App\Models\Aula();
+        $edificios = $this->catalogoEdificios();
+        return view('aula.create', compact('aula','edificios'));
     }
 
     /**
@@ -37,8 +47,11 @@ class AulaController extends Controller
      */
     public function store(AulaRequest $request)
     {
-        \App\Models\Aula::create($request->validated());
-        return back()->with('ok','Aula creada.');
+        Aula::create($request->validated());
+
+        return redirect()
+            ->route('aulas.index')
+            ->with('success', 'Aula registrada correctamente.');
     }
 
     /**
@@ -54,22 +67,22 @@ class AulaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(\App\Models\Aula $aula)
     {
-        $aula = Aula::find($id);
-
-        return view('aula.edit', compact('aula'));
+        $edificios = $this->catalogoEdificios();
+        return view('aula.edit', compact('aula','edificios'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(AulaRequest $request, Aula $aula): RedirectResponse
+    public function update(AulaRequest $request, Aula $aula)
     {
         $aula->update($request->validated());
 
-        return Redirect::route('aulas.index')
-            ->with('success', 'Aula updated successfully');
+        return redirect()
+            ->route('aulas.index')
+            ->with('success', 'Aula actualizada.');
     }
 
     public function destroy($id): RedirectResponse

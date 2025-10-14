@@ -23,10 +23,8 @@ class AulaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'edificio_id' => ['required','exists:edificios,id'],
-            'salon' => ['required','max:20',
-            Rule::unique('aulas')->where(fn($q)=>$q->where('edificio_id',$this->edificio_id))
-            ],
+            'edificio_id' => ['required','integer','exists:edificios,id'],
+            'salon'       => ['required','string','max:20'],
         ];
     }
 }
