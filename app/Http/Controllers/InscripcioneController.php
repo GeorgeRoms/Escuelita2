@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use App\Http\Requests\InscripcioneRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use App\Models\Alumno;
+use App\Models\Curso;
+use Illuminate\Database\QueryException;
 
 class InscripcioneController extends Controller
 {
@@ -25,11 +28,14 @@ class InscripcioneController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create()
     {
         $inscripcione = new Inscripcione();
 
-        return view('inscripcione.create', compact('inscripcione'));
+        [$alumnos, $cursos] = $this->catalogosInscripciones();
+
+        // importante: pasar ambos a la vista
+        return view('inscripcione.create', compact('inscripcione','alumnos','cursos'));
     }
 
     /**
@@ -38,15 +44,28 @@ class InscripcioneController extends Controller
     public function store(InscripcioneRequest $request)
     {
         $data = $request->validated();
-        $insc = \App\Models\Inscripcione::firstOrCreate(
-            ['alumno_no_control'=>$data['alumno_no_control'], 'curso_id'=>$data['curso_id']],
-            ['fecha'=>$data['fecha'] ?? now()->toDateString(), 'estatus'=>$data['estatus'] ?? 'Inscrito']
+
+        // ✅ Evita duplicar la misma inscripción (alumno + curso)
+        $ins = Inscripcione::firstOrCreate(
+            ['alumno_no_control' => $data['alumno_no_control'], 'curso_id' => $data['curso_id']],
+            [
+                'estado'              => $data['estado'],
+                'intento'             => $data['intento'],
+                'semestre'            => $data['semestre'] ?? null,
+            ]
         );
-        return back()->with('ok','Inscripción registrada.');
+
+        // Si ya existía, puedes decidir actualizar o avisar:
+        if (!$ins->wasRecentlyCreated) {
+            return redirect()->route('inscripciones.index')
+                ->withErrors('El alumno ya está inscrito en ese curso.');
+        }
+
+        return redirect()->route('inscripciones.index')->with('success','Inscripción registrada.');
     }
 
-    /**
-     * Display the specified resource.
+        /**
+        * Display the specified resource.
      */
     public function show($id): View
     {
@@ -58,29 +77,71 @@ class InscripcioneController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id): View
+    public function edit(Inscripcione $inscripcione)
     {
-        $inscripcione = Inscripcione::find($id);
+        [$alumnos, $cursos] = $this->catalogosInscripciones();
 
-        return view('inscripcione.edit', compact('inscripcione'));
+        return view('inscripcione.edit', compact('inscripcione','alumnos','cursos'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(InscripcioneRequest $request, Inscripcione $inscripcione): RedirectResponse
+    public function update(InscripcioneRequest $request, Inscripcione $inscripcione)
     {
-        $inscripcione->update($request->validated());
+        $data = $request->validated();
 
-        return Redirect::route('inscripciones.index')
-            ->with('success', 'Inscripcione updated successfully');
+        // Proteger duplicado al editar (alumno+curso únicos)
+        $exist = Inscripcione::where('alumno_no_control',$data['alumno_no_control'])
+            ->where('curso_id',$data['curso_id'])
+            ->where('id','<>',$inscripcione->id)
+            ->exists();
+
+        if ($exist) {
+            return back()->withErrors('Ya existe una inscripción con ese alumno y curso.')->withInput();
+        }
+
+        $inscripcione->update($data);
+
+        return redirect()->route('inscripciones.index')->with('success','Inscripción actualizada.');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(Inscripcione $inscripcione)
     {
-        Inscripcione::find($id)->delete();
-
-        return Redirect::route('inscripciones.index')
-            ->with('success', 'Inscripcione deleted successfully');
+        $inscripcione->delete();
+        return redirect()->route('inscripciones.index')->with('success','Inscripción eliminada.');
     }
+
+    private function catalogosInscripciones(): array
+{
+    // Alumnos: NOCTRL — Nombre Apellidos
+    $alumnos = Alumno::orderBy('apellido_pat')
+        ->orderBy('apellido_mat')
+        ->orderBy('nombre')
+        ->get()
+        ->mapWithKeys(fn($a) => [
+            $a->no_control => $a->no_control.' — '.$a->nombre.' '.$a->apellido_pat.' '.($a->apellido_mat ?? '')
+        ]);
+
+    // Cursos: id — Materia (Profe) [Edif - Aula] {Año Periodo}
+    $cursos = Curso::with(['materia','profesor','aula.edificio','periodo'])
+        ->orderBy('id_curso')
+        ->get()
+        ->mapWithKeys(function($c){
+            $ma = $c->materia?->nombre_mat;
+            $pr = trim(($c->profesor->nombre ?? '').' '.($c->profesor->apellido_pat ?? ''));
+            $ed = $c->aula?->edificio?->codigo;
+            $au = $c->aula?->salon;
+            $pe = $c->periodo ? ($c->periodo->anio.' '.$c->periodo->nombre) : null;
+
+            $label = "{$c->id_curso} — {$ma}"
+                     .($pr ? " ({$pr})" : '')
+                     .($ed && $au ? " [{$ed} - {$au}]" : '')
+                     .($pe ? " {{$pe}}" : '');
+
+            return [$c->id_curso => $label];
+        });
+
+    return [$alumnos, $cursos];
+}
 }

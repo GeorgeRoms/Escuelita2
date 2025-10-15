@@ -26,13 +26,22 @@ class Inscripcione extends Model
 {
     
     protected $perPage = 20;
+    protected $table = 'inscripciones';
+    protected $primaryKey = 'id';
+    public $incrementing = true;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = ['alumno_no_control', 'curso_id', 'estado', 'oportunidad', 'intento', 'semestre'];
+    protected $fillable = [
+        'alumno_no_control',
+        'curso_id',
+        'estado',              // 'Inscrito' | 'Baja'
+        'intento',             // 'Normal' | 'Repite' | 'Especial'
+        'semestre',            // tinyint
+    ];
 
 
     /**
@@ -40,7 +49,7 @@ class Inscripcione extends Model
      */
     public function alumno()
     {
-        return $this->belongsTo(Alumno::class,'alumno_no_control','no_control');
+        return $this->belongsTo(Alumno::class, 'alumno_no_control', 'no_control');
     }
     
     /**
@@ -48,7 +57,7 @@ class Inscripcione extends Model
      */
     public function curso()
     {
-        return $this->belongsTo(Curso::class,'curso_id','id_curso');
+        return $this->belongsTo(Curso::class, 'curso_id', 'id_curso');
     }
     
 }

@@ -18,7 +18,7 @@
 
                              <div class="float-right">
                                 <a href="{{ route('inscripciones.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
+                                  {{ __('Inscribir alumno') }}
                                 </a>
                               </div>
                         </div>
@@ -34,12 +34,9 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
-									<th >Alumno No Control</th>
-									<th >Curso Id</th>
+									<th >Alumno</th>
+									<th >Curso</th>
 									<th >Estado</th>
-									<th >Oportunidad</th>
 									<th >Intento</th>
 									<th >Semestre</th>
 
@@ -47,30 +44,46 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($inscripciones as $inscripcione)
+                                    @foreach ($inscripciones as $ins)
+                                    @php
+                                    $al = $ins->alumno;
+                                    $cu = $ins->curso;
+                                    $pr = $cu?->profesor;
+                                    $ma = $cu?->materia;
+                                    $au = $cu?->aula;
+                                    $ed = $au?->edificio;
+                                    $pe = $cu?->periodo;
+                                    @endphp
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
-										<td >{{ $inscripcione->alumno_no_control }}</td>
-										<td >{{ $inscripcione->curso_id }}</td>
-										<td >{{ $inscripcione->estado }}</td>
-										<td >{{ $inscripcione->oportunidad }}</td>
-										<td >{{ $inscripcione->intento }}</td>
-										<td >{{ $inscripcione->semestre }}</td>
+										<td >{{ $al ? ($al->no_control.' — '.$al->nombre.' '.$al->apellido_pat.' '.($al->apellido_mat ?? '')) : '—' }}</td>
+										<td >
+                                            @if($cu)
+                                            {{ $cu->id_curso }} — {{ $ma->nombre_mat ?? '—' }}
+                                            @if($pr) ({{ $pr->nombre.' '.$pr->apellido_pat }}) @endif
+                                            @else
+                                             —
+                                            @endif
+                                        </td>
+										<td >{{ $ins->estado }}</td>
+										<td >{{ $ins->intento }}</td>
+										<td >{{ $ins->semestre ?? '—' }}</td>
 
                                             <td>
-                                                <form action="{{ route('inscripciones.destroy', $inscripcione->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('inscripciones.show', $inscripcione->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('inscripciones.edit', $inscripcione->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                <form action="{{ route('inscripciones.destroy', $ins->id) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('inscripciones.show', $ins->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('inscripciones.edit', $ins->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Estás seguro de eliminar inscripción del alumno?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Baja') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>

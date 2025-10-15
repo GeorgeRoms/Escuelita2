@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ __('Update') }} Inscripcione
+    {{ __('Actualizar inscripción de') }} alumno
 @endsection
 
 @section('content')
@@ -11,16 +11,16 @@
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Inscripcione</span>
+                        <span class="card-title">{{ __('Actualizar inscripción de') }} alumno</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('inscripciones.update', $inscripcione->id) }}"  role="form" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
-                            @csrf
-
+                        <form method="POST" action="{{ route('inscripciones.update', $inscripcione->id) }}">
+                            @csrf @method('PUT')
                             @include('inscripcione.form')
-
                         </form>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="inscripciones.index" label="Cancelar" style="margin-left: 1.5%; margin-top: -0.5%; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

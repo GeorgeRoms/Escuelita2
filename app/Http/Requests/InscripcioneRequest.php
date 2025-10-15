@@ -22,15 +22,21 @@ class InscripcioneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'alumno_no_control' => ['required','exists:alumnos,no_control'],
-            'curso_id' => ['required','integer','exists:cursos,id_curso',
-            \Illuminate\Validation\Rule::unique('inscripciones')->where(fn($q)=>$q
-            ->where('alumno_no_control',$this->alumno_no_control)
-            ->where('curso_id',$this->curso_id)
-            )
-        ],
-        'fecha' => ['nullable','date'],
-        'estatus' => ['nullable','in:Inscrito,Baja'],
+            'alumno_no_control'  => ['required','exists:alumnos,no_control'],
+            'curso_id'           => ['required','exists:cursos,id_curso'],
+            'estado'             => ['required','in:Inscrito,Baja'],
+            'intento'            => ['required','in:Normal,Repite,Especial'],
+            // 'oportunidad'        => ['nullable','in:1ra,2da'],
+            'semestre'           => ['nullable','integer','between:1,12'],
+            // 'unidades_reprobadas'=> ['nullable','integer','min:0'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'alumno_no_control.exists' => 'El alumno no existe.',
+            'curso_id.exists'          => 'El curso no existe.',
         ];
     }
 }
