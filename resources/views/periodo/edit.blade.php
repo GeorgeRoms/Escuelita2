@@ -14,12 +14,10 @@
                         <span class="card-title">{{ __('Actualizar información del') }} periodo</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('periodos.update', $periodo->id) }}"  role="form" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
+                        <form method="POST" action="{{ route('periodos.update', $periodo->id) }}">
                             @csrf
-
-                            @include('periodo.form')
-
+                            @method('PUT')
+                            @include('periodo.form', ['periodo' => $periodo])
                         </form>
                     </div>
                     <div class="d-flex gap-2">

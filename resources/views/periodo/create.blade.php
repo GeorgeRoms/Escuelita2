@@ -14,11 +14,9 @@
                         <span class="card-title">{{ __('Registrar') }} periodo</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('periodos.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('periodos.store') }}">
                             @csrf
-
-                            @include('periodo.form')
-
+                            @include('periodo.form', ['periodo' => new \App\Models\Periodo()])
                         </form>
                     </div>
                     <div class="d-flex gap-2">

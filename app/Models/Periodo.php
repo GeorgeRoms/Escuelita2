@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Periodo
@@ -20,6 +21,8 @@ use Illuminate\Database\Eloquent\Model;
 class Periodo extends Model
 {
     
+    use SoftDeletes;
+
     protected $perPage = 20;
 
     /**

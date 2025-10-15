@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\PeriodoRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Validation\ValidationException;
 
 class PeriodoController extends Controller
 {
@@ -35,12 +36,31 @@ class PeriodoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(PeriodoRequest $request): RedirectResponse
+    public function store(PeriodoRequest $request)
     {
-        Periodo::create($request->validated());
+        $data = $request->validated();
 
-        return Redirect::route('periodos.index')
-            ->with('success', 'Periodo created successfully.');
+    // ¿Existe (incluyendo los dados de baja)?
+        $existente = Periodo::withTrashed()
+            ->where('anio', $data['anio'])
+            ->where('nombre', $data['nombre'])
+            ->first();
+
+        if ($existente) {
+            if ($existente->trashed()) {
+                $existente->restore();                 // ✅ reactivar
+                // (si tuvieras más campos, aquí podrías actualizarlos)
+                return redirect()->route('periodos.index')
+                    ->with('success','Periodo reactivado.');
+            }
+        // Ya existe activo → mensaje de validación
+            throw ValidationException::withMessages([
+                'nombre' => 'Ya existe ese periodo para ese año.',
+            ]);
+        }
+
+        Periodo::create($data);
+        return redirect()->route('periodos.index')->with('success','Periodo creado.');
     }
 
     /**
@@ -66,19 +86,15 @@ class PeriodoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(PeriodoRequest $request, Periodo $periodo): RedirectResponse
+    public function update(PeriodoRequest $request, Periodo $periodo)
     {
         $periodo->update($request->validated());
-
-        return Redirect::route('periodos.index')
-            ->with('success', 'Periodo updated successfully');
+        return redirect()->route('periodos.index')->with('success','Periodo actualizado.');
     }
 
-    public function destroy($id): RedirectResponse
+    public function destroy(Periodo $periodo)
     {
-        Periodo::find($id)->delete();
-
-        return Redirect::route('periodos.index')
-            ->with('success', 'Periodo deleted successfully');
+        $periodo->delete();
+        return redirect()->route('periodos.index')->with('success','Periodo dado de baja.');
     }
 }
