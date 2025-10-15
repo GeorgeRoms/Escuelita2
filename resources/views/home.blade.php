@@ -18,13 +18,13 @@
         ['label' => 'Inscripciones',          'route' => 'inscripciones.index',          'emoji' => '&#x270D;&#xFE0F;'],
 
         // (Opcional) Módulos nuevos recomendados
-        ['label' => 'Carreras por Alumno',    'route' => 'alumno-carreras.index',         'emoji' => '&#x1F517;'],
+        ['label' => 'Programa de alumnos',    'route' => 'alumno-carreras.index',         'emoji' => '&#x1F517;'],
 
 
         // Otros existentes
         ['label' => 'Profesores',             'route' => 'profesores.index',             'emoji' => '&#x1F9D1;&#x200D;&#x1F3EB;'],
-        ['label' => 'Contactos Alumnos',      'route' => 'contactos-alumnos.index',      'emoji' => '&#x1F4C7;'],
-        ['label' => 'Contactos Profesores',   'route' => 'contactos-profesores.index',   'emoji' => '&#x1F4C7;'],
+        ['label' => 'Contacto de alumnos',      'route' => 'contactos-alumnos.index',      'emoji' => '&#x1F4C7;'],
+        ['label' => 'Contacto de profesores',   'route' => 'contactos-profesores.index',   'emoji' => '&#x1F4C7;'],
         ['label' => 'Áreas',                  'route' => 'areas.index',                  'emoji' => '&#x1F4C1;'],
         
     ];

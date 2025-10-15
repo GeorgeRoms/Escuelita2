@@ -17,12 +17,15 @@ use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\PeriodoController;
 use App\Http\Controllers\ProfesoreController;
 
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
+
+Route::get('/', fn () => redirect()->route('home'));
+
+// 3. Rutas Protegidas (El Middleware 'auth' es el candado)
+// Ninguna de estas rutas será accesible sin iniciar sesión.
+Route::middleware(['auth'])->group(function () {
+    // Dashboard principal para usuarios logueados
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::resource('carreras', CarreraController::class);
 Route::resource('alumnos', AlumnoController::class);
@@ -39,8 +42,5 @@ Route::resource('periodos', PeriodoController::class);
 Route::resource('inscripciones', InscripcioneController::class);
 Route::resource('alumno-carreras', AlumnoCarreraController::class);
 Route::resource('aulas', AulaController::class);
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/', fn () => redirect()->route('home'));
-// Página de error genérico (GET)
-Route::view('/error/general', 'error.general')->name('error.general');
 
+});

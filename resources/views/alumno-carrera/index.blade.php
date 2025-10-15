@@ -1,8 +1,6 @@
 @extends('layouts.app')
 
-@section('template_title')
-    Alumno Carreras
-@endsection
+@section('template_title') Carreras de alumnos @endsection
 
 @section('content')
     <div class="container-fluid">
@@ -13,14 +11,9 @@
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
                             <span id="card_title">
-                                {{ __('Alumno Carreras') }}
+                                {{ __('Carreras de alumnos') }}
                             </span>
 
-                             <div class="float-right">
-                                <a href="{{ route('alumno-carreras.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
-                                </a>
-                              </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -34,25 +27,29 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                        <th>No</th>
-                                        
-									<th >Alumno No Control</th>
-									<th >Carrera Id</th>
+									<th >Alumno</th>
+									<th >Carrera</th>
 									<th >Estatus</th>
-									<th >Fecha Inicio</th>
-									<th >Fecha Fin</th>
+									<th >Fecha de inicio</th>
+									<th >Fecha de fin</th>
 
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($alumnoCarreras as $alumnoCarrera)
+                                    @php
+                                    $al = $alumnoCarrera->alumno;
+                                    $ca = $alumnoCarrera->carrera;
+                                    @endphp
                                         <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
-										<td >{{ $alumnoCarrera->alumno_no_control }}</td>
-										<td >{{ $alumnoCarrera->carrera_id }}</td>
-										<td >{{ $alumnoCarrera->estatus }}</td>
+										<td >{{ $al ? ($al->no_control.' — '.$al->nombre.' '.$al->apellido_pat.' '.($al->apellido_mat ?? '')) : '—' }}</td>
+										<td >{{ $ca->nombre_carr ?? '—' }}</td>
+										<td >
+                                            <span class="badge text-bg-{{ $ac->estatus === 'Activo' ? 'success' : 'secondary' }}">
+                                                {{ $ac->estatus }}
+                                            </span>
+                                        </td>
 										<td >{{ $alumnoCarrera->fecha_inicio }}</td>
 										<td >{{ $alumnoCarrera->fecha_fin }}</td>
 

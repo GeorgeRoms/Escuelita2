@@ -117,7 +117,7 @@
 </head>
 <body>
     <div id="app" class="d-flex flex-column" style="min-height:100%;">
-        {{-- NAV --}}
+        {{-- NAV (Corregido para mostrar enlaces solo si el usuario está autenticado) --}}
         <nav class="navbar navbar-expand-md navbar-escuelita sticky-top shadow-sm">
             <div class="container">
                 <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
@@ -136,14 +136,20 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     {{-- Left --}}
                     <ul class="navbar-nav me-auto">
+                        @auth
                         <li class="nav-item"><a class="nav-link" href="{{ url('/home') }}">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/carreras') }}">Carreras</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/alumnos') }}">Alumnos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/materias') }}">Materias</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/cursos') }}">Cursos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/aulas') }}">Aulas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/edificios') }}">Edificios</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/periodos') }}">Periodos</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url('/inscripciones') }}">Inscripciones</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/profesores') }}">Profesores</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/cursos') }}">Cursos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/areas') }}">Áreas</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url('/kardexes') }}">Kardex</a></li>
+                        @endauth
                     </ul>
 
                     {{-- Right --}}
