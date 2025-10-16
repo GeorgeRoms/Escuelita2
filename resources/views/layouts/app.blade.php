@@ -9,6 +9,10 @@
 
     <title>@yield('title', 'Escuelita')</title>
 
+    {{-- Favicon (Ícono de la pestaña) --}}
+    {{-- Asegúrate de que esta ruta sea correcta para tu logo en public/images/ --}}
+    <link rel="icon" type="image/png" href="{{ asset('images/escuelita-logo2.png') }}">
+
     {{-- Fonts --}}
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito:300,400,600,700,800" rel="stylesheet">
@@ -117,13 +121,14 @@
 </head>
 <body>
     <div id="app" class="d-flex flex-column" style="min-height:100%;">
-        {{-- NAV (Corregido para mostrar enlaces solo si el usuario está autenticado) --}}
+        {{-- NAV --}}
         <nav class="navbar navbar-expand-md navbar-escuelita sticky-top shadow-sm">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url('/') }}">
-                    <img src="{{ asset('images/escuelita-logo2.png') }}" alt="Escuelita" width="60" height="60" class="rounded-1">
-                    <span class="brand-text">Escuelita</span>
-                    <span class="brand-pill">DTB</span>
+                
+                {{-- Logo principal en la barra de navegación --}}
+                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                    <img src="{{ asset('images/escuelita-logo2.png') }}" alt="Logo de la Institución" 
+                         width="40" height="40" class="rounded-1" style="height: 40px; width: 40px;">
                 </a>
 
                 <button class="navbar-toggler bg-light bg-opacity-10 border-0" type="button"
@@ -147,13 +152,12 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url('/periodos') }}">Periodos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/inscripciones') }}">Inscripciones</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/profesores') }}">Profesores</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url('/cursos') }}">Cursos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/areas') }}">Áreas</a></li>
                         <li class="nav-item">
-                        <a class="nav-link" href="{{ route('reportes.index') }}">
-                            {{ __('Reportes') }}
-                        </a>
-                    </li>
+                            <a class="nav-link" href="{{ route('reportes.index') }}">
+                                {{ __('Reportes') }}
+                            </a>
+                        </li>
                         @endauth
                     </ul>
 
@@ -216,4 +220,3 @@
     </div>
 </body>
 </html>
-
