@@ -16,6 +16,8 @@ use App\Http\Controllers\KardexController;
 use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\PeriodoController;
 use App\Http\Controllers\ProfesoreController;
+use App\Support\Safe;
+use App\Support\Responder;
 
 Auth::routes();
 
@@ -43,5 +45,21 @@ Route::resource('inscripciones', InscripcioneController::class);
 Route::resource('alumno-carreras', AlumnoCarreraController::class)
 ->parameters(['alumno-carreras' => 'alumno_carrerum']);
 Route::resource('aulas', AulaController::class);
+Route::view('/error/general', 'error.general')->name('error.general');
+
+Route::get('/test/safe', function (\Illuminate\Http\Request $request) {
+    return Safe::run(
+        function () {
+            // Excepción simulada dentro del bloque protegido (como en store/update)
+            throw new \RuntimeException('Fallo simulado en Safe::run');
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'home', 'Todo bien'); // no llegará
+        },
+        function ($folio) use ($request) {
+            return Responder::fail($request, $folio, 'error.general', 'Probando Safe::run');
+        }
+    );
+});
 
 });

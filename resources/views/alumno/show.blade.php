@@ -32,7 +32,7 @@
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Carrera:</strong>
-                                    {{ $alumno->carrera->nombre_carr ?? '—' }}
+                                    {{ $alumno->carreras->pluck('nombre_carr')->join(', ') ?: 'Sin carrera' }}
                                 </div>
                     </div>
                     <div class="d-flex gap-2">

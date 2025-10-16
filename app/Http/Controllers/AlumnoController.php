@@ -6,10 +6,10 @@ use App\Models\Alumno;
 use App\Models\Carrera;
 use App\Models\AlumnoCarrera;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
-use App\Http\Requests\AlumnoRequest;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\AlumnoRequest;
+use App\Support\Safe;
+use App\Support\Responder;
 
 class AlumnoController extends Controller
 {
@@ -18,11 +18,20 @@ class AlumnoController extends Controller
      */
     public function index(Request $request)
     {
-        // Importante: la relación es 'carreras' (belongsToMany), no 'carrera'
-        $alumnos = Alumno::with('carreras')->paginate();
-
-        return view('alumno.index', compact('alumnos'))
-            ->with('i', ($request->input('page', 1) - 1) * $alumnos->perPage());
+        return Safe::run(
+            function () use ($request) {
+                $alumnos = Alumno::with('carreras')->paginate();
+                return [$alumnos, $request];
+            },
+            function ($payload) {
+                [$alumnos, $request] = $payload;
+                return view('alumno.index', compact('alumnos'))
+                    ->with('i', ($request->input('page', 1) - 1) * $alumnos->perPage());
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
+            }
+        );
     }
 
     /**
@@ -30,34 +39,51 @@ class AlumnoController extends Controller
      */
     public function create()
     {
-        $alumno   = new Alumno();
-        $carreras = Carrera::orderBy('nombre_carr')->pluck('nombre_carr', 'id_carrera'); // [id => nombre]
-
-        // Para el select, al crear no hay carrera seleccionada
-        $carreraActualId = null;
-
-        return view('alumno.create', compact('alumno','carreras','carreraActualId'));
+        return Safe::run(
+            function () {
+                $alumno = new Alumno();
+                $carreras = Carrera::orderBy('nombre_carr')->pluck('nombre_carr', 'id_carrera');
+                $carreraActualId = null;
+                return compact('alumno','carreras','carreraActualId');
+            },
+            function ($data) {
+                return view('alumno.create', $data);
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo cargar el formulario. Folio: '.$folio);
+            }
+        );
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(\App\Http\Requests\AlumnoRequest $request)
+    public function store(AlumnoRequest $request)
     {
         $data = $request->validated();
 
-    DB::transaction(function () use ($data, &$alumno, $request) {
-        // Crear alumno (sin carrera_id)
-        $alumno = \App\Models\Alumno::create(collect($data)->except('carrera_id')->toArray());
+        return Safe::run(
+            function () use ($data) {
+                return DB::transaction(function () use ($data) {
+                    // Crear alumno (sin carrera_id)
+                    $alumno = Alumno::create(collect($data)->except('carrera_id')->toArray());
 
-        // Carrera única (si se eligió)
-        if (!empty($data['carrera_id'])) {
-            // Reemplaza cualquier otra y deja solo ésta
-            $alumno->carreras()->sync([$data['carrera_id']]);
-        }
-    });
+                    // Carrera única (si se eligió)
+                    if (!empty($data['carrera_id'])) {
+                        $alumno->carreras()->sync([$data['carrera_id']]);
+                    }
 
-    return redirect()->route('alumnos.index')->with('success','Alumno registrado.');
+                    return $alumno;
+                });
+            },
+            function () use ($request) {
+                return Responder::ok($request, 'alumnos.index', 'Alumno registrado.', null, 201);
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
+            }
+        );
     }
 
     /**
@@ -65,75 +91,107 @@ class AlumnoController extends Controller
      */
     public function show(Alumno $alumno)
     {
-        $alumno->load('carreras'); // evita N+1
-        return view('alumno.show', compact('alumno'));
+        return Safe::run(
+            function () use ($alumno) {
+                $alumno->load('carreras'); // evita N+1
+                return $alumno;
+            },
+            function ($alumno) {
+                return view('alumno.show', compact('alumno'));
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo mostrar el registro. Folio: '.$folio);
+            }
+        );
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(\App\Models\Alumno $alumno)
+    public function edit(Alumno $alumno)
     {
-        $carreras = \App\Models\Carrera::orderBy('nombre_carr')->pluck('nombre_carr', 'id_carrera');
-
-        $alumno->load('carreras');
-        $carreraActualId = optional($alumno->carreras->first())->id_carrera;
-
-        return view('alumno.edit', compact('alumno','carreras','carreraActualId'));
+        return Safe::run(
+            function () use ($alumno) {
+                $carreras = Carrera::orderBy('nombre_carr')->pluck('nombre_carr', 'id_carrera');
+                $alumno->load('carreras');
+                $carreraActualId = optional($alumno->carreras->first())->id_carrera;
+                return compact('alumno','carreras','carreraActualId');
+            },
+            function ($data) {
+                return view('alumno.edit', $data);
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo cargar la edición. Folio: '.$folio);
+            }
+        );
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(\App\Http\Requests\AlumnoRequest $request, \App\Models\Alumno $alumno)
-{
-    $data = $request->validated();
+    public function update(AlumnoRequest $request, Alumno $alumno)
+    {
+        $data = $request->validated();
 
-    DB::transaction(function () use ($alumno, $data) {
-        $alumno->update(collect($data)->except('carrera_id')->toArray());
+        return Safe::run(
+            function () use ($alumno, $data) {
+                return DB::transaction(function () use ($alumno, $data) {
+                    $alumno->update(collect($data)->except('carrera_id')->toArray());
 
-        if (array_key_exists('carrera_id', $data)) {
-            if ($data['carrera_id']) {
-                $alumno->carreras()->sync([$data['carrera_id']]); // una sola carrera activa
-            } else {
-                $alumno->carreras()->detach();
+                    if (array_key_exists('carrera_id', $data)) {
+                        if ($data['carrera_id']) {
+                            $alumno->carreras()->sync([$data['carrera_id']]); // una sola carrera activa
+                        } else {
+                            $alumno->carreras()->detach();
+                        }
+                    }
+                    return true;
+                });
+            },
+            function () use ($request) {
+                return Responder::ok($request, 'alumnos.index', 'Alumno actualizado.');
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
             }
-        }
-    });
-
-    // ⬇️ redirige al índice (o a show) con flash
-    return redirect()->route('alumnos.index')->with('success','Alumno actualizado.');
-}
-
+        );
+    }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(\App\Models\Alumno $alumno): \Illuminate\Http\RedirectResponse
+    public function destroy(Alumno $alumno)
     {
-        try {
-        DB::transaction(function () use ($alumno) {
-            // 1) Marcar BAJA en TODAS las carreras del alumno
-            DB::table('alumno_carrera')
-                ->where('alumno_no_control', $alumno->no_control)
-                ->update([
-                    'estatus'   => 'Baja',
-                    'fecha_fin' => now()->toDateString(),
-                    'updated_at'=> now(),
-                ]);
+        return Safe::run(
+            function () use ($alumno) {
+                return DB::transaction(function () use ($alumno) {
+                    // 1) Marcar BAJA en TODAS las carreras del alumno
+                    DB::table('alumno_carrera')
+                        ->where('alumno_no_control', $alumno->no_control)
+                        ->update([
+                            'estatus'    => 'Baja',
+                            'fecha_fin'  => now()->toDateString(),
+                            'updated_at' => now(),
+                        ]);
 
-            // 2) Baja lógica del alumno (no rompe FKs)
-            $alumno->delete(); // SoftDelete
-        });
-
-        return redirect()
-            ->route('alumnos.index')
-            ->with('success', 'Alumno dado de baja y carreras marcadas como Baja.');
-    } catch (\Throwable $e) {
-        return redirect()
-            ->route('alumnos.index')
-            ->withErrors('No se pudo eliminar: '.$e->getMessage());
-    }
+                    // 2) Baja lógica del alumno (no rompe FKs)
+                    $alumno->delete(); // SoftDelete
+                    return true;
+                });
+            },
+            function () {
+                return redirect()
+                    ->route('alumnos.index')
+                    ->with('success', 'Alumno dado de baja y carreras marcadas como Baja.');
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo eliminar. Folio: '.$folio);
+            }
+        );
     }
 }
+
 
