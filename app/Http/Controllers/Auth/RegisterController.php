@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request; 
+use Illuminate\Http\JsonResponse; 
+use Illuminate\Auth\Events\Registered; // Necesario para el evento de registro
 
 class RegisterController extends Controller
 {
@@ -68,5 +71,42 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+
+    /**
+     * Sobreescribe el método 'register' del trait RegistersUsers.
+     * Elimina la llamada a $this->guard()->login($user); para evitar
+     * el inicio de sesión automático.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        event(new Registered($user = $this->create($request->all())));
+
+        // *** LÍNEA CLAVE ELIMINADA:
+        // *** $this->guard()->login($user); 
+
+        return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
+    }
+
+    /**
+     * Maneja la respuesta después de que un usuario ha sido registrado.
+     * Evita el inicio de sesión automático y redirige al login.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    protected function registered(Request $request, $user)
+    {
+        // Redirigir a la página de login con un mensaje de estado.
+        return $request->wantsJson()
+            ? new JsonResponse([], 201)
+            : redirect('/login')->with('status', '¡Registro exitoso! Por favor, inicia sesión para continuar.');
     }
 }

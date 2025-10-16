@@ -65,7 +65,7 @@
         @auth
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button class="btn btn-accent fw-bold">Cerrar sesión</button>
+                
             </form>
         @endauth
     </div>
