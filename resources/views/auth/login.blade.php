@@ -13,8 +13,8 @@
         margin-bottom: 1.25rem;
     }
     .auth-hero .logo{
-        width: 120px;
-        height: 120px;
+        width: 200px;
+        height: 200px;
         object-fit: contain;
         border-radius: 16px;
         background: rgba(241,196,15,.12);

@@ -10,7 +10,7 @@
                     <div class="card-header">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
-                            <span id="card_title">
+                            <span id="card_title" class="h3 fw-bold">
                                 {{ __('Carreras de alumnos') }}
                             </span>
 
@@ -27,13 +27,13 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Alumno</th>
-									<th >Carrera</th>
-									<th >Estatus</th>
-									<th >Fecha de inicio</th>
-									<th >Fecha de fin</th>
+                                    <th >Alumno</th>
+                                    <th >Carrera</th>
+                                    <th >Estatus</th>
+                                    <th >Fecha de inicio</th>
+                                    <th >Fecha de fin</th>
 
-                                        <th></th>
+                                        <th>Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -43,15 +43,16 @@
                                     $ca = $alumnoCarrera->carrera;
                                     @endphp
                                         <tr>
-										<td >{{ $al ? ($al->no_control.' — '.$al->nombre.' '.$al->apellido_pat.' '.($al->apellido_mat ?? '')) : '—' }}</td>
-										<td >{{ $ca->nombre_carr ?? '—' }}</td>
-										<td >
+                                        <td >{{ $al ? ($al->no_control.' — '.$al->nombre.' '.$al->apellido_pat.' '.($al->apellido_mat ?? '')) : '—' }}</td>
+                                        <td >{{ $ca->nombre_carr ?? '—' }}</td>
+                                        <td >
+                                            {{-- CORRECCIÓN: Se usa $alumnoCarrera (singular) en lugar de $alumnoCarreras (colección paginada) --}}
                                             <span class="badge text-bg-{{ $alumnoCarrera->estatus === 'Activo' ? 'success' : 'secondary' }}">
                                                 {{ $alumnoCarrera->estatus }}
                                             </span>
                                         </td>
-										<td >{{ $alumnoCarrera->fecha_inicio ?? '—' }}</td>
-										<td >{{ $alumnoCarrera->fecha_fin ?? '—' }}</td>
+                                        <td >{{ $alumnoCarrera->fecha_inicio ?? '—' }}</td>
+                                        <td >{{ $alumnoCarrera->fecha_fin ?? '—' }}</td>
 
                                             <td>
                                                 <form action="{{ route('alumno-carreras.destroy', $alumnoCarrera->id) }}" method="POST">
@@ -67,13 +68,37 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex gap-2">
-                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
+                        
+                        {{-- **************** INICIO: Paginación Personalizada con Botones **************** --}}
+                        {{-- Centrado y botones separados con estilo azul (btn-primary) --}}
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            
+                            {{-- Contenedor para los botones Anterior / Siguiente --}}
+                            <div class="d-flex align-items-center">
+                                
+                                {{-- Enlace Anterior (Previous) --}}
+                                @if ($alumnoCarreras->onFirstPage())
+                                    {{-- AGREGADO: me-2 para dar separación --}}
+                                    <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+                                @else
+                                    <a href="{{ $alumnoCarreras->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+                                @endif
+                                
+                                {{-- Enlace Siguiente (Next) --}}
+                                @if ($alumnoCarreras->hasMorePages())
+                                    <a href="{{ $alumnoCarreras->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+                                @else
+                                    <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+                                @endif
+                            </div>
+
                         </div>
+                        {{-- **************** FIN: Paginación Personalizada con Botones **************** --}}
+
                     </div>
                 </div>
-                {!! $alumnoCarreras->withQueryString()->links() !!}
             </div>
+            {{-- Se elimina la línea de paginación que estaba afuera del card-body --}}
         </div>
     </div>
 @endsection
