@@ -16,19 +16,18 @@
                     </div>
 
                     <div class="card-body bg-white">
-                        
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Código:</strong>
-                                    {{ $area->id_area }}
-                                </div>
+
                                 <div class="form-group mb-2 mb20">
                                     <strong>Nombre de area:</strong>
                                     {{ $area->nombre_area }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Edificio / Salón:</strong>
-                                    @php($e = $area->edificio ?? null)
-                                    {{ $e ? ($e->salon ?? $e->edificio ?? $area->fk_edificio) : $area->fk_edificio }}
+                                    <strong>Edificio:</strong>
+                                     @php
+                                    $e = $area->edificio;
+                                    $edif = $e ? ($e->codigo ?? ($e->nombre ?? ('Edificio #'.$e->id))) : '—';
+                                    @endphp
+                                    {{ $edif }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Jefe de área:</strong>

@@ -22,14 +22,21 @@ class AreaRequest extends FormRequest
     public function rules(): array
     {
         return [
-        'nombre_area' => 'required|string|max:60',
-
-        // ANTES (mal):  'exists:edificios,id_edificio'
-        // AHORA (bien):
-        'fk_edificio' => 'required|integer|exists:edificios,edificio',
-
-        // si 'fk_jefe' apunta a profesores.id_profesor:
-        'fk_jefe'     => 'nullable|integer|exists:profesores,id_profesor',
-    ];
+            // 👇 nombres EXACTOS que envía tu form
+            'nombre_area' => ['required','string','max:255'],
+            'edificio_id' => ['required','integer','exists:edificios,id'],
+            'fk_jefe'     => ['nullable','integer','exists:profesores,id_profesor'],
+        ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'nombre_area.required' => 'El nombre del área es obligatorio.',
+            'edificio_id.required' => 'Debes seleccionar un edificio.',
+            'edificio_id.exists'   => 'El edificio seleccionado no existe.',
+            'fk_jefe.exists'       => 'El/la jefe(a) seleccionado(a) no existe.',
+        ];
+    }
+
 }

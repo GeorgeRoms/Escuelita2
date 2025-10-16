@@ -34,9 +34,8 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Código de area</th>
 									<th >Nombre del area</th>
-									<th >Edificio / Salón</th>
+									<th >Edificio</th>
 									<th >Jefe de área</th>
 
                                         <th></th>
@@ -45,12 +44,14 @@
                                 <tbody>
                                     @foreach ($areas as $area)
                                         <tr>
-										<td >{{ $area->id_area }}</td>
 										<td >{{ $area->nombre_area }}</td>
-										<td >
-                                            @php($e = $area->edificio ?? null)
-                                            {{-- intenta salon; como fallback muestra el id --}}
-                                            {{ $e ? ($e->salon ?? $e->edificio ?? $area->fk_edificio) : $area->fk_edificio }}</td>
+										@php
+                                            $edif = $area->edificio;
+                                            $edifLabel = $edif
+                                            ? ($edif->codigo ?? ($edif->nombre ?? ('Edificio #'.$edif->id)))
+                                            : '—';
+                                            @endphp
+                                        <td>{{ $edifLabel }}</td>    
 										<td >
                                             @php($j = $area->jefe ?? null)
                                             {{ $j ? trim($j->nombre.' '.$j->apellido_pat.' '.($j->apellido_mat ?? '')) : '—' }}

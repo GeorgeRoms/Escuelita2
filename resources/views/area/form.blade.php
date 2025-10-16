@@ -1,8 +1,6 @@
 @php
-  // Permite que el controlador use 'edificios' o 'catalEdificios'
-  $edificios   = $edificios   ?? ($catalEdificios   ?? []);
-  // Permite que el controlador use 'profesores' o 'catalProfesores'
-  $profesores  = $profesores  ?? ($catalProfesores  ?? []);
+  $edificios  = $edificios  ?? collect();
+  $profesores = $profesores ?? collect();
 @endphp
 
 <div class="row padding-1 p-1">
@@ -14,20 +12,28 @@
             {!! $errors->first('id_area', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
         </div> --}}
         <div class="form-group mb-2 mb20">
-            <label for="nombre_area" class="form-label">{{ __('Nombre del area') }}</label>
-            <input type="text" name="nombre_area" class="form-control @error('nombre_area') is-invalid @enderror" value="{{ old('nombre_area', $area?->nombre_area) }}" id="nombre_area" placeholder="Area">
-            {!! $errors->first('nombre_area', '<div class="invalid-feedback" role="alert"><strong>:message</strong></div>') !!}
+            <input type="text" id="nombre_area" name="nombre_area"
+             class="form-control @error('nombre_area') is-invalid @enderror"
+             value="{{ old('nombre_area', $area->nombre_area ?? '') }}">
+            @error('nombre_area') <div class="invalid-feedback"><strong>{{ $message }}</strong></div> @enderror
         </div>
         <div class="form-group mb-2 mb20">
-            <label for="fk_edificio" class="form-label">{{ __('Edificio / Salón') }}</label>
-            <select name="fk_edificio" id="fk_edificio"
-            class="form-select @error('fk_edificio') is-invalid @enderror">
-            <option value="">{{ __('Selecciona…') }}</option>
-            @foreach($edificios as $id => $etiqueta)
-            <option value="{{ $id }}" @selected(old('fk_edificio', $area?->fk_edificio) == $id)>{{ $etiqueta }}</option>
-            @endforeach
+            <label class="form-label">Edificio</label>
+            @if ($edificios->isEmpty())
+            <div class="alert alert-warning">
+            No hay edificios registrados. <a href="{{ route('edificios.create') }}">Crear edificio</a>
+            </div>
+            @endif
+
+            <select name="edificio_id" class="form-select @error('edificio_id') is-invalid @enderror">
+                <option value="">Selecciona…</option>
+                @foreach($edificios as $id => $label)
+                <option value="{{ $id }}" @selected(old('edificio_id', $area->edificio_id ?? null) == $id)>
+                {{ $label }}
+                </option>
+                @endforeach
             </select>
-            {!! $errors->first('fk_edificio','<div class="invalid-feedback"><strong>:message</strong></div>') !!}
+            @error('edificio_id') <div class="invalid-feedback"><strong>{{ $message }}</strong></div> @enderror
         </div>
         <div class="form-group mb-2 mb20">
             <label for="fk_jefe" class="form-label">{{ __('Jefe de área') }}</label>
