@@ -18,6 +18,13 @@ use App\Http\Controllers\PeriodoController;
 use App\Http\Controllers\ProfesoreController;
 use App\Support\Safe;
 use App\Support\Responder;
+use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\ReporteEspecialController;
+use App\Http\Controllers\ReporteCursoController;
+use App\Http\Controllers\ReporteProfesorController;
+use App\Http\Controllers\ReporteAlumnoController;
+use App\Http\Controllers\ReporteCarreraPeriodoController;
+
 
 Auth::routes();
 
@@ -46,6 +53,17 @@ Route::resource('alumno-carreras', AlumnoCarreraController::class)
 ->parameters(['alumno-carreras' => 'alumno_carrerum']);
 Route::resource('aulas', AulaController::class);
 Route::view('/error/general', 'error.general')->name('error.general');
+
+Route::get('/reportes', [ReportesController::class, 'index'])->name('reportes.index');
+Route::get('/reportes/especial', [ReporteEspecialController::class, 'resumenPorCarrera'])->name('reportes.especial');
+Route::get('/reportes/curso', [ReporteCursoController::class, 'index'])->name('reportes.curso.index');
+Route::get('/reportes/curso/ver', [ReporteCursoController::class, 'ver'])->name('reportes.curso.ver');
+Route::get('/reportes/profesor/ver', [ReporteProfesorController::class, 'ver'])->name('reportes.profesor.ver');
+Route::get('/reportes/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
+Route::get('/reportes/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
+
+
+
 
 Route::get('/test/safe', function (\Illuminate\Http\Request $request) {
     return Safe::run(
