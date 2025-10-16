@@ -40,7 +40,8 @@ Route::resource('contactos-profesores', ContactosProfesoreController::class);
 Route::resource('areas', AreaController::class);
 Route::resource('periodos', PeriodoController::class);
 Route::resource('inscripciones', InscripcioneController::class);
-Route::resource('alumno-carreras', AlumnoCarreraController::class);
+Route::resource('alumno-carreras', AlumnoCarreraController::class)
+->parameters(['alumno-carreras' => 'alumno_carrerum']);
 Route::resource('aulas', AulaController::class);
 
 });

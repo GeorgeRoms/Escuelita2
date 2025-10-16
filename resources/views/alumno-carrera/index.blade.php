@@ -46,26 +46,29 @@
 										<td >{{ $al ? ($al->no_control.' — '.$al->nombre.' '.$al->apellido_pat.' '.($al->apellido_mat ?? '')) : '—' }}</td>
 										<td >{{ $ca->nombre_carr ?? '—' }}</td>
 										<td >
-                                            <span class="badge text-bg-{{ $ac->estatus === 'Activo' ? 'success' : 'secondary' }}">
-                                                {{ $ac->estatus }}
+                                            <span class="badge text-bg-{{ $alumnoCarrera->estatus === 'Activo' ? 'success' : 'secondary' }}">
+                                                {{ $alumnoCarrera->estatus }}
                                             </span>
                                         </td>
-										<td >{{ $alumnoCarrera->fecha_inicio }}</td>
-										<td >{{ $alumnoCarrera->fecha_fin }}</td>
+										<td >{{ $alumnoCarrera->fecha_inicio ?? '—' }}</td>
+										<td >{{ $alumnoCarrera->fecha_fin ?? '—' }}</td>
 
                                             <td>
                                                 <form action="{{ route('alumno-carreras.destroy', $alumnoCarrera->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('alumno-carreras.show', $alumnoCarrera->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('alumno-carreras.edit', $alumnoCarrera->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('alumno-carreras.show', $alumnoCarrera->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Mostrar') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('alumno-carreras.edit', $alumnoCarrera->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Editar') }}</a>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('¿Eliminar esta asignación?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Eliminar') }}</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>

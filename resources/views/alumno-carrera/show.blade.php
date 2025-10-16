@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $alumnoCarrera->name ?? __('Show') . " " . __('Alumno Carrera') }}
+    {{ $alumnoCarrera->name ?? ('Información de la carrera del alumno') }}
 @endsection
 
 @section('content')
@@ -11,10 +11,7 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Alumno Carrera</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('alumno-carreras.index') }}"> {{ __('Back') }}</a>
+                            <span class="card-title">Información de la carrera del alumno</span>
                         </div>
                     </div>
 
@@ -41,6 +38,9 @@
                                     {{ $alumnoCarrera->fecha_fin }}
                                 </div>
 
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="alumno-carreras.index" label="Atrás" style="margin-left: 1.5%; margin-top: -0.5% ; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

@@ -22,9 +22,22 @@ class AlumnoCarreraRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'alumno_no_control' => 'required|string',
-			'carrera_id' => 'required',
-			'estatus' => 'required',
+            // cuando se usa create “genérico” sí validamos el alumno
+            'alumno_no_control' => ['required','exists:alumnos,no_control'],
+            'carrera_id'        => ['required','exists:carreras,id_carrera'],
+            'estatus'           => ['required','in:Activo,Baja'],
+            'fecha_inicio'      => ['nullable','date'],
+            'fecha_fin'         => ['nullable','date','after_or_equal:fecha_inicio'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'alumno_no_control.required' => 'Selecciona el alumno.',
+            'alumno_no_control.exists'   => 'El alumno no existe.',
+            'carrera_id.required'        => 'Selecciona la carrera.',
+            'carrera_id.exists'          => 'La carrera no existe.',
         ];
     }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ __('Update') }} Alumno Carrera
+    {{ __('Actualizar carrera del alumno') }}
 @endsection
 
 @section('content')
@@ -11,7 +11,7 @@
 
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Alumno Carrera</span>
+                        <span class="card-title">Actualizar carrera del alumno</span>
                     </div>
                     <div class="card-body bg-white">
                         <form method="POST" action="{{ route('alumno-carreras.update', $alumnoCarrera->id) }}"  role="form" enctype="multipart/form-data">
@@ -21,6 +21,9 @@
                             @include('alumno-carrera.form')
 
                         </form>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="alumno-carreras.index" label="Cancelar" style="margin-left: 1.5%; margin-top: -0.5% ; margin-bottom: 1%"/>
                     </div>
                 </div>
             </div>

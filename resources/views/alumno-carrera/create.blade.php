@@ -21,6 +21,9 @@
 
                         </form>
                     </div>
+                    <div class="d-flex gap-2">
+                        <x-back to="alumno-carreras.index" label="Cancelar" style="margin-left: 1.5%; margin-top: -0.5% ; margin-bottom: 1%"/>
+                    </div>
                 </div>
             </div>
         </div>
