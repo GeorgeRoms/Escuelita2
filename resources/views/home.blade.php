@@ -55,7 +55,7 @@
 <div class="home-hero p-4 p-md-5 mb-4">
     <div class="d-flex align-items-center justify-content-between gap-3">
         <div class="d-flex align-items-center gap-3">
-            <img src="{{ asset('images/escuelita-logo2.png') }}" alt="Escuelita" width="100" height="100" class="rounded-1">
+            <img src="{{ asset('images/escuelita-logo2.png') }}" alt="Escuelita" width="200" height="200" class="rounded-1">
             <div>
                 <h1 class="h3 mb-1">Panel principal</h1>
                 <p class="mb-0 opacity-75">Administra carreras, oferta (cursos, aulas, periodos) e inscripciones.</p>
