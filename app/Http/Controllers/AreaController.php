@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class AreaController extends Controller
 {
@@ -27,6 +28,27 @@ class AreaController extends Controller
             ->with('i', ($request->input('page', 1) - 1) * $areas->perPage());
     }
 
+    private function edificiosCatalog(?int $currentId = null)
+{
+    // etiqueta: usa codigo, luego nombre, si no existe ninguno muestra "Edificio #id"
+    $base = Edificio::query()
+        ->select('id', DB::raw("COALESCE(codigo, nombre, CONCAT('Edificio #', id)) AS etiqueta"))
+        ->orderBy('etiqueta')
+        ->pluck('etiqueta', 'id');
+
+    // Si estás editando y el edificio actual no está en el catálogo,
+    // lo agregamos manualmente para que aparezca preseleccionado.
+    if ($currentId && !$base->has($currentId)) {
+        $e = Edificio::withTrashed()->find($currentId);
+        if ($e) {
+            $label = $e->codigo ?? ($e->nombre ?? ('Edificio #'.$e->id));
+            $base = $base->put($e->id, $label);
+        }
+    }
+
+    return $base;
+}
+
     /**
      * Show the form for creating a new resource.
      */
@@ -34,29 +56,13 @@ class AreaController extends Controller
     {
         $area = new Area();
 
-        // Catálogo de edificios: id => etiqueta legible
-        // Asumimos PK = 'edificio' y campo 'salon' (según tu esquema).
-        $edificios = Edificio::orderBy('edificio')->get()
-            ->mapWithKeys(function ($e) {
-                $label = $e->salon ? "Edificio {$e->edificio} — {$e->salon}" : "Edificio {$e->edificio}";
-                return [$e->edificio => $label];
-            });
-
-        // Catálogo de profesores: id_profesor => "Nombre Apellidos"
+        $edificios  = $this->edificiosCatalog();       // sin valor actual
         $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
-            ->mapWithKeys(function ($p) {
-                $nom = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
-                return [$p->id_profesor => $nom];
-            });
-
-        // Paso ambos alias para que tus blades funcionen sin cambios
-        return view('area.create', [
-            'area'             => $area,
-            'edificios'        => $edificios,
-            'catalEdificios'   => $edificios,
-            'profesores'       => $profesores,
-            'catalProfesores'  => $profesores,
+            ->mapWithKeys(fn($p) => [
+                $p->id_profesor => trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''))
         ]);
+
+        return view('area.create', compact('area','edificios','profesores'));
     }
 
     /**
@@ -86,26 +92,13 @@ class AreaController extends Controller
      */
     public function edit(Area $area): View
     {
-        // Catálogos (mismo criterio que en create)
-        $edificios = Edificio::orderBy('edificio')->get()
-            ->mapWithKeys(function ($e) {
-                $label = $e->salon ? "Edificio {$e->edificio} — {$e->salon}" : "Edificio {$e->edificio}";
-                return [$e->edificio => $label];
-            });
-
+        $edificios  = $this->edificiosCatalog($area->edificio_id); // incluye actual si no está
         $profesores = Profesore::orderBy('nombre')->orderBy('apellido_pat')->get()
-            ->mapWithKeys(function ($p) {
-                $nom = trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''));
-                return [$p->id_profesor => $nom];
-            });
-
-        return view('area.edit', [
-            'area'             => $area,
-            'edificios'        => $edificios,
-            'catalEdificios'   => $edificios,
-            'profesores'       => $profesores,
-            'catalProfesores'  => $profesores,
+            ->mapWithKeys(fn($p) => [
+                $p->id_profesor => trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? ''))
         ]);
+
+        return view('area.edit', compact('area','edificios','profesores'));
     }
 
     /**
@@ -128,5 +121,17 @@ class AreaController extends Controller
 
         return Redirect::route('areas.index')
             ->with('success', 'Área eliminada correctamente.');
+    }
+
+}
+
+if (!function_exists('column_exists')) {
+    function column_exists(string $table, string $column): bool
+    {
+        try {
+            return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }

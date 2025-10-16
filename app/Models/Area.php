@@ -27,7 +27,7 @@ class Area extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    protected $fillable = ['nombre_area', 'fk_edificio', 'fk_jefe'];
+    protected $fillable = ['nombre_area', 'edificio_id', 'fk_jefe'];
 
 
     /**
@@ -35,7 +35,8 @@ class Area extends Model
      */
     public function edificio()
     {
-        return $this->belongsTo(\App\Models\Edificio::class, 'fk_edificio', 'edificio');
+        return $this->belongsTo(\App\Models\Edificio::class, 'edificio_id', 'id')
+                ->withTrashed();
     }
 
     public function jefe()

@@ -16,8 +16,11 @@
                     <div class="card-body bg-white">
                         <form method="POST" action="{{ route('areas.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
-
-                            @include('area.form')
+                            @include('area.form', [
+                                'area'            => $area,
+                                'edificios'       => $edificios ?? $catalEdificios ?? collect(),
+                                'profesores'      => $profesores ?? $catalProfesores ?? collect(),
+                                ])
 
                         </form>
                     </div>

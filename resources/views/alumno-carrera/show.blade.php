@@ -16,14 +16,18 @@
                     </div>
 
                     <div class="card-body bg-white">
+                        @php
+                        $al = $alumnoCarrera->alumno;
+                        $ca = $alumnoCarrera->carrera;
+                        @endphp
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Alumno No Control:</strong>
-                                    {{ $alumnoCarrera->alumno_no_control }}
+                                    <strong>Alumno:</strong>
+                                    {{ $al ? ($al->no_control.' — '.$al->nombre.' '.$al->apellido_pat.' '.($al->apellido_mat ?? '')) : '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Carrera Id:</strong>
-                                    {{ $alumnoCarrera->carrera_id }}
+                                    <strong>Carrera:</strong>
+                                    {{ $ca->nombre_carr ?? '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Estatus:</strong>
@@ -31,11 +35,11 @@
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Fecha Inicio:</strong>
-                                    {{ $alumnoCarrera->fecha_inicio }}
+                                    {{ $alumnoCarrera->fecha_inicio ?? '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Fecha Fin:</strong>
-                                    {{ $alumnoCarrera->fecha_fin }}
+                                    {{ $alumnoCarrera->fecha_fin ?? '—' }}
                                 </div>
 
                     </div>
