@@ -26,7 +26,7 @@
         ['label' => 'Contacto de alumnos',      'route' => 'contactos-alumnos.index',      'emoji' => '&#x1F4C7;'],
         ['label' => 'Contacto de profesores',   'route' => 'contactos-profesores.index',   'emoji' => '&#x1F4C7;'],
         ['label' => 'Áreas',                  'route' => 'areas.index',                  'emoji' => '&#x1F4C1;'],
-        ['label' => 'Reportes',                  'route' => 'reportes.index',                  'emoji' => '&#x1F4C1;'],
+        
         
     ];
 @endphp

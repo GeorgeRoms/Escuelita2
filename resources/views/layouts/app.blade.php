@@ -149,6 +149,11 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url('/profesores') }}">Profesores</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/cursos') }}">Cursos</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/areas') }}">Áreas</a></li>
+                        <li class="nav-item">
+                        <a class="nav-link" href="{{ route('reportes.index') }}">
+                            {{ __('Reportes') }}
+                        </a>
+                    </li>
                         @endauth
                     </ul>
 
