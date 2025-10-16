@@ -18,9 +18,9 @@
 
                              <div class="float-right">
                                 <a href="{{ route('areas.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Registrar area') }}
+                                    {{ __('Registrar area') }}
                                 </a>
-                              </div>
+                             </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -34,9 +34,9 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Nombre del area</th>
-									<th >Edificio</th>
-									<th >Jefe de área</th>
+                                    <th >Nombre del area</th>
+                                    <th >Edificio</th>
+                                    <th >Jefe de área</th>
 
                                         <th></th>
                                     </tr>
@@ -44,15 +44,15 @@
                                 <tbody>
                                     @foreach ($areas as $area)
                                         <tr>
-										<td >{{ $area->nombre_area }}</td>
-										@php
+                                        <td >{{ $area->nombre_area }}</td>
+                                        @php
                                             $edif = $area->edificio;
                                             $edifLabel = $edif
                                             ? ($edif->codigo ?? ($edif->nombre ?? ('Edificio #'.$edif->id)))
                                             : '—';
                                             @endphp
                                         <td>{{ $edifLabel }}</td>    
-										<td >
+                                        <td >
                                             @php($j = $area->jefe ?? null)
                                             {{ $j ? trim($j->nombre.' '.$j->apellido_pat.' '.($j->apellido_mat ?? '')) : '—' }}
                                         </td>
@@ -71,12 +71,35 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- INICIO: Botones de Paginación Anterior/Siguiente --}}
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            <div class="d-flex align-items-center">
+                                
+                                {{-- Enlace Anterior (Previous) --}}
+                                @if ($areas->onFirstPage())
+                                    <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+                                @else
+                                    <a href="{{ $areas->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+                                @endif
+                                
+                                {{-- Enlace Siguiente (Next) --}}
+                                @if ($areas->hasMorePages())
+                                    <a href="{{ $areas->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+                                @else
+                                    <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        {{-- FIN: Botones de Paginación Anterior/Siguiente --}}
+                        
                         <div class="d-flex gap-2">
                         <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>
-                {!! $areas->withQueryString()->links() !!}
+                {{-- ELIMINADO: Se quitó el paginador estándar de Laravel que causaba las flechas grandes --}}
+                {{-- {!! $areas->withQueryString()->links() !!} --}}
             </div>
         </div>
     </div>

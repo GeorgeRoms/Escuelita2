@@ -18,9 +18,9 @@
 
                              <div class="float-right">
                                 <a href="{{ route('materias.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Registrar Materia') }}
+                                    {{ __('Registrar Materia') }}
                                 </a>
-                              </div>
+                             </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -34,10 +34,10 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Código de materia</th>
-									<th >Nombre de materia</th>
-									<th >Créditos</th>
-									<th >Prerrequisito</th>
+                                    <th >Código de materia</th>
+                                    <th >Nombre de materia</th>
+                                    <th >Créditos</th>
+                                    <th >Prerrequisito</th>
 
                                         <th></th>
                                     </tr>
@@ -45,10 +45,10 @@
                                 <tbody>
                                     @foreach ($materias as $materia)
                                         <tr>
-										<td >{{ $materia->id_materia }}</td>
-										<td >{{ $materia->nombre_mat }}</td>
-										<td >{{ $materia->creditos }}</td>
-										<td>{{ $materia->prerrequisito->nombre_mat ?? '—' }}</td>
+                                        <td >{{ $materia->id_materia }}</td>
+                                        <td >{{ $materia->nombre_mat }}</td>
+                                        <td >{{ $materia->creditos }}</td>
+                                        <td>{{ $materia->prerrequisito->nombre_mat ?? '—' }}</td>
 
                                             <td>
                                                 <form action="{{ route('materias.destroy', $materia->id_materia) }}" method="POST">
@@ -64,12 +64,35 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- INICIO: Botones de Paginación Anterior/Siguiente --}}
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            <div class="d-flex align-items-center">
+                                
+                                {{-- Enlace Anterior (Previous) --}}
+                                @if ($materias->onFirstPage())
+                                    <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+                                @else
+                                    <a href="{{ $materias->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+                                @endif
+                                
+                                {{-- Enlace Siguiente (Next) --}}
+                                @if ($materias->hasMorePages())
+                                    <a href="{{ $materias->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+                                @else
+                                    <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        {{-- FIN: Botones de Paginación Anterior/Siguiente --}}
+
                         <div class="d-flex gap-2">
                         <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>
-                {!! $materias->withQueryString()->links() !!}
+                {{-- ELIMINADO: Se quitó el paginador estándar de Laravel que causaba las flechas grandes --}}
+                {{-- {!! $materias->withQueryString()->links() !!} --}}
             </div>
         </div>
     </div>

@@ -18,9 +18,9 @@
 
                              <div class="float-right">
                                 <a href="{{ route('alumnos.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Registrar alumno') }}
+                                    {{ __('Registrar alumno') }}
                                 </a>
-                              </div>
+                             </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -42,12 +42,12 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >No. de Control</th>
-									<th >Nombre</th>
-									<th >Apellido Paterno</th>
-									<th >Apellido Materno</th>
-									<th >Genero</th>
-									<th >Carrera</th>
+                                    <th >No. de Control</th>
+                                    <th >Nombre</th>
+                                    <th >Apellido Paterno</th>
+                                    <th >Apellido Materno</th>
+                                    <th >Genero</th>
+                                    <th >Carrera</th>
 
                                         <th></th>
                                     </tr>
@@ -55,12 +55,12 @@
                                 <tbody>
                                     @foreach ($alumnos as $alumno)
                                         <tr>
-										<td >{{ $alumno->no_control }}</td>
-										<td >{{ $alumno->nombre }}</td>
-										<td >{{ $alumno->apellido_pat }}</td>
-										<td >{{ $alumno->apellido_mat }}</td>
-										<td >{{ $alumno->genero }}</td>
-										<td >{{ $alumno->carreras->pluck('nombre_carr')->implode(', ') ?: '—' }}</td>
+                                        <td >{{ $alumno->no_control }}</td>
+                                        <td >{{ $alumno->nombre }}</td>
+                                        <td >{{ $alumno->apellido_pat }}</td>
+                                        <td >{{ $alumno->apellido_mat }}</td>
+                                        <td >{{ $alumno->genero }}</td>
+                                        <td >{{ $alumno->carreras->pluck('nombre_carr')->implode(', ') ?: '—' }}</td>
 
                                             <td>
                                                 <form action="{{ route('alumnos.destroy', $alumno->no_control) }}" method="POST">
@@ -76,12 +76,35 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- INICIO: Botones de Paginación Anterior/Siguiente --}}
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            <div class="d-flex align-items-center">
+                                
+                                {{-- Enlace Anterior (Previous) --}}
+                                @if ($alumnos->onFirstPage())
+                                    <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+                                @else
+                                    <a href="{{ $alumnos->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+                                @endif
+                                
+                                {{-- Enlace Siguiente (Next) --}}
+                                @if ($alumnos->hasMorePages())
+                                    <a href="{{ $alumnos->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+                                @else
+                                    <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        {{-- FIN: Botones de Paginación Anterior/Siguiente --}}
+                        
                         <div class="d-flex gap-2">
                         <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>
-                {!! $alumnos->withQueryString()->links() !!}
+                {{-- ELIMINADO: Se quitó el paginador estándar de Laravel que causaba las flechas grandes --}}
+                {{-- {!! $alumnos->withQueryString()->links() !!} --}}
             </div>
         </div>
     </div>

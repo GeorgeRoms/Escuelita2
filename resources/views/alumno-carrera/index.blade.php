@@ -93,7 +93,9 @@
                             </div>
 
                         </div>
-                        {{-- **************** FIN: Paginación Personalizada con Botones **************** --}}
+                        <div class="d-flex gap-2">
+                        <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
+                        </div>
 
                     </div>
                 </div>

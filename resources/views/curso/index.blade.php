@@ -18,9 +18,9 @@
 
                              <div class="float-right">
                                 <a href="{{ route('cursos.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Registrar Curso') }}
+                                    {{ __('Registrar Curso') }}
                                 </a>
-                              </div>
+                             </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -34,11 +34,11 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Código de curso</th>
-									<th >Cupo</th>
-									<th >Materia</th>
-									<th >Profesor</th>
-									<th>Aula</th>
+                                    <th >Código de curso</th>
+                                    <th >Cupo</th>
+                                    <th >Materia</th>
+                                    <th >Profesor</th>
+                                    <th>Aula</th>
                                     <th>Periodo</th>
                                         <th></th>
                                     </tr>
@@ -52,13 +52,13 @@
                                     $periodoLabel = $curso->periodo ? ($curso->periodo->nombre.' '.$curso->periodo->anio) : '—';
                                     @endphp
                                         <tr>
-										<td >{{ $curso->id_curso }}</td>
-										<td >{{ $curso->cupo }}</td>
-										<td >{{ $curso->materia->nombre_mat ?? '—' }}</td>
-										<td >@php $p = $curso->profesor; @endphp
+                                        <td >{{ $curso->id_curso }}</td>
+                                        <td >{{ $curso->cupo }}</td>
+                                        <td >{{ $curso->materia->nombre_mat ?? '—' }}</td>
+                                        <td >@php $p = $curso->profesor; @endphp
                                             {{ $p ? trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? '')) : '—' }}
                                         </td>
-										<td >{{ $a && $e ? ($e->codigo.' - '.$a->salon) : '—' }}</td>
+                                        <td >{{ $a && $e ? ($e->codigo.' - '.$a->salon) : '—' }}</td>
                                         <td>{{ $periodoLabel }}</td>
 
                                             <td>
@@ -75,12 +75,35 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- INICIO: Botones de Paginación Anterior/Siguiente --}}
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            <div class="d-flex align-items-center">
+                                
+                                {{-- Enlace Anterior (Previous) --}}
+                                @if ($cursos->onFirstPage())
+                                    <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+                                @else
+                                    <a href="{{ $cursos->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+                                @endif
+                                
+                                {{-- Enlace Siguiente (Next) --}}
+                                @if ($cursos->hasMorePages())
+                                    <a href="{{ $cursos->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+                                @else
+                                    <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        {{-- FIN: Botones de Paginación Anterior/Siguiente --}}
+                        
                         <div class="d-flex gap-2">
                         <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>
-                {!! $cursos->withQueryString()->links() !!}
+                {{-- ELIMINADO: Se quitó el paginador estándar de Laravel que causaba las flechas grandes --}}
+                {{-- {!! $cursos->withQueryString()->links() !!} --}}
             </div>
         </div>
     </div>

@@ -61,6 +61,29 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            
+    {{-- Contenedor para los botones Anterior / Siguiente --}}
+    <div class="d-flex align-items-center">
+        
+        {{-- Enlace Anterior (Previous) --}}
+        @if ($carreras->onFirstPage())
+            {{-- AGREGADO: me-2 para dar separación --}}
+            <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+        @else
+            <a href="{{ $carreras->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+        @endif
+        
+        {{-- Enlace Siguiente (Next) --}}
+        @if ($carreras->hasMorePages())
+            <a href="{{ $carreras->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+        @else
+            <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+        @endif
+    </div>
+
+</div>
+                        
                         <div class="d-flex gap-2">
                         <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>

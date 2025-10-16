@@ -18,9 +18,9 @@
 
                              <div class="float-right">
                                 <a href="{{ route('periodos.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Registrar periodo') }}
+                                    {{ __('Registrar periodo') }}
                                 </a>
-                              </div>
+                             </div>
                         </div>
                     </div>
                     @if ($message = Session::get('success'))
@@ -34,8 +34,8 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Año</th>
-									<th >Nombre</th>
+                                    <th >Año</th>
+                                    <th >Nombre</th>
 
                                         <th></th>
                                     </tr>
@@ -43,8 +43,8 @@
                                 <tbody>
                                     @foreach ($periodos as $periodo)
                                         <tr>
-										<td >{{ $periodo->anio }}</td>
-										<td >{{ $periodo->nombre }}</td>
+                                        <td >{{ $periodo->anio }}</td>
+                                        <td >{{ $periodo->nombre }}</td>
 
                                             <td>
                                                 <form action="{{ route('periodos.destroy', $periodo->id) }}" method="POST">
@@ -60,12 +60,35 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        {{-- INICIO: Botones de Paginación Anterior/Siguiente --}}
+                        <div class="d-flex justify-content-center align-items-center mt-3 p-2">
+                            <div class="d-flex align-items-center">
+                                
+                                {{-- Enlace Anterior (Previous) --}}
+                                @if ($periodos->onFirstPage())
+                                    <button class="btn btn-sm btn-primary text-white disabled me-2" disabled><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</button>
+                                @else
+                                    <a href="{{ $periodos->previousPageUrl() }}" class="btn btn-sm btn-primary text-white me-2"><i class="fa fa-fw fa-arrow-left"></i> {{ __('Anterior') }}</a>
+                                @endif
+                                
+                                {{-- Enlace Siguiente (Next) --}}
+                                @if ($periodos->hasMorePages())
+                                    <a href="{{ $periodos->nextPageUrl() }}" class="btn btn-sm btn-primary text-white">{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></a>
+                                @else
+                                    <button class="btn btn-sm btn-primary text-white disabled" disabled>{{ __('Siguiente') }} <i class="fa fa-fw fa-arrow-right"></i></button>
+                                @endif
+                            </div>
+                        </div>
+                        {{-- FIN: Botones de Paginación Anterior/Siguiente --}}
+
                         <div class="d-flex gap-2">
                         <x-back label="Atrás" style="margin-top: -0.5%; margin-bottom: 1%"/>
                         </div>
                     </div>
                 </div>
-                {!! $periodos->withQueryString()->links() !!}
+                {{-- ELIMINADO: Se quitó el paginador estándar de Laravel que causaba las flechas grandes --}}
+                {{-- {!! $periodos->withQueryString()->links() !!} --}}
             </div>
         </div>
     </div>
