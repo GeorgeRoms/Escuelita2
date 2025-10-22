@@ -64,6 +64,21 @@ Route::get('/reportes/carrera-periodo/ver', [ReporteCarreraPeriodoController::cl
 
 
 
+// routes/web.php
+Route::get('/_debug', function () {
+    return [
+        'app_env'   => app()->environment(),
+        'app_debug' => config('app.debug'),
+        'env_debug' => env('APP_DEBUG'), // ojo: solo para diagnosticar
+    ];
+});
+
+
+Route::get('/_boom', function () {
+    throw new \Exception('Boom test');
+});
+
+
 
 Route::get('/test/safe', function (\Illuminate\Http\Request $request) {
     return Safe::run(

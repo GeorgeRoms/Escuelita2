@@ -45,7 +45,7 @@
 
     {{-- Carrera (opcional) --> se guarda en la pivot alumno_carrera --}}
     <div class="form-group mb-2">
-      <label for="carrera_id" class="form-label">Carrera (opcional)</label>
+      <label for="carrera_id" class="form-label">Carrera</label>
       @php
         // Para edición: pásame $carreraActualId desde el controlador (id_carrera) o calcula el primero
         $carreraActualId = old('carrera_id', $carreraActualId ?? null);
@@ -58,6 +58,21 @@
       </select>
       {!! $errors->first('carrera_id', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
     </div>
+
+
+    <div class="col-md-3">
+  <label class="form-label">Semestre</label>
+  <select name="semestre" class="form-select" required>
+    @php $sSel = old('semestre', $alumno?->semestre); @endphp
+    <option value="">Seleccione…</option>
+    @for($s=1; $s<=20; $s++)
+      <option value="{{ $s }}" @selected($sSel==$s)>{{ $s }}</option>
+    @endfor
+  </select>
+  {!! $errors->first('semestre', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
+</div>
+
+
 
     <div class="row" style="margin-bottom: 1%">
       <div class="col-md-3">

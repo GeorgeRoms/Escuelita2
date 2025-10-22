@@ -46,8 +46,8 @@
                                     {{ $inscripcione->intento }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Semestre:</strong>
-                                    {{ $inscripcione->semestre }}
+                                    <strong>Promedio:</strong>
+                                    {{ $inscripcione->promedio }}
                                 </div>
 
                     </div>

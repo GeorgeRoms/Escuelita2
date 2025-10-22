@@ -16,17 +16,19 @@ class Handler extends ExceptionHandler
 {
     public function register(): void
     {
-        $this->renderable(function (QueryException $e, $request) {
-            $folio = Str::uuid();
-            Log::error('QueryException', ['folio' => (string)$folio, 'exception' => $e]); // 👈🏻 ya sin warning
-            return $this->failResponse($request, 'Ocurrió un error de base de datos.', $folio);
-        });
+        $this->renderable(function (\Illuminate\Database\QueryException $e, $request) {
+    if (config('app.debug')) return null; // deja a Laravel mostrar el error
+    $folio = \Illuminate\Support\Str::uuid();
+    Log::error('QueryException', ['folio'=>(string)$folio, 'exception'=>$e]);
+    return $this->failResponse($request, 'Ocurrió un error de base de datos.', $folio);
+});
 
-        $this->renderable(function (ViewException $e, $request) {
-            $folio = Str::uuid();
-            Log::error('ViewException', ['folio' => (string)$folio, 'exception' => $e]);
-            return $this->failResponse($request, 'Ocurrió un error al renderizar la vista.', $folio);
-        });
+$this->renderable(function (\Illuminate\View\ViewException $e, $request) {
+    if (config('app.debug')) return null;
+    $folio = \Illuminate\Support\Str::uuid();
+    Log::error('ViewException', ['folio'=>(string)$folio, 'exception'=>$e]);
+    return $this->failResponse($request, 'Ocurrió un error al renderizar la vista.', $folio);
+});
     }
 
     protected function failResponse($request, string $msg, $folio)
@@ -44,20 +46,20 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $e)
     {
-        if ($e instanceof ValidationException ||
-            $e instanceof NotFoundHttpException ||
-            $e instanceof ModelNotFoundException) {
-            return parent::render($request, $e);
-        }
+        // 👇 esto primero
+    if (config('app.debug')) {
+        return parent::render($request, $e);
+    }
 
-        if (config('app.debug')) {
-            return parent::render($request, $e);
-        }
+    if ($e instanceof \Illuminate\Validation\ValidationException ||
+        $e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException ||
+        $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+        return parent::render($request, $e);
+    }
 
-        $folio = Str::uuid();
-        Log::error('Excepción no controlada', ['folio' => (string)$folio, 'exception' => $e]);
-
-        return $this->failResponse($request, 'Algo ha fallado, por favor intenta de nuevo.', $folio);
+    $folio = \Illuminate\Support\Str::uuid();
+    Log::error('Excepción no controlada', ['folio'=>(string)$folio, 'exception'=>$e]);
+    return $this->failResponse($request, 'Algo ha fallado, por favor intenta de nuevo.', $folio);
     }
 }
 

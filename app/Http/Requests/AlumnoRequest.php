@@ -54,6 +54,7 @@ class AlumnoRequest extends FormRequest
 
             // ✅ ahora opcional y va a la pivot alumno_carrera
             'carrera_id'   => ['sometimes','nullable','integer','exists:carreras,id_carrera'],
+            'semestre' => ['required','integer','between:1,20'],
         ];
     }
 

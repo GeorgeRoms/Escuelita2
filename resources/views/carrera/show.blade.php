@@ -18,7 +18,7 @@
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Id Carrera:</strong>
+                                    <strong>Código de Carrera:</strong>
                                     {{ $carrera->id_carrera }}
                                 </div>
                                 <div class="form-group mb-2 mb20">

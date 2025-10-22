@@ -34,7 +34,7 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-                                    <th >Codigo</th>
+                                    <th >Codigo/Letra</th>
                                     <th >Nombre</th>
 
                                         <th></th>

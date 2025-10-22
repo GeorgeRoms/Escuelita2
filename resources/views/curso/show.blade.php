@@ -18,7 +18,7 @@
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Código:</strong>
+                                    <strong>Código del curso:</strong>
                                     {{ $curso->id_curso }}
                                 </div>
                                 <div class="form-group mb-2 mb20">

@@ -48,6 +48,7 @@
                                     <th >Apellido Materno</th>
                                     <th >Genero</th>
                                     <th >Carrera</th>
+                                    <th>Semestre</th>
 
                                         <th></th>
                                     </tr>
@@ -61,6 +62,7 @@
                                         <td >{{ $alumno->apellido_mat }}</td>
                                         <td >{{ $alumno->genero }}</td>
                                         <td >{{ $alumno->carreras->pluck('nombre_carr')->implode(', ') ?: '—' }}</td>
+                                        <td>{{ $alumno->semestre }}</td>
 
                                             <td>
                                                 <form action="{{ route('alumnos.destroy', $alumno->no_control) }}" method="POST">

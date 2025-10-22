@@ -38,7 +38,7 @@
                                     <th >Curso</th>
                                     <th >Estado</th>
                                     <th >Intento</th>
-                                    <th >Semestre</th>
+                                    <th >Promedio</th>
 
                                         <th></th>
                                     </tr>
@@ -66,7 +66,7 @@
                                         </td>
                                         <td >{{ $ins->estado }}</td>
                                         <td >{{ $ins->intento }}</td>
-                                        <td >{{ $ins->semestre ?? '—' }}</td>
+                                        <td >{{ $ins->promedio }}</td>
 
                                             <td>
                                                 <form action="{{ route('inscripciones.destroy', $ins->id) }}" method="POST">

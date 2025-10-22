@@ -39,9 +39,10 @@ class Alumno extends Model
     protected $perPage = 20;
 
     protected $fillable = [
-        'no_control','nombre','apellido_pat','apellido_mat',
-        'genero','anio','periodo','consecutivo'
+        'nombre','apellido_pat','apellido_mat',
+        'genero','carrera_id','anio','periodo', 'semestre'
     ];
+    protected $guarded = ['no_control','consecutivo'];
 
     protected static function booted()
 {

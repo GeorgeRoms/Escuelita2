@@ -54,13 +54,25 @@
             </select>
             @error('intento') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
-        <div class="form-group mb-2 mb20">
+        <div class="col-md-3">
+            <label for="promedio" class="form-label">Promedio</label>
+            <input
+                type="number"
+                name="promedio"
+                id="promedio"
+                class="form-control @error('promedio') is-invalid @enderror"
+                value="{{ old('promedio', $inscripcione->promedio ?? null) }}"
+                step="0.01" min="0" max="100" placeholder="0.00 – 100.00">
+                {!! $errors->first('promedio', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
+        </div>
+
+        {{-- <div class="form-group mb-2 mb20">
             <label class="form-label">Semestre</label>
             <input type="number" name="semestre" min="1" max="12"
                class="form-control @error('semestre') is-invalid @enderror"
                value="{{ old('semestre', $inscripcione->semestre ?? null) }}">
                 @error('semestre') <div class="invalid-feedback">{{ $message }}</div> @enderror
-        </div>
+        </div> --}}
 
     </div>
     <div class="col-md-12 mt20 mt-2">

@@ -40,7 +40,11 @@ class Inscripcione extends Model
         'curso_id',
         'estado',              // 'Inscrito' | 'Baja'
         'intento',             // 'Normal' | 'Repite' | 'Especial'
-        'semestre',            // tinyint
+        'promedio',
+    ];
+
+    protected $casts = [
+        'promedio' => 'decimal:2', // ⬅️ 2 decimales
     ];
 
 

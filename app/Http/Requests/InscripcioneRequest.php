@@ -27,8 +27,8 @@ class InscripcioneRequest extends FormRequest
             'estado'             => ['required','in:Inscrito,Baja'],
             'intento'            => ['required','in:Normal,Repite,Especial'],
             // 'oportunidad'        => ['nullable','in:1ra,2da'],
-            'semestre'           => ['nullable','integer','between:1,12'],
             // 'unidades_reprobadas'=> ['nullable','integer','min:0'],
+            'promedio'          => ['nullable','numeric','between:0,100'],
         ];
     }
 

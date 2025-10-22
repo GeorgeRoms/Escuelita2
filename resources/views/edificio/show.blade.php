@@ -18,7 +18,7 @@
                     <div class="card-body bg-white">
                         
                                 <div class="form-group mb-2 mb20">
-                                    <strong>Codigo:</strong>
+                                    <strong>Codigo/Letra:</strong>
                                     {{ $edificio->codigo }}
                                 </div>
                                 <div class="form-group mb-2 mb20">

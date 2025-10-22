@@ -13,6 +13,7 @@ use App\Models\Curso;
 use Illuminate\Database\QueryException;
 use App\Support\Safe;
 use App\Support\Responder;
+use Illuminate\Support\Arr;
 
 class InscripcioneController extends Controller
 {
@@ -63,46 +64,45 @@ class InscripcioneController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(InscripcioneRequest $request)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        return Safe::run(
-            function () use ($data) {
-                return DB::transaction(function () use ($data) {
-                    // Evita duplicar la misma inscripción (alumno + curso)
-                    $ins = Inscripcione::firstOrCreate(
-                        [
-                            'alumno_no_control' => $data['alumno_no_control'],
-                            'curso_id'          => $data['curso_id'],
-                        ],
-                        [
-                            'estado'   => $data['estado'],
-                            'intento'  => $data['intento'],
-                            'semestre' => $data['semestre'] ?? null,
-                        ]
-                    );
+    $solo = Arr::only($data, [
+        'alumno_no_control',
+        'curso_id',
+        'intento',
+        'promedio', // nuevo
+    ]);
 
-                    if (!$ins->wasRecentlyCreated) {
-                        // ya existía, lanzamos excepción para capturar en onError
-                        throw new \RuntimeException('El alumno ya está inscrito en ese curso.');
-                    }
+    return Safe::run(
+        function () use ($solo) {
+            return DB::transaction(function () use ($solo) {
+                // Unicidad por (alumno_no_control, curso_id)
+                $ins = Inscripcione::firstOrCreate(
+                    [
+                        'alumno_no_control' => $solo['alumno_no_control'],
+                        'curso_id'          => $solo['curso_id'],
+                    ],
+                    Arr::only($solo, ['intento','promedio'])
+                );
 
-                    return true;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'inscripciones.index', 'Inscripción registrada.', null, 201);
-            },
-            function ($folio, $e) use ($request) {
-                // Si fue duplicado
-                if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'inscrito')) {
-                    return back()->withErrors('El alumno ya está inscrito en ese curso.')->withInput();
+                if (!$ins->wasRecentlyCreated) {
+                    throw new \RuntimeException('El alumno ya está inscrito en ese curso.');
                 }
-
-                return Responder::fail($request, $folio, 'error.general');
+                return true;
+            });
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'inscripciones.index', 'Inscripción registrada.', null, 201);
+        },
+        function ($folio, $e) use ($request) {
+            if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'inscrito')) {
+                return back()->withErrors('El alumno ya está inscrito en ese curso.')->withInput();
             }
-        );
-    }
+            return Responder::fail($request, $folio, 'error.general');
+        }
+    );
+}
 
     /**
      * Display the specified resource.
@@ -148,38 +148,43 @@ class InscripcioneController extends Controller
      * Update the specified resource in storage.
      */
     public function update(InscripcioneRequest $request, Inscripcione $inscripcione)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        return Safe::run(
-            function () use ($inscripcione, $data) {
-                return DB::transaction(function () use ($inscripcione, $data) {
-                    // Proteger duplicado al editar (alumno+curso únicos)
-                    $exist = Inscripcione::where('alumno_no_control', $data['alumno_no_control'])
-                        ->where('curso_id', $data['curso_id'])
-                        ->where('id', '<>', $inscripcione->id)
-                        ->exists();
+    $solo = Arr::only($data, [
+        'alumno_no_control',
+        'curso_id',
+        'intento',
+        'promedio',
+    ]);
 
-                    if ($exist) {
-                        throw new \RuntimeException('Ya existe una inscripción con ese alumno y curso.');
-                    }
+    return Safe::run(
+        function () use ($inscripcione, $solo) {
+            return DB::transaction(function () use ($inscripcione, $solo) {
+                $exist = Inscripcione::where('alumno_no_control', $solo['alumno_no_control'])
+                    ->where('curso_id', $solo['curso_id'])
+                    ->where('id', '<>', $inscripcione->id)
+                    ->exists();
 
-                    $inscripcione->update($data);
-                    return true;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'inscripciones.index', 'Inscripción actualizada.');
-            },
-            function ($folio, $e) use ($request) {
-                if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'inscripción')) {
-                    return back()->withErrors('Ya existe una inscripción con ese alumno y curso.')->withInput();
+                if ($exist) {
+                    throw new \RuntimeException('Ya existe una inscripción con ese alumno y curso.');
                 }
 
-                return Responder::fail($request, $folio, 'error.general');
+                $inscripcione->update($solo);
+                return true;
+            });
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'inscripciones.index', 'Inscripción actualizada.');
+        },
+        function ($folio, $e) use ($request) {
+            if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'inscripción')) {
+                return back()->withErrors('Ya existe una inscripción con ese alumno y curso.')->withInput();
             }
-        );
-    }
+            return Responder::fail($request, $folio, 'error.general');
+        }
+    );
+}
 
     public function destroy(Inscripcione $inscripcione)
     {

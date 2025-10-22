@@ -1,4 +1,8 @@
 {{-- resources/views/reportes/index.blade.php --}}
+@php
+  $selCarrera = $carrera ?? request('carrera');
+  $selIntento = $intento ?? request('intento', 'Especial');
+@endphp
 @extends('layouts.app')
 
 @section('content')
@@ -10,18 +14,39 @@
     <div class="col-md-6">
       <div class="card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Alumnos/Materias en “Especial”</h5>
+          <h5 class="card-title">Alumnos con materias en “Normal/Repite/Especial”</h5>
           <p class="text-muted mb-3">Resumen por carrera usando el procedimiento almacenado.</p>
 
-          <form action="{{ route('reportes.especial') }}" method="get" class="d-flex gap-2">
-            <select name="carrera" class="form-select" required>
-              <option value="" disabled selected>— elige una carrera —</option>
-              @foreach($carreras ?? [] as $car)
-                <option value="{{ $car }}">{{ $car }}</option>
-              @endforeach
-            </select>
-            <button class="btn btn-primary" type="submit">Ver</button>
-          </form>
+          <form action="{{ route('reportes.especial') }}" method="get" class="row g-2 align-items-end">
+  <div class="col-md-5">
+    <label class="form-label">Carrera</label>
+    <select name="carrera" class="form-select" required>
+      <option value="" disabled {{ $selCarrera ? '' : 'selected' }}>— elige una carrera —</option>
+      @foreach(($carreras ?? []) as $car)
+        <option value="{{ $car }}" {{ $selCarrera === $car ? 'selected' : '' }}>
+          {{ $car }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+
+  <div class="col-md-5">
+    <label class="form-label">Intento</label>
+    <select name="intento" class="form-select" required>
+      <option value="" disabled {{ $selIntento ? '' : 'selected' }}>— Intento —</option>
+      @foreach(['Normal','Repite','Especial'] as $opt)
+        <option value="{{ $opt }}" {{ $selIntento === $opt ? 'selected' : '' }}>
+          {{ $opt }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+
+  <div class="col-md-2">
+    <label class="form-label d-none d-md-block">&nbsp;</label>
+    <button class="btn btn-primary w-100" type="submit">Ver</button>
+  </div>
+</form>
         </div>
       </div>
     </div>

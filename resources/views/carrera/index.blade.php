@@ -34,7 +34,7 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Número de carrera</th>
+									<th >Código de carrera</th>
 									<th >Nombre de carrera</th>
 									<th >Capacidad</th>
                                         <th></th>

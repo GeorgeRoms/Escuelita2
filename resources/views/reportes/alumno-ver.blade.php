@@ -17,8 +17,9 @@
           <th>Periodo</th>
           <th>Estado</th>
           <th>Intento</th>
+          <th>Promedio</th>
           <th>Semestre</th>
-          <th>ID Curso</th>
+          <th>Código del Curso</th>
         </tr>
       </thead>
       <tbody>
@@ -29,6 +30,7 @@
             <td>{{ $h->periodo }}</td>
             <td>{{ $h->estado }}</td>
             <td>{{ $h->intento }}</td>
+            <td>{{ $h->promedio }}</td>
             <td>{{ $h->semestre }}</td>
             <td>{{ $h->id_curso }}</td>
           </tr>

@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Area:</strong>
-                                    {{ $profesore->area }}
+                                    {{ $profesore->area->nombre_area ?? '—' }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Tipo:</strong>

@@ -15,14 +15,16 @@ class Safe
             return $onOk($result);
         } catch (\Throwable $e) {
             Log::error('Excepción en Safe::run', [
-                'folio'   => (string) $folio,
-                // auth()->id() devuelve null si no hay sesión (no rompe)
+                'folio' => (string) $folio,
                 'user_id' => auth()->id(),
-                // En CLI/Jobs puede no haber request; nullsafe evita error
-                'ip'      => request()?->ip(),
+                'ip' => request()?->ip(),
                 'exception' => $e,
             ]);
-
+            
+            // 👇 Modo dev: si APP_DEBUG=true y pides ?debug=1 (o activas SAFE_RETHROW), re-lanza
+            if (config('app.debug') && (request()->boolean('debug') || env('SAFE_RETHROW', false))) {
+                throw $e;
+            }
             return $onFail($folio, $e);
         }
     }

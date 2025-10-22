@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\AlumnoRequest;
 use App\Support\Safe;
 use App\Support\Responder;
+use Illuminate\Support\Arr;
 
 class AlumnoController extends Controller
 {
@@ -60,31 +61,36 @@ class AlumnoController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(AlumnoRequest $request)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        return Safe::run(
-            function () use ($data) {
-                return DB::transaction(function () use ($data) {
-                    // Crear alumno (sin carrera_id)
-                    $alumno = Alumno::create(collect($data)->except('carrera_id')->toArray());
+    // 🔒 Solo los campos permitidos (no pasan no_control/consecutivo)
+    $solo = Arr::only($data, [
+        'nombre','apellido_pat','apellido_mat','genero',
+        'anio','periodo','carrera_id', 'semestre'
+    ]);
 
-                    // Carrera única (si se eligió)
-                    if (!empty($data['carrera_id'])) {
-                        $alumno->carreras()->sync([$data['carrera_id']]);
-                    }
+    return Safe::run(
+        function () use ($solo) {
+            return DB::transaction(function () use ($solo) {
 
-                    return $alumno;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'alumnos.index', 'Alumno registrado.', null, 201);
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
+                // crea alumno sin carrera_id
+                $alumno = Alumno::create(Arr::except($solo, ['carrera_id']));
+
+                if (!empty($solo['carrera_id'])) {
+                    $alumno->carreras()->sync([$solo['carrera_id']]);
+                }
+                return $alumno;
+            });
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'alumnos.index', 'Alumno registrado.', null, 201);
+        },
+        function ($folio) use ($request) {
+            return Responder::fail($request, $folio, 'error.general');
+        }
+    );
+}
 
     /**
      * Display the specified resource.
@@ -132,32 +138,38 @@ class AlumnoController extends Controller
      * Update the specified resource in storage.
      */
     public function update(AlumnoRequest $request, Alumno $alumno)
-    {
-        $data = $request->validated();
+{
+    $data = $request->validated();
 
-        return Safe::run(
-            function () use ($alumno, $data) {
-                return DB::transaction(function () use ($alumno, $data) {
-                    $alumno->update(collect($data)->except('carrera_id')->toArray());
+    $solo = Arr::only($data, [
+        'nombre','apellido_pat','apellido_mat','genero',
+        'anio','periodo','carrera_id', 'semestre'
+    ]);
 
-                    if (array_key_exists('carrera_id', $data)) {
-                        if ($data['carrera_id']) {
-                            $alumno->carreras()->sync([$data['carrera_id']]); // una sola carrera activa
-                        } else {
-                            $alumno->carreras()->detach();
-                        }
+    return Safe::run(
+        function () use ($alumno, $solo) {
+            return DB::transaction(function () use ($alumno, $solo) {
+
+                $alumno->update(Arr::except($solo, ['carrera_id']));
+
+                if (array_key_exists('carrera_id', $solo)) {
+                    if ($solo['carrera_id']) {
+                        $alumno->carreras()->sync([$solo['carrera_id']]);
+                    } else {
+                        $alumno->carreras()->detach();
                     }
-                    return true;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'alumnos.index', 'Alumno actualizado.');
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
+                }
+                return true;
+            });
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'alumnos.index', 'Alumno actualizado.');
+        },
+        function ($folio) use ($request) {
+            return Responder::fail($request, $folio, 'error.general');
+        }
+    );
+}
 
     /**
      * Remove the specified resource from storage.
