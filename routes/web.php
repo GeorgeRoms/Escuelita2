@@ -1,8 +1,10 @@
 <?php
 
+
 use App\Http\Controllers\AlumnoCarreraController;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\AsignacionClaseController; // ¡Importación añadida!
 use App\Http\Controllers\AulaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CarreraController;
@@ -52,6 +54,10 @@ Route::resource('inscripciones', InscripcioneController::class);
 Route::resource('alumno-carreras', AlumnoCarreraController::class)
 ->parameters(['alumno-carreras' => 'alumno_carrerum']);
 Route::resource('aulas', AulaController::class);
+
+// RUTA AÑADIDA PARA LAS ASIGNACIONES DE CLASE (HORARIOS)
+Route::resource('asignaciones', AsignacionClaseController::class);
+
 Route::view('/error/general', 'error.general')->name('error.general');
 
 Route::get('/reportes', [ReportesController::class, 'index'])->name('reportes.index');
@@ -61,6 +67,8 @@ Route::get('/reportes/curso/ver', [ReporteCursoController::class, 'ver'])->name(
 Route::get('/reportes/profesor/ver', [ReporteProfesorController::class, 'ver'])->name('reportes.profesor.ver');
 Route::get('/reportes/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
 Route::get('/reportes/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
+
+
 
 
 
