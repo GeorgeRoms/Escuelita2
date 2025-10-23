@@ -30,12 +30,19 @@ class Periodo extends Model
      *
      * @var array<int, string>
      */
+    protected $table = 'periodos';
     protected $fillable = ['anio', 'nombre'];
 
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+
+    public function scopeAnioActual($query)
+    {
+        return $query->where('anio', now()->year);
+    }
+
     public function cursos()
     {
         return $this->hasMany(Curso::class,'periodo_id');
