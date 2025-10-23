@@ -82,6 +82,11 @@
         @endforelse
       </tbody>
     </table>
+    <a class="btn btn-outline-danger mt-3"
+   href="{{ route('reportes.especial.pdf', ['carrera'=>$carrera, 'intento'=>$intento]) }}"
+   target="_blank">
+  Descargar PDF
+</a>
   </div>
   <a href="{{ route('reportes.index') }}" class="btn btn-outline-secondary mt-2">← Atrás</a>
 </div>

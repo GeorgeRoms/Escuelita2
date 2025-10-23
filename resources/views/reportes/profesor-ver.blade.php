@@ -12,9 +12,9 @@
     <table class="table table-striped align-middle">
       <thead>
         <tr>
-          <th>Id profesor</th>
+          <th>Código de profesor</th>
           <th>Docente</th>
-          <th>Id curso</th>
+          <th>Código de curso</th>
           <th>Materia</th>
           <th>Periodo</th>
           <th>Alumnos inscritos</th>
@@ -37,6 +37,14 @@
         @endforelse
       </tbody>
     </table>
+    <a href="{{ route('reportes.profesor.pdf', [
+        'profesor_id' => request('profesor_id'),     // o el que uses
+        'periodo_id'  => request('periodo_id')       // opcional
+    ]) }}"
+   class="btn btn-outline-danger mt-2"
+   target="_blank">
+  Descargar PDF
+</a>
   </div>
 
   <a href="{{ route('reportes.index') }}" class="btn btn-outline-secondary mt-2">← Volver a Reportes</a>

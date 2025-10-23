@@ -23,7 +23,7 @@ use App\Http\Controllers\ReporteEspecialController;
 use App\Http\Controllers\ReporteCursoController;
 use App\Http\Controllers\ReporteProfesorController;
 use App\Http\Controllers\ReporteAlumnoController;
-use App\Http\Controllers\ReporteCarreraPeriodoController;
+use App\Http\Controllers\ReporteCarreraPeriodoController; 
 
 
 Auth::routes();
@@ -62,6 +62,16 @@ Route::get('/reportes/profesor/ver', [ReporteProfesorController::class, 'ver'])-
 Route::get('/reportes/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
 Route::get('/reportes/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
 
+Route::get('/reportes/especial/pdf', [ReporteEspecialController::class, 'especialPdf'])
+    ->name('reportes.especial.pdf');
+Route::get('/reportes/curso/pdf', [ReporteCursoController::class, 'cursoPdf'])
+     ->name('reportes.curso.pdf');
+Route::get('/reportes/profesor/pdf', [ReporteProfesorController::class, 'materiasProfesorPdf'])
+     ->name('reportes.profesor.pdf');
+Route::get('/reportes/historial/pdf', [ReporteAlumnoController::class, 'historialPdf'])
+     ->name('reportes.historial.pdf');
+Route::get('/reportes/carrera-periodo/pdf',[ReporteCarreraPeriodoController::class, 'pdf'])
+    ->name('reportes.carrera_periodo.pdf');
 
 
 // routes/web.php
