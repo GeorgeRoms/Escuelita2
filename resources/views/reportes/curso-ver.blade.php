@@ -16,7 +16,7 @@
     <table class="table table-striped align-middle">
       <thead>
         <tr>
-          <th>No. control</th>
+          <th>No. Control</th>
           <th>Alumno</th>
           <th>Semestre</th>
           <th>Intento</th>
@@ -43,6 +43,10 @@
         @endforelse
       </tbody>
     </table>
+    <a href="{{ route('reportes.curso.pdf', ['curso_id' => $cursoInfo->id_curso ?? 0]) }}"
+      class="btn btn-outline-danger mt-3" target="_blank">
+      Descargar PDF
+    </a>
   </div>
 
   <a href="{{ route('reportes.index') }}" class="btn btn-outline-secondary mt-2">← Elegir otro curso</a>

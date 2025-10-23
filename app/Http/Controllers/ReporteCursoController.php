@@ -4,9 +4,49 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReporteCursoController extends Controller
 {
+
+    public function cursoPdf(Request $request)
+{
+    $cursoId = $request->query('curso_id');
+
+    // Llamamos al procedimiento almacenado
+    $stmt = DB::getPdo()->prepare('CALL alumnos_por_curso(?)');
+    $stmt->execute([$cursoId]);
+
+    $alumnos = $stmt->fetchAll(\PDO::FETCH_OBJ);
+    $stmt->closeCursor();
+
+    // Opcional: información del curso (puedes ajustarlo a tu modelo)
+    $cursoInfo = collect($alumnos)->first();
+
+    // Logo base64 (MIME correcto)
+    $logoB64 = null;
+    $logoPath = public_path('images/escuelita-logo.png');
+    if (is_file($logoPath)) {
+        $mime = mime_content_type($logoPath) ?: 'image/png';
+        $logoB64 = 'data:'.$mime.';base64,'.base64_encode(file_get_contents($logoPath));
+    }
+
+    $data = [
+        'cursoInfo' => $cursoInfo,
+        'alumnos'   => $alumnos,
+        'fecha'     => now()->format('d/m/Y H:i'),
+        'logoB64'         => $logoB64,
+    ];
+
+    $pdf = Pdf::loadView('reportes.curso_pdf', $data)
+              ->setPaper('a4', 'landscape'); // horizontal por si hay muchas columnas
+
+    return $pdf->download("alumnos_curso_{$cursoId}.pdf");
+
+    // Si prefieres verlo antes de descargar:
+    // return $pdf->stream("alumnos_curso_{$cursoId}.pdf");
+}
+    
     public function index()
     {
         // Catálogo bonito: Curso #, Materia, Grupo, Periodo (Enero-Junio 2025), Profe

@@ -41,6 +41,10 @@
         @endforelse
       </tbody>
     </table>
+    <a href="{{ route('reportes.historial.pdf', ['no_control' => $alumnoInfo->no_control ?? request('no_control')]) }}"
+   class="btn btn-outline-danger mt-2" target="_blank">
+  Descargar PDF
+  </a>
   </div>
 
   <a href="{{ route('reportes.index') }}" class="btn btn-outline-secondary mt-2">← Volver a Reportes</a>

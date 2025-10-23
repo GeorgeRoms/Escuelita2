@@ -84,7 +84,8 @@ class CursoController extends Controller
                     ->pluck('label','id'); // [id => "A - 101"]
 
                 // Periodos (si los usas en el form)
-                $periodos = \App\Models\Periodo::orderBy('anio','desc')->orderBy('nombre')
+                $periodos = Periodo::anioActual()
+                    ->orderBy('nombre')
                     ->get()
                     ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
 

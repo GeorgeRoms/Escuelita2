@@ -109,6 +109,15 @@
         @endforelse
       </tbody>
     </table>
+    <a href="{{ route('reportes.carrera_periodo.pdf', [
+        'carrera' => $carrera,
+        'anio'    => $anio,      {{-- <-- estos DOS vienen del controller --}}
+        'periodo' => $periodo,   {{-- <-- 'Enero-Junio' o 'Agosto-Diciembre' --}}
+        ]) }}"
+      class="btn btn-outline-danger mt-3"
+      target="_blank">
+      Descargar PDF
+    </a>
   </div>
 
   <a href="{{ route('reportes.index') }}" class="btn btn-outline-secondary mt-3">← Volver a Reportes</a>
