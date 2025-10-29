@@ -14,7 +14,7 @@
     <div class="col-md-6">
       <div class="card h-100 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">Alumnos con materias en “Normal/Repite/Especial”</h5>
+          <h5 class="card-title">Alumnos con materias en “Normal/Repite/Especial” </h5>
           <p class="text-muted mb-3">Resumen por carrera usando el procedimiento almacenado.</p>
 
           <form action="{{ route('reportes.especial') }}" method="get" class="row g-2 align-items-end">
