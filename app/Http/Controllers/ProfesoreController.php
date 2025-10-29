@@ -3,121 +3,162 @@
 namespace App\Http\Controllers;
 
 use App\Models\Profesore;
-use App\Models\Area; // CORRECCIÓN: Cambiado de CatalArea a Area
+use App\Models\Area;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\ProfesoreRequest;
+use Illuminate\Support\Facades\DB;
+use App\Support\Safe;
+use App\Support\Responder;
 
-/**
- * Clase ProfesoreController
- * @package App\Http\Controllers
- */
 class ProfesoreController extends Controller
 {
-    /**
-     * Muestra una lista de recursos.
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(Request $request)
     {
-        // SOLUCIÓN: Cargar todos los profesores y pasarlos a la vista.
-        // Asumo que quieres paginar los resultados. Si no, usa ->get().
-        $profesores = Profesore::with('area')->paginate(10); // Cargamos la relación 'area' para mostrar el nombre.
+        return Safe::run(
+            function () use ($request) {
+                $profesores = Profesore::with('area')   // para mostrar nombre de área sin N+1
+                    ->orderBy('nombre')
+                    ->paginate();
 
-        return view('profesore.index', compact('profesores'));
+                return [$profesores, $request];
+            },
+            function ($payload) {
+                [$profesores, $request] = $payload;
+
+                return view('profesore.index', compact('profesores'))
+                    ->with('i', ($request->input('page', 1) - 1) * $profesores->perPage());
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
+            }
+        );
     }
 
     /**
-     * Muestra el formulario para crear un nuevo recurso.
-     * @return \Illuminate\Http\Response
+     * Show the form for creating a new resource.
      */
     public function create()
     {
-        $profesore = new Profesore();
-        
-        // Cargar las áreas para el select (usando el modelo Area)
-        $catalAreas = Area::all(); // CORRECCIÓN: Llamando al modelo Area
+        return Safe::run(
+            function () {
+                $profesore = new Profesore();
+                $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
 
-        return view('profesore.create', compact('profesore', 'catalAreas'));
+                return compact('profesore', 'catalAreas');
+            },
+            function ($data) {
+                return view('profesore.create', $data);
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo cargar el formulario. Folio: '.$folio);
+            }
+        );
     }
 
     /**
-     * Almacena un recurso recién creado en el almacenamiento.
-     * * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(ProfesoreRequest $request)
     {
-        // 1. Definir reglas de validación
-        request()->validate(Profesore::$rules);
+        $validated = $request->validated();
 
-        // 2. Obtener todos los datos validados
-        $data = $request->all();
-        
-        // 3. Crear y guardar el nuevo registro de profesor
-        try {
-            Profesore::create($data);
-        } catch (\Exception $e) {
-            // Manejo de errores si la creación falla (ej: violación de clave externa, error de longitud)
-            return redirect()->route('profesores.create')
-                ->with('error', 'Error al guardar el profesor: ' . $e->getMessage())
-                ->withInput();
-        }
-
-        // 4. Redirigir con mensaje de éxito
-        return redirect()->route('profesores.index')
-            ->with('success', 'Profesore creado con éxito.');
+        return Safe::run(
+            function () use ($validated) {
+                return DB::transaction(function () use ($validated) {
+                    return Profesore::create($validated);
+                });
+            },
+            function () use ($request) {
+                return Responder::ok($request, 'profesores.index', 'Profesor creado correctamente.', null, 201);
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
+            }
+        );
     }
 
     /**
-     * Muestra el recurso especificado. (Básica)
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * Display the specified resource.
      */
-    public function show($id)
+    public function show(Profesore $profesore)
     {
-        $profesore = Profesore::find($id);
-
-        return view('profesore.show', compact('profesore'));
+        return Safe::run(
+            function () use ($profesore) {
+                $profesore->load('area');
+                return compact('profesore');
+            },
+            function ($data) {
+                return view('profesore.show', $data);
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo mostrar el registro. Folio: '.$folio);
+            }
+        );
     }
 
     /**
-     * Muestra el formulario para editar el recurso especificado. (Básica)
-     * @param int $id
-     * @return \Illuminate\Http\Response
+     * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit(Profesore $profesore)
     {
-        $profesore = Profesore::find($id);
-        $catalAreas = Area::all(); // CORRECCIÓN: Llamando al modelo Area
-        
-        return view('profesore.edit', compact('profesore', 'catalAreas'));
+        return Safe::run(
+            function () use ($profesore) {
+                $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
+                return compact('profesore', 'catalAreas');
+            },
+            function ($data) {
+                return view('profesore.edit', $data);
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo cargar la edición. Folio: '.$folio);
+            }
+        );
     }
 
     /**
-     * Actualiza el recurso especificado en el almacenamiento. (Básica)
-     * @param \Illuminate\Http\Request $request
-     * @param Profesore $profesore
-     * @return \Illuminate\Http\Response
+     * Update the specified resource in storage.
      */
-    public function update(Request $request, Profesore $profesore)
+    public function update(ProfesoreRequest $request, Profesore $profesore)
     {
-        request()->validate(Profesore::$rules);
+        $validated = $request->validated();
 
-        $profesore->update($request->all());
-
-        return redirect()->route('profesores.index')
-            ->with('success', 'Profesore actualizado con éxito');
+        return Safe::run(
+            function () use ($profesore, $validated) {
+                return DB::transaction(function () use ($profesore, $validated) {
+                    $profesore->update($validated);
+                    return true;
+                });
+            },
+            function () use ($request) {
+                return Responder::ok($request, 'profesores.index', 'Profesor actualizado.');
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
+            }
+        );
     }
 
-    /**
-     * Elimina el recurso especificado del almacenamiento. (Básica)
-     * @param int $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function destroy($id)
+    public function destroy(Profesore $profesore)
     {
-        $profesore = Profesore::find($id)->delete();
-
-        return redirect()->route('profesores.index')
-            ->with('success', 'Profesore eliminado con éxito');
+        return Safe::run(
+            function () use ($profesore) {
+                return DB::transaction(function () use ($profesore) {
+                    $profesore->delete();
+                    return true;
+                });
+            },
+            function () {
+                return redirect()->route('profesores.index')
+                    ->with('success', 'Profesor eliminado.');
+            },
+            function ($folio) {
+                return redirect()->route('error.general')
+                    ->with('mensaje', 'No se pudo eliminar el profesor. Folio: '.$folio);
+            }
+        );
     }
 }
