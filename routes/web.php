@@ -60,26 +60,36 @@ Route::resource('asignaciones', AsignacionClaseController::class);
 
 Route::view('/error/general', 'error.general')->name('error.general');
 
-Route::get('/reportes', [ReportesController::class, 'index'])->name('reportes.index');
-Route::get('/reportes/especial', [ReporteEspecialController::class, 'resumenPorCarrera'])->name('reportes.especial');
-Route::get('/reportes/curso', [ReporteCursoController::class, 'index'])->name('reportes.curso.index');
-Route::get('/reportes/curso/ver', [ReporteCursoController::class, 'ver'])->name('reportes.curso.ver');
-Route::get('/reportes/profesor/ver', [ReporteProfesorController::class, 'ver'])->name('reportes.profesor.ver');
-Route::get('/reportes/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
-Route::get('/reportes/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
+// Grupo de Rutas de Reportes
+Route::prefix('reportes')->group(function () {
+    // Principal
+    Route::get('/', [ReportesController::class, 'index'])->name('reportes.index');
 
-Route::get('/reportes/especial/pdf', [ReporteEspecialController::class, 'especialPdf'])
-    ->name('reportes.especial.pdf');
-Route::get('/reportes/curso/pdf', [ReporteCursoController::class, 'cursoPdf'])
-     ->name('reportes.curso.pdf');
-Route::get('/reportes/profesor/pdf', [ReporteProfesorController::class, 'materiasProfesorPdf'])
-     ->name('reportes.profesor.pdf');
-Route::get('/reportes/historial/pdf', [ReporteAlumnoController::class, 'historialPdf'])
-     ->name('reportes.historial.pdf');
-Route::get('/reportes/carrera-periodo/pdf',[ReporteCarreraPeriodoController::class, 'pdf'])
-    ->name('reportes.carrera_periodo.pdf');
+    // ** RUTA AJAX PARA FILTRO DINÁMICO (PROFESOR POR ÁREA) **
+    // Mapea la URL /reportes/profesores/por_area/{area_id} al método getProfesoresPorArea
+    Route::get('profesores/por_area/{area_id}', [ProfesoreController::class, 'getProfesoresPorArea'])
+        ->name('reportes.profesores.por_area');
+    
+    // Rutas de Vistas
+    Route::get('/especial', [ReporteEspecialController::class, 'resumenPorCarrera'])->name('reportes.especial');
+    Route::get('/curso', [ReporteCursoController::class, 'index'])->name('reportes.curso.index');
+    Route::get('/curso/ver', [ReporteCursoController::class, 'ver'])->name('reportes.curso.ver');
+    Route::get('/profesor/ver', [ReporteProfesorController::class, 'ver'])->name('reportes.profesor.ver');
+    Route::get('/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
+    Route::get('/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
 
-
+    // Rutas de PDF
+    Route::get('/especial/pdf', [ReporteEspecialController::class, 'especialPdf'])
+        ->name('reportes.especial.pdf');
+    Route::get('/curso/pdf', [ReporteCursoController::class, 'cursoPdf'])
+        ->name('reportes.curso.pdf');
+    Route::get('/profesor/pdf', [ReporteProfesorController::class, 'materiasProfesorPdf'])
+        ->name('reportes.profesor.pdf');
+    Route::get('/historial/pdf', [ReporteAlumnoController::class, 'historialPdf'])
+        ->name('reportes.historial.pdf');
+    Route::get('/carrera-periodo/pdf',[ReporteCarreraPeriodoController::class, 'pdf'])
+        ->name('reportes.carrera_periodo.pdf');
+}); // Fin del grupo de reportes
 
 
 // routes/web.php

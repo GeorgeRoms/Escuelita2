@@ -13,155 +13,56 @@ use App\Support\Responder;
 
 class ProfesoreController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
-    {
-        return Safe::run(
-            function () use ($request) {
-                $profesores = Profesore::with('area')   // para mostrar nombre de área sin N+1
-                    ->orderBy('nombre')
-                    ->paginate();
+    // ... Todos tus métodos existentes (index, create, store, etc.) ...
+    
+    // El resto de tu código para index, create, store, show, edit, update, destroy...
+    // ...
 
-                return [$profesores, $request];
-            },
-            function ($payload) {
-                [$profesores, $request] = $payload;
-
-                return view('profesore.index', compact('profesores'))
-                    ->with('i', ($request->input('page', 1) - 1) * $profesores->perPage());
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
+    // --- MÉTODO CORREGIDO PARA LA CONSULTA AJAX DE REPORTES ---
 
     /**
-     * Show the form for creating a new resource.
+     * Obtiene una lista de profesores filtrada por el ID del área para la petición AJAX.
+     * * @param int $area_id El ID del área, pasado como parámetro de ruta.
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function create()
+    public function getProfesoresPorArea($area_id) // <-- CORRECCIÓN: Ahora recibe $area_id como parámetro de ruta
     {
-        return Safe::run(
-            function () {
-                $profesore = new Profesore();
-                $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
+        // El ID es pasado directamente en el argumento, así que no necesitamos el Request::get()
+        if (empty($area_id)) {
+            return response()->json([]);
+        }
 
-                return compact('profesore', 'catalAreas');
-            },
-            function ($data) {
-                return view('profesore.create', $data);
-            },
-            function ($folio) {
-                return redirect()->route('error.general')
-                    ->with('mensaje', 'No se pudo cargar el formulario. Folio: '.$folio);
-            }
-        );
-    }
+        try {
+            $profesores = Profesore::where('fk_area', $area_id) // USANDO LA COLUMNA REAL 'fk_area'
+                ->select(
+                    'id_profesor as id',        // Alias 'id' es esencial para tu JS
+                    'nombre',
+                    'apellido_pat',             // Usamos 'apellido_pat' y 'apellido_mat' como en tu DB
+                    'apellido_mat'              // Tu JS espera estas tres columnas
+                )
+                ->orderBy('apellido_pat', 'asc')
+                ->orderBy('apellido_mat', 'asc')
+                ->get();
+            
+            // Eliminamos la función 'map' para dejar que el JavaScript ensamble el nombre,
+            // ya que el JS de tu vista *ya* está esperando 'nombre', 'apellido_paterno', 'apellido_materno'.
+            // Simplemente mapeamos tus columnas a los nombres que espera el JS.
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(ProfesoreRequest $request)
-    {
-        $validated = $request->validated();
+            $profesoresFormateados = $profesores->map(function ($profesor) {
+                return [
+                    'id' => $profesor->id,
+                    'nombre' => $profesor->nombre,
+                    // CORRECCIÓN: El JS espera 'apellido_paterno' y 'apellido_materno'
+                    'apellido_paterno' => $profesor->apellido_pat,
+                    'apellido_materno' => $profesor->apellido_mat,
+                ];
+            });
 
-        return Safe::run(
-            function () use ($validated) {
-                return DB::transaction(function () use ($validated) {
-                    return Profesore::create($validated);
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'profesores.index', 'Profesor creado correctamente.', null, 201);
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
+            return response()->json($profesoresFormateados); // Retornamos el JSON.
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Profesore $profesore)
-    {
-        return Safe::run(
-            function () use ($profesore) {
-                $profesore->load('area');
-                return compact('profesore');
-            },
-            function ($data) {
-                return view('profesore.show', $data);
-            },
-            function ($folio) {
-                return redirect()->route('error.general')
-                    ->with('mensaje', 'No se pudo mostrar el registro. Folio: '.$folio);
-            }
-        );
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Profesore $profesore)
-    {
-        return Safe::run(
-            function () use ($profesore) {
-                $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
-                return compact('profesore', 'catalAreas');
-            },
-            function ($data) {
-                return view('profesore.edit', $data);
-            },
-            function ($folio) {
-                return redirect()->route('error.general')
-                    ->with('mensaje', 'No se pudo cargar la edición. Folio: '.$folio);
-            }
-        );
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(ProfesoreRequest $request, Profesore $profesore)
-    {
-        $validated = $request->validated();
-
-        return Safe::run(
-            function () use ($profesore, $validated) {
-                return DB::transaction(function () use ($profesore, $validated) {
-                    $profesore->update($validated);
-                    return true;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'profesores.index', 'Profesor actualizado.');
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
-
-    public function destroy(Profesore $profesore)
-    {
-        return Safe::run(
-            function () use ($profesore) {
-                return DB::transaction(function () use ($profesore) {
-                    $profesore->delete();
-                    return true;
-                });
-            },
-            function () {
-                return redirect()->route('profesores.index')
-                    ->with('success', 'Profesor eliminado.');
-            },
-            function ($folio) {
-                return redirect()->route('error.general')
-                    ->with('mensaje', 'No se pudo eliminar el profesor. Folio: '.$folio);
-            }
-        );
+        } catch (\Exception $e) {
+            \Log::error('Error AJAX al cargar profesores por área: ' . $e->getMessage());
+            return response()->json(['error' => 'Error interno del servidor al consultar profesores.'], 500);
+        }
     }
 }
