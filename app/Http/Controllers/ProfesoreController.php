@@ -11,54 +11,62 @@ use Illuminate\Support\Facades\DB;
 use App\Support\Safe;
 use App\Support\Responder;
 
-class ProfesoreController extends Controller
+// La clase se mantiene en singular (ProfesoreController) para coincidir con tus rutas.
+class ProfesoreController extends Controller 
 {
-    // ... Todos tus métodos existentes (index, create, store, etc.) ...
-    
-    // El resto de tu código para index, create, store, show, edit, update, destroy...
-    // ...
+    /**
+     * Muestra una lista de los recursos (profesores).
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        // CORRECCIÓN: Usamos paginate() en lugar de all() para obtener una colección paginada.
+        // Esto resuelve el error "onFirstPage does not exist".
+        $profesores = Profesore::paginate(10); 
+        
+        // Retornar la vista Blade. Usamos 'profesore.index' (singular) 
+        // para coincidir con el nombre de tu carpeta de vistas (resources/views/profesore)
+        return view('profesore.index', compact('profesores'));
+    }
 
-    // --- MÉTODO CORREGIDO PARA LA CONSULTA AJAX DE REPORTES ---
+    // AÑADE AQUÍ TUS OTROS MÉTODOS CRUD (create, store, show, edit, update, destroy)
 
     /**
      * Obtiene una lista de profesores filtrada por el ID del área para la petición AJAX.
      * * @param int $area_id El ID del área, pasado como parámetro de ruta.
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getProfesoresPorArea($area_id) // <-- CORRECCIÓN: Ahora recibe $area_id como parámetro de ruta
+    public function getProfesoresPorArea($area_id)
     {
-        // El ID es pasado directamente en el argumento, así que no necesitamos el Request::get()
+        // Verificación simple: si el ID está vacío, retornamos un arreglo vacío inmediatamente.
         if (empty($area_id)) {
             return response()->json([]);
         }
 
         try {
-            $profesores = Profesore::where('fk_area', $area_id) // USANDO LA COLUMNA REAL 'fk_area'
+            $profesores = Profesore::where('fk_area', $area_id) 
                 ->select(
-                    'id_profesor as id',        // Alias 'id' es esencial para tu JS
+                    'id_profesor', 
                     'nombre',
-                    'apellido_pat',             // Usamos 'apellido_pat' y 'apellido_mat' como en tu DB
-                    'apellido_mat'              // Tu JS espera estas tres columnas
+                    'apellido_pat', 
+                    'apellido_mat' 
                 )
                 ->orderBy('apellido_pat', 'asc')
                 ->orderBy('apellido_mat', 'asc')
                 ->get();
             
-            // Eliminamos la función 'map' para dejar que el JavaScript ensamble el nombre,
-            // ya que el JS de tu vista *ya* está esperando 'nombre', 'apellido_paterno', 'apellido_materno'.
-            // Simplemente mapeamos tus columnas a los nombres que espera el JS.
-
+            // Mapeamos los resultados para que el JS de reportes pueda usarlos
             $profesoresFormateados = $profesores->map(function ($profesor) {
                 return [
-                    'id' => $profesor->id,
+                    'id' => $profesor->id_profesor, 
                     'nombre' => $profesor->nombre,
-                    // CORRECCIÓN: El JS espera 'apellido_paterno' y 'apellido_materno'
                     'apellido_paterno' => $profesor->apellido_pat,
                     'apellido_materno' => $profesor->apellido_mat,
                 ];
             });
 
-            return response()->json($profesoresFormateados); // Retornamos el JSON.
+            return response()->json($profesoresFormateados);
 
         } catch (\Exception $e) {
             \Log::error('Error AJAX al cargar profesores por área: ' . $e->getMessage());
