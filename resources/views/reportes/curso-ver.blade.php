@@ -20,8 +20,9 @@
           <th>Alumno</th>
           <th>Semestre</th>
           <th>Intento</th>
-          <th>Calificación</th>
-          <th>Resultado</th>
+          <th>Profesor</th>
+          <th>Materia</th>
+          <th>Periodo</th>
         </tr>
       </thead>
       <tbody>
@@ -31,8 +32,9 @@
             <td>{{ $row->alumno }}</td>
             <td>{{ $row->semestre }}</td>
             <td>{{ $row->intento }}</td>
-            <td>{{ number_format($row->calificacion, 2) }}</td>
-            <td>{{ $row->resultado }}</td>
+            <td>{{ $row->profesor }}</td>
+            <td>{{ $row->materia }}</td>
+            <td>{{ $row->periodo }}</td>
           </tr>
         @empty
           <tr>

@@ -113,16 +113,14 @@
       <p class="text-muted mb-3">Consulta qué materias ha tomado, con qué profesor y en qué periodo.</p>
 
       <form action="{{ route('reportes.alumno.ver') }}" method="get" class="d-flex gap-2">
-        <input
-                            type="text"
-                            class="form-control"
-                            id="numero_control_autocomplete" 
-                            name="no_control"
-                            placeholder="Escribe el Número de Control (Ej: 202510001)"
-                            required
-                            maxlength="9" {{-- REQUERIDO: Limita a 9 caracteres (el número de control) --}}
-                            pattern="[0-9]{9}" {{-- OPCIONAL: Asegura que sean 9 dígitos exactos --}}
-                        >
+        <select name="no_control" class="form-select" required>
+          <option value="" disabled selected>— elige un alumno —</option>
+          @foreach($alumnos ?? [] as $a)
+            <option value="{{ $a->no_control }}">
+              {{ $a->no_control }} — {{ $a->nombre_completo }}
+            </option>
+          @endforeach
+        </select>
         <button class="btn btn-primary" type="submit">Ver</button>
       </form>
     </div>

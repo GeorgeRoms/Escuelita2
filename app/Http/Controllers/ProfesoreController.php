@@ -13,6 +13,9 @@ use App\Support\Responder;
 
 class ProfesoreController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
         return Safe::run(

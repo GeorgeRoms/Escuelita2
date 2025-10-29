@@ -153,6 +153,7 @@
                         <li class="nav-item"><a class="nav-link" href="{{ url('/inscripciones') }}">Inscripciones</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/profesores') }}">Profesores</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/areas') }}">Áreas</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('asignaciones.index') }}">Asignación de Clases</a></li>
                         <li class="nav-item">
                             
                             <a class="nav-link" href="{{ route('reportes.index') }}">

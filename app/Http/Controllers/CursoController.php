@@ -16,10 +16,12 @@ use App\Models\Profesore;
 use App\Models\Edificio;
 use App\Support\Safe;
 use App\Support\Responder;
-use Illuminate\Database\QueryException;
 
 class CursoController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
         return Safe::run(
@@ -27,7 +29,7 @@ class CursoController extends Controller
                 $cursos = Curso::with([
                         'materia',
                         'profesor',
-                        'aula.edificio',
+                        'aula.edificio',   // aula + edificio (join implícito por relación)
                         'periodo',
                     ])
                     ->orderBy('id_curso')
@@ -47,15 +49,20 @@ class CursoController extends Controller
         );
     }
 
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
         return Safe::run(
             function () {
                 $curso = new \App\Models\Curso();
 
+                // Materias
                 $materias = Materia::orderBy('nombre_mat')
                     ->pluck('nombre_mat', 'id_materia');
 
+                // Profesores (nombre completo)
                 $profesores = Profesore::query()
                     ->orderBy('apellido_pat')
                     ->orderBy('apellido_mat')
@@ -66,6 +73,7 @@ class CursoController extends Controller
                         return [$p->id_profesor => $nombre];
                     });
 
+                // Aulas: "A - 101" (join edificios)
                 $aulas = \App\Models\Aula::join('edificios','edificios.id','=','aulas.edificio_id')
                     ->orderBy('edificios.codigo')
                     ->orderBy('aulas.salon')
@@ -73,28 +81,15 @@ class CursoController extends Controller
                         'aulas.id',
                         DB::raw("CONCAT(edificios.codigo,' - ',aulas.salon) AS label")
                     ])
-                    ->pluck('label','id');
+                    ->pluck('label','id'); // [id => "A - 101"]
 
-                // Periodos: solo vigentes
-$periodosQ = Periodo::query();
-if (method_exists(Periodo::class, 'scopeVigentes')) {
-    $periodosQ = Periodo::vigentes();
-} elseif (method_exists(Periodo::class, 'scopeAnioActual')) {
-    $periodosQ = Periodo::anioActual();
-} else {
-    $periodosQ->where('anio', now()->year);
-}
+                // Periodos (si los usas en el form)
+                $periodos = Periodo::anioActual()
+                    ->orderBy('nombre')
+                    ->get()
+                    ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
 
-$periodos = $periodosQ
-    ->orderBy('anio', 'desc')->orderBy('nombre')
-    ->get()
-    ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
-
-
-                // NUEVO: días para el select
-                $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-
-                return compact('curso','materias','profesores','aulas','periodos','dias');
+                return compact('curso','materias','profesores','aulas','periodos');
             },
             function ($data) {
                 return view('curso.create', $data);
@@ -106,50 +101,36 @@ $periodos = $periodosQ
         );
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(CursoRequest $request)
-{
-    $data = $request->validated();
+    {
+        $data = $request->validated();
 
-    return Safe::run(
-        // Trabajo
-        function () use ($data) {
-            try {
+        return Safe::run(
+            function () use ($data) {
                 return DB::transaction(function () use ($data) {
-                    Curso::create($data);
-                    return ['ok' => true];
+                    return Curso::create($data);
                 });
-            } catch (QueryException $e) {
-                if (str_contains($e->getMessage(), 'SQLSTATE[45000]')) {
-                    // Mensaje proveniente del SIGNAL del trigger
-                    $msg = $e->errorInfo[2] ?? 'Conflicto de horario';
-                    return ['ok' => false, 'horario' => $msg];
-                }
-                // Deja que Safe::run maneje otros errores
-                throw $e;
+            },
+            function () use ($request) {
+                return Responder::ok($request, 'cursos.index', 'Curso creado correctamente.', null, 201);
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
             }
-        },
-        // Éxito
-        function ($result) use ($request) {
-            if (is_array($result) && ($result['ok'] ?? false) === false) {
-                return back()
-                    ->withErrors(['horario' => $result['horario']])
-                    ->withInput();
-            }
-            return Responder::ok($request, 'cursos.index', 'Curso creado correctamente.', null, 201);
-        },
-        // Falla genérica (otros errores)
-        function ($folio) use ($request) {
-            return Responder::fail($request, $folio, 'error.general');
-        }
-    );
-}
+        );
+    }
 
-
+    /**
+     * Display the specified resource.
+     */
     public function show(\App\Models\Curso $curso)
     {
         return Safe::run(
             function () use ($curso) {
-                $curso->load(['materia','profesor','aula.edificio','periodo']);
+                $curso->load(['materia','profesor','aula.edificio','periodo']); // agrega 'carrera' si la tienes
                 return $curso;
             },
             function ($curso) {
@@ -162,13 +143,18 @@ $periodos = $periodosQ
         );
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(\App\Models\Curso $curso)
     {
         return Safe::run(
             function () use ($curso) {
+                // Materias
                 $materias = \App\Models\Materia::orderBy('nombre_mat')
                     ->pluck('nombre_mat', 'id_materia');
 
+                // Profesores: nombre completo
                 $profesores = \App\Models\Profesore::query()
                     ->orderBy('apellido_pat')->orderBy('apellido_mat')->orderBy('nombre')
                     ->get()
@@ -177,34 +163,21 @@ $periodos = $periodosQ
                         return [$p->id_profesor => $nombre];
                     });
 
+                // Aulas: "CODIGO - SALON" (e.g., "A - 101")
                 $aulas = \App\Models\Aula::join('edificios','edificios.id','=','aulas.edificio_id')
                     ->orderBy('edificios.codigo')->orderBy('aulas.salon')
                     ->get([
                         'aulas.id',
                         DB::raw("CONCAT(edificios.codigo,' - ',aulas.salon) AS label")
                     ])
-                    ->pluck('label','id');
+                    ->pluck('label','id'); // [id => "A - 101"]
 
-                // Periodos: solo vigentes
-$periodosQ = \App\Models\Periodo::query();
-if (method_exists(\App\Models\Periodo::class, 'scopeVigentes')) {
-    $periodosQ = \App\Models\Periodo::vigentes();
-} elseif (method_exists(\App\Models\Periodo::class, 'scopeAnioActual')) {
-    $periodosQ = \App\Models\Periodo::anioActual();
-} else {
-    $periodosQ->where('anio', now()->year);
-}
+                // Periodos (si los usas en el form)
+                $periodos = \App\Models\Periodo::orderBy('anio','desc')->orderBy('nombre')
+                    ->get()
+                    ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
 
-$periodos = $periodosQ
-    ->orderBy('anio', 'desc')->orderBy('nombre')
-    ->get()
-    ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
-
-
-                // NUEVO: días
-                $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-
-                return compact('curso','materias','profesores','aulas','periodos','dias');
+                return compact('curso','materias','profesores','aulas','periodos');
             },
             function ($data) {
                 return view('curso.edit', $data);
@@ -216,52 +189,40 @@ $periodos = $periodosQ
         );
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(CursoRequest $request, Curso $curso)
-{
-    $data = $request->validated();
+    {
+        $data = $request->validated();
 
-    return Safe::run(
-        // Trabajo
-        function () use ($curso, $data) {
-            try {
+        return Safe::run(
+            function () use ($curso, $data) {
                 return DB::transaction(function () use ($curso, $data) {
                     $curso->fill($data)->save();
-                    return ['ok' => true];
+                    return true;
                 });
-            } catch (QueryException $e) {
-                if (str_contains($e->getMessage(), 'SQLSTATE[45000]')) {
-                    $msg = $e->errorInfo[2] ?? 'Conflicto de horario';
-                    return ['ok' => false, 'horario' => $msg];
-                }
-                throw $e;
+            },
+            function () use ($request) {
+                return Responder::ok($request, 'cursos.index', 'Curso actualizado.');
+            },
+            function ($folio) use ($request) {
+                return Responder::fail($request, $folio, 'error.general');
             }
-        },
-        // Éxito
-        function ($result) use ($request) {
-            if (is_array($result) && ($result['ok'] ?? false) === false) {
-                return back()
-                    ->withErrors(['horario' => $result['horario']])
-                    ->withInput();
-            }
-            return Responder::ok($request, 'cursos.index', 'Curso actualizado.');
-        },
-        // Falla genérica
-        function ($folio) use ($request) {
-            return Responder::fail($request, $folio, 'error.general');
-        }
-    );
-}
-
+        );
+    }
 
     public function destroy(\App\Models\Curso $curso)
     {
         return Safe::run(
             function () use ($curso) {
                 return DB::transaction(function () use ($curso) {
+                    // (opcional) marca las inscripciones como "Baja/Cancelado"
                     DB::table('inscripciones')
                       ->where('curso_id', $curso->id_curso)
                       ->update(['estado' => 'Baja', 'updated_at' => now()]);
 
+                    // Soft delete del curso (no rompe FKs)
                     $curso->delete();
                     return true;
                 });
@@ -276,5 +237,4 @@ $periodos = $periodosQ
         );
     }
 }
-
 
