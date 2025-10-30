@@ -78,18 +78,27 @@
       <h5 class="card-title">Materias impartidas por profesor</h5>
       <p class="text-muted mb-3">Lista cursos del docente y cuántos alumnos inscritos tiene cada uno.</p>
 
-      <form action="{{ route('reportes.profesor.ver') }}" method="get" class="row g-2">
+      <form action="{{ route('reportes.profesor.ver') }}" method="get" class="row g-2" id="form-prof-mats"
+      data-url-profesores="{{ route('api.areas.profesores', ['area' => '__ID__']) }}">
+        <div class="col-12">
+          <label class="form-label">Área</label>
+          <select name="area_id" id="area_id" class="form-select" required>
+  <option value="" disabled selected>— elige un área —</option>
+  @foreach($areas ?? [] as $a)
+    <option value="{{ $a->id_area }}">{{ $a->nombre_area }}</option>
+  @endforeach
+</select>
+        </div>
+
         <div class="col-12">
           <label class="form-label">Profesor</label>
-          <select name="profesor_id" class="form-select" required>
-            <option value="" disabled selected>— elige un profesor —</option>
-            @foreach($profesores ?? [] as $p)
-              <option value="{{ $p->id_profesor }}">{{ $p->docente }}</option>
-            @endforeach
-          </select>
+          <select name="profesor_id" id="profesor_id" class="form-select" required disabled>
+  <option value="" disabled selected>— primero elige un área —</option>
+</select>
         </div>
+
         <div class="col-12">
-          <label class="form-label">Periodo (opcional)</label>
+          <label class="form-label">Periodo</label>
           <select name="periodo_id" class="form-select">
             <option value="">— todos —</option>
             @foreach($periodos ?? [] as $per)
@@ -98,9 +107,60 @@
           </select>
         </div>
         <div class="col-12">
-          <button class="btn btn-primary w-100" type="submit">Ver</button>
+          <button class="btn btn-primary w-100" type="submit" id="btnVer">Ver</button>
         </div>
       </form>
+
+      <script>
+(function(){
+  const form    = document.getElementById('form-prof-mats');
+  const urlTpl  = form.dataset.urlProfesores;
+  const areaSel = form.querySelector('#area_id');
+  const profSel = form.querySelector('#profesor_id');
+  const btnVer  = form.querySelector('#btnVer');
+
+  function updateBtn(){ if(btnVer) btnVer.disabled = !(areaSel.value && profSel.value); }
+  updateBtn();
+
+  areaSel.addEventListener('change', async function(){
+    const areaId = this.value;
+    profSel.innerHTML = '<option value="" disabled selected>Cargando…</option>';
+    profSel.disabled = true;
+    updateBtn();
+
+    if(!areaId){
+      profSel.innerHTML = '<option value="" disabled selected>— primero elige un área —</option>';
+      return;
+    }
+
+    try {
+      const url = urlTpl.replace('__ID__', areaId);
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+
+      profSel.innerHTML = '<option value="" disabled selected>— elige un profesor —</option>';
+      data.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nombre;
+        profSel.appendChild(opt);
+      });
+      profSel.disabled = false;
+    } catch (e) {
+      console.error('Error cargando profesores:', e);
+      profSel.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+      profSel.disabled = true;
+      alert('No se pudieron cargar los profesores del área seleccionada.');
+    } finally {
+      updateBtn();
+    }
+  });
+
+  profSel.addEventListener('change', updateBtn);
+})();
+</script>
+
     </div>
   </div>
 </div>
@@ -113,14 +173,16 @@
       <p class="text-muted mb-3">Consulta qué materias ha tomado, con qué profesor y en qué periodo.</p>
 
       <form action="{{ route('reportes.alumno.ver') }}" method="get" class="d-flex gap-2">
-        <select name="no_control" class="form-select" required>
-          <option value="" disabled selected>— elige un alumno —</option>
-          @foreach($alumnos ?? [] as $a)
-            <option value="{{ $a->no_control }}">
-              {{ $a->no_control }} — {{ $a->nombre_completo }}
-            </option>
-          @endforeach
-        </select>
+        <input
+        type="text"
+        class="form-control"
+        id="numero_control_autocomplete" 
+        name="no_control"
+        placeholder="Escribe el Número de Control (Ej: 202510001)"
+        required
+        maxlength="9" {{-- REQUERIDO: Limita a 9 caracteres (el número de control) --}}
+        pattern="[0-9]{9}" {{-- OPCIONAL: Asegura que sean 9 dígitos exactos --}}
+        >
         <button class="btn btn-primary" type="submit">Ver</button>
       </form>
     </div>

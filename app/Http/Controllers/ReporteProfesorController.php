@@ -9,6 +9,22 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class ReporteProfesorController extends Controller
 {
 
+    public function profesoresPorArea($areaId)
+    {
+        $profes = DB::table('profesores')
+        ->where('fk_area', (int)$areaId)
+        ->orderBy('apellido_pat')->orderBy('apellido_mat')->orderBy('nombre')
+        ->get(['id_profesor','nombre','apellido_pat','apellido_mat']);
+
+    return response()->json($profes->map(function($p){
+        return [
+            'id'     => $p->id_profesor,
+            'nombre' => trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? '')),
+        ];
+    }));
+}
+
+
 
     public function materiasProfesorPdf(Request $request)
 {

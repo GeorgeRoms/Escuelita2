@@ -91,6 +91,9 @@ Route::prefix('reportes')->group(function () {
         ->name('reportes.carrera_periodo.pdf');
 }); // Fin del grupo de reportes
 
+Route::get('/api/areas/{area}/profesores', [ReporteProfesorController::class, 'profesoresPorArea'])
+    ->name('api.areas.profesores');
+
 
 // routes/web.php
 Route::get('/_debug', function () {

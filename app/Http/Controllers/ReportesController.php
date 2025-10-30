@@ -38,10 +38,12 @@ class ReportesController extends Controller
 
         // CONSULTA CORREGIDA FINAL (Se intenta 'nombre_area'): Obtener la lista de áreas.
         // Si esta falla, DEBES revisar tu tabla 'areas' y sustituir 'nombre_area' por el nombre REAL de la columna del nombre.
-        $areas = DB::table('areas')
-            // Se asume la clave primaria es 'id_area' y la columna de nombre es 'nombre_area'
-            ->select('id_area as id', 'nombre_area as nombre') 
-            ->orderBy('nombre_area') // Ordenar por la columna real
+        $areas = DB::table('areas as a')
+        ->select([
+            DB::raw('a.id_area      as id_area'),
+            DB::raw('a.nombre_area  as nombre_area'),
+            ])
+            ->orderBy('a.nombre_area')
             ->get();
             
         $alumnos = DB::table('alumnos')
