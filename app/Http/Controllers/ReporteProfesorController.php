@@ -59,6 +59,7 @@ class ReporteProfesorController extends Controller
         'rows'            => $rows,
         'fecha'           => now()->format('d/m/Y H:i'),
         'logoB64'         => $logoB64,
+        'id_profesor' => $profesorId,
     ])->setPaper('a4', 'landscape');
 
     return $pdf->download("materias_profesor_{$profesorId}.pdf");
@@ -100,6 +101,7 @@ class ReporteProfesorController extends Controller
             'docente'         => $docente,
             'periodoEtiqueta' => $periodoEtiqueta,
             'rows'            => $rows,
+            'id_profesor' => $profesorId,
         ]);
     }
 }

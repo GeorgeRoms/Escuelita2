@@ -23,6 +23,7 @@
   </div>
   <h4>Materias impartidas por profesor</h4>
   <div class="meta">
+    <strong>Código de profesor:</strong> {{$id_profesor}}
     <strong>Docente:</strong> {{ $docente }}
     @if($periodoEtiqueta) · <strong>Periodo:</strong> {{ $periodoEtiqueta }} @endif
     · Generado: {{ $fecha }}

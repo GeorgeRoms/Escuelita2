@@ -31,7 +31,6 @@ class Curso extends Model
     protected $primaryKey = 'id_curso';
     public $incrementing = true;
     protected $keyType = 'int';
-    
     protected $perPage = 20;
 
     /**
@@ -47,6 +46,15 @@ class Curso extends Model
         'periodo_id',
         'turno',
         'grupo',
+        // NUEVOS
+        'dia_semana',
+        'hora_inicio',
+        'hora_fin',
+    ];
+
+    protected $casts = [
+        'hora_inicio' => 'datetime:H:i',
+        'hora_fin'    => 'datetime:H:i',
     ];
 
 
