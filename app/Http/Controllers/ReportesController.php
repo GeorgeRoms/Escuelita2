@@ -11,6 +11,10 @@ class ReportesController extends Controller
     {
         $carreras = DB::table('carreras')->orderBy('nombre_carr')->pluck('nombre_carr')->toArray();
 
+        $carreras_id = DB::table('carreras')
+        ->orderBy('nombre_carr')
+        ->get(['id_carrera','nombre_carr']);
+
         $cursos = DB::table('cursos as c')
             ->leftJoin('materias as m', 'm.id_materia', '=', 'c.fk_materia')
             ->leftJoin('periodos as p', 'p.id', '=', 'c.periodo_id')
@@ -55,7 +59,7 @@ class ReportesController extends Controller
         ->get();
 
         // Añadir 'areas' al array de variables pasadas a la vista
-        return view('reportes.index', compact('carreras','cursos','profesores','periodos','alumnos', 'areas'));
+        return view('reportes.index', compact('carreras','cursos','profesores','periodos','alumnos', 'areas', 'carreras_id'));
     }
 
     // Nota: El método getProfesoresPorArea debe estar en ProfesorController, como confirmamos antes.

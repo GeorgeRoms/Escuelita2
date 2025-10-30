@@ -223,6 +223,34 @@
   </div>
 </div>
 
+
+
+{{-- Reporte: Top 10 promedios por carrera --}}
+<div class="col-md-6">
+  <div class="card h-100 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">Top 10 alumnos por promedio (por carrera)</h5>
+      <p class="text-muted mb-3">Promedio general y desglosado por periodo.</p>
+
+      <form action="{{ route('reportes.top_alumnos.ver') }}" method="get" class="row g-2 align-items-end" id="form-top10">
+        <div class="col-md-9">
+          <label class="form-label">Carrera</label>
+          <select name="carrera_id" class="form-select" required>
+            <option value="" disabled selected>— elige una carrera —</option>
+            @foreach(($carreras_id ?? []) as $car) {{-- opcional: si ya tienes sólo nombre, ver nota abajo --}}
+              <option value="{{ $car->id_carrera }}">{{ $car->nombre_carr }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-md-3 d-grid">
+          <button class="btn btn-primary" type="submit">Ver</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
     {{-- Aquí puedes seguir agregando más tarjetas de reportes --}}
   </div>
 </div>

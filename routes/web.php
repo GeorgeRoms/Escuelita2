@@ -25,7 +25,8 @@ use App\Http\Controllers\ReporteEspecialController;
 use App\Http\Controllers\ReporteCursoController;
 use App\Http\Controllers\ReporteProfesorController;
 use App\Http\Controllers\ReporteAlumnoController;
-use App\Http\Controllers\ReporteCarreraPeriodoController; 
+use App\Http\Controllers\ReporteCarreraPeriodoController;
+use App\Http\Controllers\ReporteTopAlumnosController;
 
 
 Auth::routes();
@@ -77,6 +78,7 @@ Route::prefix('reportes')->group(function () {
     Route::get('/profesor/ver', [ReporteProfesorController::class, 'ver'])->name('reportes.profesor.ver');
     Route::get('/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
     Route::get('/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
+    Route::get('/top-alumnos/ver',  [ReporteTopAlumnosController::class, 'ver'])->name('reportes.top_alumnos.ver');
 
     // Rutas de PDF
     Route::get('/especial/pdf', [ReporteEspecialController::class, 'especialPdf'])
@@ -89,6 +91,8 @@ Route::prefix('reportes')->group(function () {
         ->name('reportes.historial.pdf');
     Route::get('/carrera-periodo/pdf',[ReporteCarreraPeriodoController::class, 'pdf'])
         ->name('reportes.carrera_periodo.pdf');
+    Route::get('/top-alumnos/pdf',  [ReporteTopAlumnosController::class, 'pdf'])
+        ->name('reportes.top_alumnos.pdf');
 }); // Fin del grupo de reportes
 
 Route::get('/api/areas/{area}/profesores', [ReporteProfesorController::class, 'profesoresPorArea'])

@@ -24,10 +24,10 @@ class StoreAsignacionClaseRequest extends FormRequest
         // Define las combinaciones de días válidas, incluyendo las nuevas
         $diasValidos = [
             'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado',
-            'LUNES-MIERCOLES-VIERNES', 
-            'MARTES-JUEVES-VIERNES', 
-            'LUNES-MIERCOLES', 
-            'MARTES-JUEVES'
+            'Lunes-Miércoles-Viernes', 
+            'Martes-Jueves-Viernes', 
+            'Lunes-Miércoles', 
+            'Martes-Jueves'
         ];
         
         return [

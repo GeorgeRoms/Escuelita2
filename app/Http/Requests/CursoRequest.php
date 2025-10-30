@@ -25,10 +25,10 @@ class CursoRequest extends FormRequest
         // Define las combinaciones de días válidas, incluyendo los días individuales y las combinaciones nuevas.
         $diasValidos = [
             'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', // Días individuales originales
-            'LUNES-MIERCOLES-VIERNES', 
-            'MARTES-JUEVES-VIERNES', 
-            'LUNES-MIERCOLES', 
-            'MARTES-JUEVES' // Nuevas combinaciones
+            'Lunes-Miércoles-Viernes', 
+            'Martes-Jueves-Viernes', 
+            'Lunes-Miércoles', 
+            'Martes-Jueves' // Nuevas combinaciones
         ];
 
         return [

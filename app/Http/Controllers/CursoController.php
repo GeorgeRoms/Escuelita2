@@ -200,6 +200,8 @@ $periodos = $periodosQ
     ->get()
     ->mapWithKeys(fn ($p) => [$p->id => "{$p->anio} {$p->nombre}"]);
 
+    $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
 
                 // NUEVO: días
 

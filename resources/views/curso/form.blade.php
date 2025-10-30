@@ -66,10 +66,10 @@
     {{-- ======= NUEVOS CAMPOS: HORARIO ======= --}}
     @php
     $diasListado = [
-        'LUNES-MIERCOLES-VIERNES',
-        'MARTES-JUEVES-VIERNES',
-        'LUNES-MIERCOLES',
-        'MARTES-JUEVES'
+        'Lunes-Miércoles-Viernes',
+        'Martes-Jueves-Viernes',
+        'Lunes-Miércoles',
+        'Martes-Jueves'
     ];
 @endphp
 
