@@ -20,7 +20,8 @@ class ProfesoreController extends Controller
     {
         return Safe::run(
             function () use ($request) {
-                $profesores = Profesore::with('area')   // para mostrar nombre de área sin N+1
+                // Se corrigió el error de sintaxis eliminando caracteres invisibles.
+                $profesores = Profesore::with('area') // para mostrar nombre de área sin N+1
                     ->orderBy('nombre')
                     ->paginate();
 
@@ -46,7 +47,8 @@ class ProfesoreController extends Controller
         return Safe::run(
             function () {
                 $profesore = new Profesore();
-                $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
+                // CORRECCIÓN: Se usa get() para devolver objetos (necesario para $area->id_area en la vista)
+                $catalAreas = Area::orderBy('nombre_area')->get();
 
                 return compact('profesore', 'catalAreas');
             },
@@ -109,7 +111,8 @@ class ProfesoreController extends Controller
     {
         return Safe::run(
             function () use ($profesore) {
-                $catalAreas = Area::orderBy('nombre_area')->pluck('nombre_area','id_area');
+                // CORRECCIÓN: Se usa get() para devolver objetos (necesario para $area->id_area en la vista)
+                $catalAreas = Area::orderBy('nombre_area')->get();
                 return compact('profesore', 'catalAreas');
             },
             function ($data) {

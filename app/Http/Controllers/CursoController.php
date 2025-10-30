@@ -202,7 +202,6 @@ $periodos = $periodosQ
 
 
                 // NUEVO: días
-                $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
                 return compact('curso','materias','profesores','aulas','periodos','dias');
             },

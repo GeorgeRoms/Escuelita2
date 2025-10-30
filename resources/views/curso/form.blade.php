@@ -65,8 +65,13 @@
 
     {{-- ======= NUEVOS CAMPOS: HORARIO ======= --}}
     @php
-      $diasListado = $dias ?? ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-    @endphp
+    $diasListado = [
+        'LUNES-MIERCOLES-VIERNES',
+        'MARTES-JUEVES-VIERNES',
+        'LUNES-MIERCOLES',
+        'MARTES-JUEVES'
+    ];
+@endphp
 
     <div class="form-group mb-2 mb20">
       <label for="dia_semana" class="form-label">Día de la semana</label>

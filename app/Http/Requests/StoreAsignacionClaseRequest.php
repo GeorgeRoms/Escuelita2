@@ -11,9 +11,8 @@ class StoreAsignacionClaseRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Si tienes un sistema de permisos (por ejemplo, con Spatie),
-        // aquí verificarías si el usuario tiene permiso para 'crear asignaciones'.
-        // Por ahora, lo ponemos en true para que la validación continúe.
+
+        
         return true; 
     }
 
@@ -22,8 +21,15 @@ class StoreAsignacionClaseRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Incluimos solo los campos que vienen del formulario (sin 'hora_fin')
-        // El campo 'hora_fin' lo calcularemos en el controlador.
+        // Define las combinaciones de días válidas, incluyendo las nuevas
+        $diasValidos = [
+            'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado',
+            'LUNES-MIERCOLES-VIERNES', 
+            'MARTES-JUEVES-VIERNES', 
+            'LUNES-MIERCOLES', 
+            'MARTES-JUEVES'
+        ];
+        
         return [
             'profesor_id' => [
                 'required', 
@@ -37,9 +43,10 @@ class StoreAsignacionClaseRequest extends FormRequest
                 'required', 
                 'exists:aulas,id',
             ],
+            // CAMPO CORREGIDO: ahora acepta todas las combinaciones
             'dia_semana' => [
                 'required', 
-                'in:Lunes,Martes,Miércoles,Jueves,Viernes,Sábado',
+                'in:' . implode(',', $diasValidos),
             ],
             'hora_inicio' => [
                 'required', 
