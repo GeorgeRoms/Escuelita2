@@ -65,6 +65,14 @@
                             <strong>Fin:</strong>
                             {{ optional($curso->hora_fin)->format('H:i') ?? '—' }}
                         </div>
+
+                        @if($curso->dia_1h)
+                        <div class="form-group mb-2 mb20">
+                        <strong>Día 1h:</strong> {{ $curso->dia_1h }} 
+                        ({{ \Illuminate\Support\Str::of($curso->hora_inicio_1h)->substr(0,5) }}
+                        – {{ \Illuminate\Support\Str::of($curso->hora_fin_1h)->substr(0,5) }})
+                        </div>
+                        @endif
                         {{-- ======= /NUEVOS CAMPOS ======= --}}
 
                     </div>
