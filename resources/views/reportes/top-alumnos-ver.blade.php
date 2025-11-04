@@ -7,14 +7,20 @@
 </style>
 
 @php
-  // Tomamos el id de la carrera para armar la URL del PDF
+  // IDs para construir la URL de PDF
   $carreraId = request('carrera_id') ?? ($rows[0]->id_carrera ?? null);
+  // si el controller envía $periodo_id úsalo; si no, toma de la request
+  $periodoId = (isset($periodo_id) ? $periodo_id : request('periodo_id')) ?: null;
+
+  // Etiqueta mostrable (el controller debería enviar $periodo ya armada)
+  $etiquetaPeriodo = $periodo ?? 'Todos los periodos';
 @endphp
 
 <div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-2">
-    <h5 class="mb-0">Top 10 promedios — {{ $carrera }}</h5>
-  </div>
+    <h4 class="mb-1">Top 10 promedios — {{ $carrera }}</h4>
+    <div class="text-muted mb-3">
+    <strong>Periodo:</strong> {{ $etiquetaPeriodo }}
+    </div>
 
   <div class="card">
     <div class="card-body table-responsive">
@@ -45,7 +51,7 @@
   <div>
     @if($carreraId)
       <a class="btn btn-outline-primary"
-         href="{{ route('reportes.top_alumnos.pdf', ['carrera_id' => $carreraId]) }}">
+         href="{{ route('reportes.top_alumnos.pdf', ['carrera_id' => $carreraId, 'periodo_id' => $periodoId]) }}">
         Descargar PDF
       </a>
     @else
