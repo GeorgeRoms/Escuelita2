@@ -24,10 +24,8 @@ class InscripcioneRequest extends FormRequest
         return [
             'alumno_no_control'  => ['required','exists:alumnos,no_control'],
             'curso_id'           => ['required','exists:cursos,id_curso'],
-            'estado'             => ['required','in:Inscrito,Baja'],
-            'intento'            => ['required','in:Normal,Repite,Especial'],
-            // 'oportunidad'        => ['nullable','in:1ra,2da'],
-            // 'unidades_reprobadas'=> ['nullable','integer','min:0'],
+            // 'estado'             => ['required','in:Inscrito,Baja'],
+            // 'intento'            => ['required','in:Normal,Repite,Especial'],
             'promedio'          => ['nullable','numeric','between:0,100'],
         ];
     }

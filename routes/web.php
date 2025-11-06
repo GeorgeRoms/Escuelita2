@@ -56,6 +56,14 @@ Route::resource('alumno-carreras', AlumnoCarreraController::class)
 ->parameters(['alumno-carreras' => 'alumno_carrerum']);
 Route::resource('aulas', AulaController::class);
 
+// 1) Primero el endpoint AJAX
+Route::prefix('inscripciones')->name('inscripciones.')->group(function () {
+    Route::get('intento', [InscripcioneController::class, 'intento'])->name('intento');
+});
+// 2) Luego el resource (opcional: limitar el parámetro a números)
+Route::resource('inscripciones', InscripcioneController::class)
+    ->where(['inscripcione' => '[0-9]+']);
+
 // RUTA AÑADIDA PARA LAS ASIGNACIONES DE CLASE (HORARIOS)
 Route::resource('asignaciones', AsignacionClaseController::class);
 
@@ -97,6 +105,7 @@ Route::prefix('reportes')->group(function () {
 
 Route::get('/api/areas/{area}/profesores', [ReporteProfesorController::class, 'profesoresPorArea'])
     ->name('api.areas.profesores');
+
 
 
 // routes/web.php

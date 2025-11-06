@@ -63,5 +63,16 @@ class Inscripcione extends Model
     {
         return $this->belongsTo(Curso::class, 'curso_id', 'id_curso');
     }
+
+
+    protected static function booted()
+    {
+        static::creating(function ($m) {
+            if ($m->promedio === null || $m->promedio === '') {
+            $m->promedio = 100;
+        }
+        });
+    }
+
     
 }
