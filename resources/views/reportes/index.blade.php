@@ -232,20 +232,61 @@
       <h5 class="card-title">Top 10 alumnos por promedio (por carrera)</h5>
       <p class="text-muted mb-3">Promedio general y desglosado por periodo.</p>
 
-      <form action="{{ route('reportes.top_alumnos.ver') }}" method="get" class="row g-2 align-items-end" id="form-top10">
-        <div class="col-md-9">
+      <form class="row g-2 align-items-end" method="GET" action="{{ route('reportes.top_alumnos.ver') }}">
+        {{-- Carrera --}}
+        <div class="col-md-6">
           <label class="form-label">Carrera</label>
           <select name="carrera_id" class="form-select" required>
-            <option value="" disabled selected>— elige una carrera —</option>
-            @foreach(($carreras_id ?? []) as $car) {{-- opcional: si ya tienes sólo nombre, ver nota abajo --}}
+            <option value="" selected disabled>Selecciona carrera...</option>
+            @foreach($carreras_id as $car)
               <option value="{{ $car->id_carrera }}">{{ $car->nombre_carr }}</option>
             @endforeach
           </select>
         </div>
+
+        {{-- Periodo (opcional) --}}
+        <div class="col-md-6">
+          <label class="form-label">Periodo</label>
+          <select name="periodo_id" class="form-select">
+            <option value="">Todos los periodos</option>
+            @foreach(($periodos ?? []) as $per)
+            <option value="{{ $per->id }}">
+              {{ $per->etiqueta ?? trim(($per->nombre ?? '').' '.($per->anio ?? '')) }}
+            </option>
+            @endforeach
+          </select>
+        </div>
+
         <div class="col-md-3 d-grid">
           <button class="btn btn-primary" type="submit">Ver</button>
         </div>
       </form>
+
+      <script>
+  (function () {
+    const btn = document.getElementById('btnTop10Pdf');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      const form = this.closest('form');
+      const carrera = form.querySelector('select[name="carrera_id"]').value;
+      const periodo = form.querySelector('select[name="periodo_id"]').value;
+
+      if (!carrera) {
+        alert('Selecciona una carrera primero.');
+        return;
+      }
+
+      const url = new URL("{{ route('reportes.top_alumnos.pdf') }}", window.location.origin);
+      url.searchParams.set('carrera_id', carrera);
+      if (periodo) url.searchParams.set('periodo_id', periodo);
+
+      window.location.href = url.toString();
+    });
+  })();
+</script>
+
+
     </div>
   </div>
 </div>

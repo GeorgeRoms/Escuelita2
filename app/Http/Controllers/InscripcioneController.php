@@ -14,6 +14,7 @@ use Illuminate\Database\QueryException;
 use App\Support\Safe;
 use App\Support\Responder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class InscripcioneController extends Controller
 {
@@ -70,20 +71,33 @@ class InscripcioneController extends Controller
     $solo = Arr::only($data, [
         'alumno_no_control',
         'curso_id',
-        'intento',
         'promedio', // nuevo
     ]);
 
     return Safe::run(
         function () use ($solo) {
             return DB::transaction(function () use ($solo) {
+                // Calcular intento por materia (no por curso)
+                $intento = $this->calcularIntento(
+                    $solo['alumno_no_control'],
+                    (int)$solo['curso_id']
+                );
+
+                // Promedio por defecto = 100 si no lo enviaron o viene vacío
+                $promedio = (array_key_exists('promedio', $solo) && $solo['promedio'] !== null && $solo['promedio'] !== '')
+                    ? $solo['promedio']
+                    : 100;
+
                 // Unicidad por (alumno_no_control, curso_id)
                 $ins = Inscripcione::firstOrCreate(
                     [
                         'alumno_no_control' => $solo['alumno_no_control'],
                         'curso_id'          => $solo['curso_id'],
                     ],
-                    Arr::only($solo, ['intento','promedio'])
+                    [
+                        'intento'  => $intento,
+                        'promedio' => $promedio,
+                    ]
                 );
 
                 if (!$ins->wasRecentlyCreated) {
@@ -154,15 +168,20 @@ class InscripcioneController extends Controller
     $solo = Arr::only($data, [
         'alumno_no_control',
         'curso_id',
-        'intento',
         'promedio',
     ]);
 
     return Safe::run(
         function () use ($inscripcione, $solo) {
             return DB::transaction(function () use ($inscripcione, $solo) {
-                $exist = Inscripcione::where('alumno_no_control', $solo['alumno_no_control'])
-                    ->where('curso_id', $solo['curso_id'])
+                
+                // Valores efectivos (si no vienen en el form, usa los actuales)
+                $alumnoNoControl = $solo['alumno_no_control'] ?? $inscripcione->alumno_no_control;
+                $cursoId         = isset($solo['curso_id']) ? (int)$solo['curso_id'] : (int)$inscripcione->curso_id;
+
+                // Unicidad con valores efectivos
+                $exist = Inscripcione::where('alumno_no_control', $alumnoNoControl)
+                    ->where('curso_id', $cursoId)
                     ->where('id', '<>', $inscripcione->id)
                     ->exists();
 
@@ -170,7 +189,19 @@ class InscripcioneController extends Controller
                     throw new \RuntimeException('Ya existe una inscripción con ese alumno y curso.');
                 }
 
-                $inscripcione->update($solo);
+                // Promedio: si no viene, mantener el actual (o 100 si no hubiera)
+                $promedio = (array_key_exists('promedio', $solo) && $solo['promedio'] !== null && $solo['promedio'] !== '')
+                    ? $solo['promedio']
+                    : ($inscripcione->promedio ?? 100);
+
+                // Armar payload final sin cambiar tus nombres
+                $payload = array_merge($solo, [
+                    'alumno_no_control' => $alumnoNoControl,
+                    'curso_id'          => $cursoId,
+                    'promedio'          => $promedio,
+                ]);
+
+                $inscripcione->update($payload);
                 return true;
             });
         },
@@ -238,5 +269,57 @@ class InscripcioneController extends Controller
 
         return [$alumnos, $cursos];
     }
+
+
+    public function intento(Request $request)
+{
+    $alumno = $request->query('alumno_no_control');
+    $curso  = (int) $request->query('curso_id');
+
+    if (!$alumno || !$curso) {
+        return response()->json(['ok' => true, 'intento' => '—'], 200);
+    }
+
+    try {
+        $intento = $this->calcularIntento($alumno, $curso);
+        return response()->json(['ok' => true, 'intento' => $intento], 200);
+    } catch (\Throwable $e) {
+        // Aquí ya no devolvemos detalle del error al cliente
+        return response()->json(['ok' => false, 'intento' => '—'], 200);
+    }
+}
+
+
+    private function calcularIntento(string $noControl, int $cursoId): string
+{
+    // Trae solo lo necesario y usa fk_materia
+    $curso = Curso::select('id_curso','fk_materia')->findOrFail($cursoId);
+    $materiaId = $curso->fk_materia;
+
+    if (empty($materiaId)) {
+        // Si el curso no tiene materia asociada, asumimos primera vez
+        return 'Normal';
+    }
+
+    // Máximo intento previo para la MISMA materia
+    $maxPrev = Inscripcione::query()
+        ->join('cursos', 'cursos.id_curso', '=', 'inscripciones.curso_id')
+        ->where('inscripciones.alumno_no_control', $noControl)
+        ->where('cursos.fk_materia', $materiaId)
+        ->max(DB::raw("
+            CASE inscripciones.intento
+                WHEN 'Especial' THEN 3
+                WHEN 'Repite'  THEN 2
+                WHEN 'Normal'  THEN 1
+                ELSE 0
+            END
+        "));
+
+    $maxPrev = (int)($maxPrev ?? 0);
+    $next = min(3, $maxPrev + 1);
+
+    return $next === 1 ? 'Normal' : ($next === 2 ? 'Repite' : 'Especial');
+}
+
 }
 

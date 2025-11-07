@@ -56,6 +56,8 @@ class CursoController extends Controller
                 $materias = Materia::orderBy('nombre_mat')
                     ->pluck('nombre_mat', 'id_materia');
 
+                $materiasCred = Materia::pluck('creditos', 'id_materia');
+
                 $profesores = Profesore::query()
                     ->orderBy('apellido_pat')
                     ->orderBy('apellido_mat')
@@ -94,7 +96,7 @@ $periodos = $periodosQ
                 // NUEVO: días para el select
                 $dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
-                return compact('curso','materias','profesores','aulas','periodos','dias');
+                return compact('curso','materias','materiasCred','profesores','aulas','periodos','dias');
             },
             function ($data) {
                 return view('curso.create', $data);
@@ -169,6 +171,8 @@ $periodos = $periodosQ
                 $materias = \App\Models\Materia::orderBy('nombre_mat')
                     ->pluck('nombre_mat', 'id_materia');
 
+                $materiasCred = \App\Models\Materia::pluck('creditos', 'id_materia');
+
                 $profesores = \App\Models\Profesore::query()
                     ->orderBy('apellido_pat')->orderBy('apellido_mat')->orderBy('nombre')
                     ->get()
@@ -205,7 +209,7 @@ $periodos = $periodosQ
 
                 // NUEVO: días
 
-                return compact('curso','materias','profesores','aulas','periodos','dias');
+                return compact('curso','materias','materiasCred','profesores','aulas','periodos','dias');
             },
             function ($data) {
                 return view('curso.edit', $data);

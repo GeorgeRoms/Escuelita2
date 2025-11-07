@@ -50,6 +50,7 @@ class Curso extends Model
         'dia_semana',
         'hora_inicio',
         'hora_fin',
+        'dia_1h','hora_inicio_1h','hora_fin_1h',
     ];
 
     protected $casts = [

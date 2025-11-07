@@ -5,6 +5,10 @@
         $alumnos = $alumnos ?? collect();
         $cursos  = $cursos  ?? collect();
         @endphp
+        @php
+        // Detecta si es edición (el create ya te pasa un modelo vacío new Inscripcione())
+        $isEdit = isset($inscripcione) && ($inscripcione->id ?? false);
+        @endphp
         
         <div class="form-group mb-2 mb20">
             <label class="form-label">Alumno</label>
@@ -30,7 +34,7 @@
             </select>
             @error('curso_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
-        <div class="form-group mb-2 mb20">
+        {{-- <div class="form-group mb-2 mb20">
             <label class="form-label">Estado</label>
             @php $estSel = old('estado', $inscripcione->estado ?? 'Inscrito'); @endphp
             <select name="estado" class="form-select @error('estado') is-invalid @enderror">
@@ -38,7 +42,7 @@
             <option value="Baja"     @selected($estSel==='Baja')>Baja</option>
             </select>
             @error('estado') <div class="invalid-feedback">{{ $message }}</div> @enderror
-        </div>
+        </div> --}}
         {{-- <div class="form-group mb-2 mb20">
             <label for="oportunidad" class="form-label">{{ __('Oportunidad') }}</label>
             <input type="text" name="oportunidad" class="form-control @error('oportunidad') is-invalid @enderror" value="{{ old('oportunidad', $inscripcione?->oportunidad) }}" id="oportunidad" placeholder="Oportunidad">
@@ -46,25 +50,28 @@
         </div> --}}
         <div class="form-group mb-2 mb20">
             <label class="form-label">Intento</label>
-            @php $intSel = old('intento', $inscripcione->intento ?? 'Normal'); @endphp
-            <select name="intento" class="form-select @error('intento') is-invalid @enderror">
-            <option value="Normal"  @selected($intSel==='Normal')>Normal</option>
-            <option value="Repite"  @selected($intSel==='Repite')>Repite</option>
-            <option value="Especial"@selected($intSel==='Especial')>Especial</option>
-            </select>
-            @error('intento') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            @if($isEdit)
+            {{-- En edición: solo mostrar el intento ya guardado, sin JS ni POST --}}
+            <input type="text" class="form-control" value="{{ $inscripcione->intento ?? '—' }}" readonly>
+            @else
+            {{-- En creación: calcular dinámicamente --}}
+            <input type="hidden" id="intento_url" value="{{ route('inscripciones.intento') }}">
+            <input type="text" id="intento_preview" class="form-control" value="—" readonly>
+            @endif
         </div>
-        <div class="col-md-3">
-            <label for="promedio" class="form-label">Promedio</label>
-            <input
-                type="number"
-                name="promedio"
-                id="promedio"
-                class="form-control @error('promedio') is-invalid @enderror"
-                value="{{ old('promedio', $inscripcione->promedio ?? null) }}"
-                step="0.01" min="0" max="100" placeholder="0.00 – 100.00">
-                {!! $errors->first('promedio', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
+        
+        @if($isEdit)
+        <div class="form-group mb-2 mb20">
+            <label class="form-label">Promedio</label>
+            <input type="number" step="0.01" min="0" max="100"
+            name="promedio"
+            class="form-control @error('promedio') is-invalid @enderror"
+            value="{{ old('promedio', $inscripcione->promedio) }}">
+            {!! $errors->first('promedio', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
         </div>
+        @else
+        <input type="hidden" name="promedio" value="{{ old('promedio', 100) }}">
+        @endif
 
         {{-- <div class="form-group mb-2 mb20">
             <label class="form-label">Semestre</label>
@@ -79,3 +86,64 @@
         <button type="submit" class="btn btn-primary">{{ __('Guardar') }}</button>
     </div>
 </div>
+
+<script>
+(function(){
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', arguments.callee);
+    return;
+  }
+  const alumnoSel = document.querySelector('[name="alumno_no_control"]');
+  const cursoSel  = document.querySelector('[name="curso_id"]');
+  const preview   = document.getElementById('intento_preview');
+  const url       = document.getElementById('intento_url')?.value;
+
+  async function actualizarIntento(){
+    const alumno = alumnoSel?.value?.trim();
+    const curso  = cursoSel?.value?.trim();
+    if (!alumno || !curso || !url) { preview.value = '—'; return; }
+
+    try{
+      const qs  = new URLSearchParams({ alumno_no_control: alumno, curso_id: curso });
+      const res = await fetch(`${url}?${qs.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const data = res.ok ? await res.json() : null;
+      preview.value = data?.intento ?? '—';
+    }catch(_){ preview.value = '—'; }
+  }
+
+  alumnoSel?.addEventListener('change', actualizarIntento);
+  cursoSel?.addEventListener('change', actualizarIntento);
+  actualizarIntento(); // inicial
+})();
+</script>
+
+@if(!$isEdit)
+  <script>
+  (function(){
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', arguments.callee);
+      return;
+    }
+    const alumnoSel = document.querySelector('[name="alumno_no_control"]');
+    const cursoSel  = document.querySelector('[name="curso_id"]');
+    const preview   = document.getElementById('intento_preview');
+    const url       = document.getElementById('intento_url')?.value;
+
+    async function actualizarIntento(){
+      const alumno = alumnoSel?.value?.trim();
+      const curso  = cursoSel?.value?.trim();
+      if (!alumno || !curso || !url) { preview.value = '—'; return; }
+      try{
+        const qs  = new URLSearchParams({ alumno_no_control: alumno, curso_id: curso });
+        const res = await fetch(`${url}?${qs.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        const data = res.ok ? await res.json() : null;
+        preview.value = data?.intento ?? '—';
+      }catch(_){ preview.value = '—'; }
+    }
+
+    alumnoSel?.addEventListener('change', actualizarIntento);
+    cursoSel?.addEventListener('change', actualizarIntento);
+    actualizarIntento();
+  })();
+  </script>
+@endif

@@ -24,7 +24,6 @@ class CursoRequest extends FormRequest
     {
         // Define las combinaciones de días válidas, incluyendo los días individuales y las combinaciones nuevas.
         $diasValidos = [
-            'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', // Días individuales originales
             'Lunes-Miércoles-Viernes', 
             'Martes-Jueves-Viernes', 
             'Lunes-Miércoles', 
@@ -50,6 +49,9 @@ class CursoRequest extends FormRequest
 
             'hora_inicio' => ['required', 'date_format:H:i'],
             'hora_fin'    => ['required', 'date_format:H:i', 'after:hora_inicio'],
+            'dia_1h' => ['nullable','string','max:20'],
+            'hora_inicio_1h' => ['nullable','date_format:H:i'],
+            'hora_fin_1h' => ['nullable','date_format:H:i'],
         ];
     }
 
@@ -60,4 +62,28 @@ class CursoRequest extends FormRequest
             'dia_semana.in'  => 'El día de la semana seleccionado no es una combinación válida.',
         ];
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($v) {
+            $day = $this->input('dia_1h');
+            $h1  = $this->input('hora_inicio_1h');
+            $h2  = $this->input('hora_fin_1h');
+
+            // si hay día de 1h, ambas horas deben venir y durar 60 min
+            if ($day || $h1 || $h2) {
+                if (!$day || !$h1 || !$h2) {
+                    $v->errors()->add('hora_fin_1h', 'Completa el bloque de 1 hora.');
+                    return;
+                }
+                [$aH,$aM] = array_map('intval', explode(':',$h1));
+                [$bH,$bM] = array_map('intval', explode(':',$h2));
+                $diff = ($bH*60+$bM) - ($aH*60+$aM);
+                if ($diff !== 60) {
+                    $v->errors()->add('hora_fin_1h', 'El bloque adicional debe ser de exactamente 1 hora.');
+                }
+            }
+        });
+    }
+
 }

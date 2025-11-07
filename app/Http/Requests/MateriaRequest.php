@@ -25,7 +25,7 @@ class MateriaRequest extends FormRequest
         
         return [
             'nombre_mat' => ['required','string','max:60'],
-            'creditos'   => ['required','integer','in:5,7,8,10'],
+            'creditos'   => ['required','integer','in:3,4,5'],
             'fk_cadena'  => ['nullable','integer','exists:materias,id_materia',
                 // no te apuntes a ti mismo
                 function ($attr, $value, $fail) use ($id) {

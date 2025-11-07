@@ -14,7 +14,7 @@
         <div class="form-group mb-2 mb20">
             <label for="creditos" class="form-label">{{ __('Número de créditos') }}</label>
             @php
-            $opciones = [5, 6, 7, 8, 10];
+            $opciones = [3, 4, 5];
             $sel = old('creditos', $materia?->creditos);
             @endphp
             <select name="creditos" id="creditos"

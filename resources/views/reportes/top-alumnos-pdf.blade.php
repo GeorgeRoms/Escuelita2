@@ -17,6 +17,7 @@
     <div>
       <div><strong>Top 10 alumnos por promedio</strong></div>
       <div>Carrera: <strong>{{ $carrera }}</strong></div>
+      <div>Periodo: <strong>{{ $periodo ?? 'Todos los periodos' }}</strong></div>
       <div>Fecha: {{ $fecha }}</div>
     </div>
     @if($logoB64)
@@ -29,7 +30,10 @@
       <tr>
         <th>No. Control</th>
         <th>Alumno</th>
-        <th>Promedio general</th>
+        <th>
+          {{-- Si filtras por periodo, deja claro que es el promedio de ese periodo --}}
+          {{ isset($periodo) && $periodo !== 'Todos los periodos' ? 'Promedio del periodo' : 'Promedio general' }}
+        </th>
         <th>Cursos</th>
       </tr>
     </thead>
@@ -46,3 +50,4 @@
   </table>
 </body>
 </html>
+
