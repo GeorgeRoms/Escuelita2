@@ -33,6 +33,25 @@ Auth::routes();
 
 Route::get('/', fn () => redirect()->route('home'));
 
+// ----------------------------------------------------------------------
+// ✨ RUTAS PÚBLICAS DE SIMULACIÓN (Para botones de Login) ✨
+// ----------------------------------------------------------------------
+Route::get('/panel/superusuario', function () {
+    // CAMBIO: Ahora carga la vista de login (auth.login) como solicitaste.
+    return view('auth.login'); 
+})->name('panel.superusuario');
+
+Route::get('/panel/administrador', function () {
+    return view('auth.homeadmin'); 
+})->name('panel.administrador');
+
+Route::get('/panel/alumno', function () {
+    // Carga la vista del alumno 
+    return view('auth.homealumn'); 
+})->name('panel.alumno');
+// ----------------------------------------------------------------------
+
+
 // 3. Rutas Protegidas (El Middleware 'auth' es el candado)
 // Ninguna de estas rutas será accesible sin iniciar sesión.
 Route::middleware(['auth'])->group(function () {
@@ -78,7 +97,7 @@ Route::prefix('reportes')->group(function () {
     Route::get('/profesor/ver', [ReporteProfesorController::class, 'ver'])->name('reportes.profesor.ver');
     Route::get('/alumno/ver', [ReporteAlumnoController::class, 'ver'])->name('reportes.alumno.ver');
     Route::get('/carrera-periodo/ver', [ReporteCarreraPeriodoController::class, 'ver'])->name('reportes.carrera_periodo.ver');
-    Route::get('/top-alumnos/ver',  [ReporteTopAlumnosController::class, 'ver'])->name('reportes.top_alumnos.ver');
+    Route::get('/top-alumnos/ver', 	[ReporteTopAlumnosController::class, 'ver'])->name('reportes.top_alumnos.ver');
 
     // Rutas de PDF
     Route::get('/especial/pdf', [ReporteEspecialController::class, 'especialPdf'])
@@ -91,7 +110,7 @@ Route::prefix('reportes')->group(function () {
         ->name('reportes.historial.pdf');
     Route::get('/carrera-periodo/pdf',[ReporteCarreraPeriodoController::class, 'pdf'])
         ->name('reportes.carrera_periodo.pdf');
-    Route::get('/top-alumnos/pdf',  [ReporteTopAlumnosController::class, 'pdf'])
+    Route::get('/top-alumnos/pdf', 	[ReporteTopAlumnosController::class, 'pdf'])
         ->name('reportes.top_alumnos.pdf');
 }); // Fin del grupo de reportes
 
@@ -102,7 +121,7 @@ Route::get('/api/areas/{area}/profesores', [ReporteProfesorController::class, 'p
 // routes/web.php
 Route::get('/_debug', function () {
     return [
-        'app_env'   => app()->environment(),
+        'app_env' 	 => app()->environment(),
         'app_debug' => config('app.debug'),
         'env_debug' => env('APP_DEBUG'), // ojo: solo para diagnosticar
     ];
