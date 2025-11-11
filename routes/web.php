@@ -27,6 +27,10 @@ use App\Http\Controllers\ReporteProfesorController;
 use App\Http\Controllers\ReporteAlumnoController;
 use App\Http\Controllers\ReporteCarreraPeriodoController;
 use App\Http\Controllers\ReporteTopAlumnosController;
+use App\Http\Controllers\Auth\TipoLoginController;
+
+// 🔐 Reemplaza el POST /login para que use TipoLoginController
+Route::post('/login/tipo', [TipoLoginController::class, 'login'])->name('login.tipo');
 
 
 Auth::routes();
@@ -55,6 +59,10 @@ Route::get('/panel/alumno', function () {
 // 3. Rutas Protegidas (El Middleware 'auth' es el candado)
 // Ninguna de estas rutas será accesible sin iniciar sesión.
 Route::middleware(['auth'])->group(function () {
+
+    Route::get('/admin/home',   fn () => view('auth.homeadmin'))->name('home.admin');   // Admin
+    Route::get('/staff/home',   fn () => view('home'))->name('home.admini');            // Administrativo (tu home.blade.php)
+    Route::get('/alumno/home',  fn () => view('auth.homealumn'))->name('home.alumno');  // Alumno
     // Dashboard principal para usuarios logueados
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use App\Support\Safe;
 use App\Support\Responder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class ContactosAlumnoController extends Controller
 {
@@ -77,7 +79,35 @@ class ContactosAlumnoController extends Controller
         return Safe::run(
             function () use ($validated) {
                 return DB::transaction(function () use ($validated) {
-                    return ContactosAlumno::create($validated);
+                    // 1) Crea el contacto
+                $contacto = ContactosAlumno::create($validated);
+
+                // 2) Busca al alumno
+                $alumno = Alumno::where('no_control', $validated['fk_alumno'])->first();
+
+                if ($alumno && !empty($validated['correo'])) {
+                    $nombre = trim(($alumno->nombre ?? '') . ' ' . ($alumno->apellido_pat ?? '') . ' ' . ($alumno->apellido_mat ?? ''));
+
+                    // 3) Crea/asegura el user
+                    $user = User::firstOrCreate(
+                        ['email' => $validated['correo']],
+                        [
+                            'name'              => $nombre ?: ('Alumno ' . $alumno->no_control),
+                            'password'          => Hash::make($alumno->no_control), // temporal = no_control
+                            'role'              => 'Alumno',
+                            'alumno_no_control' => $alumno->no_control,
+                        ]
+                    );
+
+                    // 4) Completa campos si ya existía (sin tocar password)
+                    $changed = false;
+                    if ($user->role !== 'Alumno') { $user->role = 'Alumno'; $changed = true; }
+                    if (!$user->alumno_no_control) { $user->alumno_no_control = $alumno->no_control; $changed = true; }
+                    if (!$user->name && $nombre) { $user->name = $nombre; $changed = true; }
+                    if ($changed) $user->save();
+                }
+
+                return $contacto;
                 });
             },
             function () use ($request) {
@@ -149,8 +179,58 @@ class ContactosAlumnoController extends Controller
         return Safe::run(
             function () use ($contactos_alumno, $validated) {
                 return DB::transaction(function () use ($contactos_alumno, $validated) {
-                    $contactos_alumno->update($validated);
-                    return true;
+                    // 1) Actualiza el contacto
+                $contactos_alumno->update($validated);
+
+                // 2) Sincroniza/asegura el user del alumno
+                $noCtrl = $contactos_alumno->fk_alumno;
+                $correo = $contactos_alumno->correo;
+
+                $alumno = Alumno::where('no_control', $noCtrl)->first();
+                if (!$alumno || empty($correo)) {
+                    return true; // nada que sincronizar
+                }
+
+                // Busca por vínculo o por correo
+                $user = User::where('alumno_no_control', $noCtrl)->first();
+                if (!$user) {
+                    $user = User::where('email', $correo)->first();
+                }
+
+                $nombre = trim(($alumno->nombre ?? '') . ' ' . ($alumno->apellido_pat ?? '') . ' ' . ($alumno->apellido_mat ?? ''));
+
+                if (!$user) {
+                    // Si no existe, créalo ahora
+                    $user = User::firstOrCreate(
+                        ['email' => $correo],
+                        [
+                            'name'              => $nombre ?: ('Alumno ' . $noCtrl),
+                            'password'          => Hash::make($alumno->no_control), // temporal = no_control
+                            'role'              => 'Alumno',
+                            'alumno_no_control' => $noCtrl,
+                        ]
+                    );
+                } else {
+                    // Completa/actualiza sin romper contraseñas
+                    $changed = false;
+
+                    if ($user->role !== 'Alumno') { $user->role = 'Alumno'; $changed = true; }
+                    if ($user->alumno_no_control !== $noCtrl) { $user->alumno_no_control = $noCtrl; $changed = true; }
+                    if (!$user->name && $nombre) { $user->name = $nombre; $changed = true; }
+
+                    // Si el correo cambió, actualiza evitando colisiones
+                    if ($user->email !== $correo) {
+                        $existeOtro = User::where('email', $correo)->where('id', '<>', $user->id)->exists();
+                        if (!$existeOtro) {
+                            $user->email = $correo;
+                            $changed = true;
+                        }
+                    }
+
+                    if ($changed) $user->save();
+                }
+
+                return true;
                 });
             },
             function () use ($request) {

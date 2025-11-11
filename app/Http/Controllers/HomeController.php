@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 
@@ -23,6 +24,15 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $u = Auth::user();
+        if (!$u) return redirect()->route('login');
+
+        switch ((string) $u->role) {
+            case 'Administrador':  return redirect()->route('home.admini');   // auth.homeadmin
+            case 'Administrativo': return redirect()->route('home.admin');  // home.blade.php
+            case 'Alumno':         return redirect()->route('home.alumno');
+            case 'Profesor':       return redirect()->route('home.profesor');
+            default:               return view('home'); // o donde prefieras
+        }
     }
 }

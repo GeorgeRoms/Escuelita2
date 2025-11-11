@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'alumno_no_control',
+        'profesor_id',
     ];
 
     /**
@@ -32,6 +35,11 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    public function es(string $role): bool
+    {
+        return (string) $this->role === $role;
+    }
 
     /**
      * Get the attributes that should be cast.

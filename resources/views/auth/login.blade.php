@@ -66,7 +66,7 @@
         {{-- Logo + título centrados --}}
         <div class="auth-hero">
             <img src="{{ asset('images/escuelita-logo.png') }}" alt="Escuelita" class="logo">
-            <div class="brand h4 mb-0">Superusuario</div>
+            <div class="brand h4 mb-0">Escuelita</div>
             <div class="text-muted">Bienvenido, inicia sesión para continuar</div>
         </div>
 
@@ -74,7 +74,7 @@
             <div class="card-header fw-bold">{{ __('Iniciar Sesión') }}</div>
 
             <div class="card-body">
-                <form method="POST" action="{{ route('login') }}">
+                <form method="POST" action="{{ route('login.tipo') }}">
                     @csrf
 
                     <div class="mb-3 row">
@@ -104,6 +104,22 @@
                             @enderror
                         </div>
                     </div>
+
+
+                    {{-- Tipo de usuario (hidden) seleccionado desde los botones de abajo --}}
+<input type="hidden" name="tipo" id="tipo" value="{{ old('tipo') }}">
+
+{{-- Indicador visual opcional --}}
+<div class="row mb-2">
+  <div class="col-md-6 offset-md-4">
+    <small class="text-muted">Tipo seleccionado:
+      <span id="tipoLabel" class="badge bg-secondary">
+        {{ old('tipo') ?: '— ninguno —' }}
+      </span>
+    </small>
+  </div>
+</div>
+
 
                     <div class="mb-3 row">
                         <div class="col-md-6 offset-md-4">
@@ -137,18 +153,18 @@
         <!-- ---------------------------------------------------------------------- -->
         <!-- ✨ INICIO: BOTONES DE SIMULACIÓN DE VISTAS (AÑADIDOS AL LOGIN) ✨ -->
         <!-- ---------------------------------------------------------------------- -->
-        <h5 class="h6 mt-4 mb-2 text-center text-muted">simula el acceso a un rol:</h5>
+        <h5 class="h6 mt-4 mb-2 text-center text-muted">¿Qué eres?</h5>
         
         <div class="row g-3">
             {{-- Botón Superusuario --}}
             <div class="col-12 col-md-4">
-                <a href="{{ route('panel.superusuario') }}" class="text-decoration-none">
+                <a href="{{ route('panel.superusuario') }}" class="text-decoration-none js-elige-tipo" data-tipo="Administrador">
                     <div class="card hover-card h-100 sim-card">
                         <div class="card-body d-flex flex-column align-items-center justify-content-center gap-2 text-center p-3">
                             <div class="icon-pill">
                                 <span class="emoji">&#x1F451;</span>
                             </div>
-                            <small class="fw-bold text-dark">Superusuario</small>
+                            <small class="fw-bold text-dark">Administrador</small>
                         </div>
                     </div>
                 </a>
@@ -156,13 +172,13 @@
             
             {{-- Botón Administrador Limitado --}}
             <div class="col-12 col-md-4">
-                <a href="{{ route('panel.administrador') }}" class="text-decoration-none">
+                <a href="{{ route('panel.administrador') }}" class="text-decoration-none js-elige-tipo" data-tipo="Administrativo">
                     <div class="card hover-card h-100 sim-card admin-pill">
                         <div class="card-body d-flex flex-column align-items-center justify-content-center gap-2 text-center p-3">
                             <div class="icon-pill">
                                 <span class="emoji">&#x1F4BC;</span>
                             </div>
-                            <small class="fw-bold text-dark">Admin</small>
+                            <small class="fw-bold text-dark">Administrativo</small>
                         </div>
                     </div>
                 </a>
@@ -170,7 +186,7 @@
             
             {{-- Botón Alumno --}}
             <div class="col-12 col-md-4">
-                <a href="{{ route('panel.alumno') }}" class="text-decoration-none">
+                <a href="{{ route('panel.alumno') }}" class="text-decoration-none js-elige-tipo" data-tipo="Alumno">
                     <div class="card hover-card h-100 sim-card alumno-pill">
                         <div class="card-body d-flex flex-column align-items-center justify-content-center gap-2 text-center p-3">
                             <div class="icon-pill">
@@ -188,5 +204,46 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const hidden = document.getElementById('tipo');
+  const label  = document.getElementById('tipoLabel');
+
+  // helper para resaltar la tarjeta seleccionada
+  const clearHighlights = () => {
+    document.querySelectorAll('.hover-card').forEach(c => {
+      c.classList.remove('border', 'border-primary', 'shadow');
+    });
+  };
+
+  document.querySelectorAll('.js-elige-tipo').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault(); // evita navegar a /panel/...
+      const t = this.dataset.tipo;
+      if (!t) return;
+
+      // setear hidden + etiqueta
+      hidden.value = t;
+      if (label) {
+        label.textContent = t;
+        label.classList.remove('bg-secondary');
+        label.classList.add('bg-primary');
+      }
+
+      // resaltar visualmente la tarjeta elegida
+      clearHighlights();
+      const card = this.querySelector('.hover-card');
+      if (card) card.classList.add('border', 'border-primary', 'shadow');
+    });
+  });
+
+  // si viene old('tipo') del back, resalta al cargar
+  if (hidden.value) {
+    const pre = document.querySelector('.js-elige-tipo[data-tipo="'+ hidden.value +'"]');
+    if (pre) pre.dispatchEvent(new Event('click'));
+  }
+});
+</script>
 @endsection
 
