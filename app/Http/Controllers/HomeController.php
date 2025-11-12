@@ -29,7 +29,7 @@ class HomeController extends Controller
 
         switch ((string) $u->role) {
             case 'Administrador':  return redirect()->route('home.admini');   // auth.homeadmin
-            case 'Administrativo': return redirect()->route('home.admin');  // home.blade.php
+            // case 'Administrativo': return redirect()->route('home.admin');  // home.blade.php
             case 'Alumno':         return redirect()->route('home.alumno');
             case 'Profesor':       return redirect()->route('home.profesor');
             default:               return view('home'); // o donde prefieras

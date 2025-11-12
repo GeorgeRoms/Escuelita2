@@ -53,6 +53,8 @@ Route::get('/panel/alumno', function () {
     // Carga la vista del alumno 
     return view('auth.homealumn'); 
 })->name('panel.alumno');
+
+Route::get('/panel/profesor', fn() => view('auth.homeprofe'))->name('panel.profesor');
 // ----------------------------------------------------------------------
 
 
@@ -60,9 +62,10 @@ Route::get('/panel/alumno', function () {
 // Ninguna de estas rutas será accesible sin iniciar sesión.
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/admin/home',   fn () => view('auth.homeadmin'))->name('home.admin');   // Admin
+    // Route::get('/admin/home',   fn () => view('auth.homeadmin'))->name('home.admin');   // Admin
     Route::get('/staff/home',   fn () => view('home'))->name('home.admini');            // Administrativo (tu home.blade.php)
     Route::get('/alumno/home',  fn () => view('auth.homealumn'))->name('home.alumno');  // Alumno
+    Route::get('/profe/home',   fn() => view('auth.homeprofe'))->name('home.profesor');
     // Dashboard principal para usuarios logueados
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 

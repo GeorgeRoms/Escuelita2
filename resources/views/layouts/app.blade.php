@@ -165,12 +165,12 @@
                     {{-- Right --}}
                     <ul class="navbar-nav ms-auto">
                         @guest
-                            @if (Route::has('login'))
+                            {{-- @if (Route::has('login'))
                                 <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">{{ __('Iniciar sesión') }}</a></li>
-                            @endif
-                            @if (Route::has('register'))
+                            @endif --}}
+                            {{-- @if (Route::has('register'))
                                 <li class="nav-item"><a class="nav-link" href="{{ route('register') }}">{{ __('Registrarme') }}</a></li>
-                            @endif
+                            @endif --}}
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

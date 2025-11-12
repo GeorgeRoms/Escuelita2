@@ -172,13 +172,13 @@
             
             {{-- Botón Administrador Limitado --}}
             <div class="col-12 col-md-4">
-                <a href="{{ route('panel.administrador') }}" class="text-decoration-none js-elige-tipo" data-tipo="Administrativo">
+                <a href="{{ route('panel.profesor') }}" class="text-decoration-none js-elige-tipo" data-tipo="Profesor">
                     <div class="card hover-card h-100 sim-card admin-pill">
                         <div class="card-body d-flex flex-column align-items-center justify-content-center gap-2 text-center p-3">
                             <div class="icon-pill">
                                 <span class="emoji">&#x1F4BC;</span>
                             </div>
-                            <small class="fw-bold text-dark">Administrativo</small>
+                            <small class="fw-bold text-dark">Profesor</small>
                         </div>
                     </div>
                 </a>

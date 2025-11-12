@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use App\Support\Safe;
 use App\Support\Responder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class ContactosProfesoreController extends Controller
 {
@@ -85,7 +87,35 @@ class ContactosProfesoreController extends Controller
         return Safe::run(
             function () use ($validated) {
                 return DB::transaction(function () use ($validated) {
-                    return ContactosProfesore::create($validated);
+                    // 1) Crea el contacto de profesor
+                    $contacto = ContactosProfesore::create($validated);
+
+                    // 2) Busca al profesor
+                    $prof = Profesore::where('id_profesor', $validated['fk_profesor'])->first();
+
+                    if ($prof && !empty($validated['correo'])) {
+                        $nombre = trim(($prof->nombre ?? '') . ' ' . ($prof->apellido_pat ?? '') . ' ' . ($prof->apellido_mat ?? ''));
+
+                        // 3) Crea/asegura el user (correo del contacto)
+                        $user = User::firstOrCreate(
+                            ['email' => mb_strtolower(trim($validated['correo']))],
+                            [
+                                'name'        => $nombre ?: ('Profesor ' . $prof->id_profesor),
+                                'password'    => Hash::make('Profesor' . $prof->id_profesor), // temporal
+                                'role'        => 'Profesor',
+                                'profesor_id' => $prof->id_profesor,
+                            ]
+                        );
+
+                        // 4) Completa campos si ya existía (sin tocar password)
+                        $changed = false;
+                        if ($user->role !== 'Profesor')           { $user->role = 'Profesor'; $changed = true; }
+                        if ($user->profesor_id !== $prof->id_profesor) { $user->profesor_id = $prof->id_profesor; $changed = true; }
+                        if (!$user->name && $nombre)              { $user->name = $nombre; $changed = true; }
+                        if ($changed) $user->save();
+                    }
+
+                    return $contacto;
                 });
             },
             function () use ($request) {
@@ -155,7 +185,58 @@ class ContactosProfesoreController extends Controller
         return Safe::run(
             function () use ($contactos_profesore, $validated) {
                 return DB::transaction(function () use ($contactos_profesore, $validated) {
+                    // 1) Actualiza el contacto
                     $contactos_profesore->update($validated);
+
+                    // 2) Datos actuales
+                    $profId = $contactos_profesore->fk_profesor;
+                    $correo = mb_strtolower(trim($contactos_profesore->correo ?? ''));
+
+                    $prof = Profesore::where('id_profesor', $profId)->first();
+                    if (!$prof || empty($correo)) {
+                        return true; // nada que sincronizar
+                    }
+
+                    // 3) Localiza user por vínculo o correo
+                    $user = User::where('profesor_id', $profId)->first();
+                    if (!$user) {
+                        $user = User::where('email', $correo)->first();
+                    }
+
+                    $nombre = trim(($prof->nombre ?? '') . ' ' . ($prof->apellido_pat ?? '') . ' ' . ($prof->apellido_mat ?? ''));
+
+                    if (!$user) {
+                        // 4) Si no existe, créalo ahora
+                        $user = User::firstOrCreate(
+                            ['email' => $correo],
+                            [
+                                'name'        => $nombre ?: ('Profesor ' . $profId),
+                                'password'    => Hash::make('Profesor' . $profId), // temporal
+                                'role'        => 'Profesor',
+                                'profesor_id' => $profId,
+                            ]
+                        );
+                    } else {
+                        // 5) Actualiza sin romper password
+                        $changed = false;
+
+                        if ($user->role !== 'Profesor')       { $user->role = 'Profesor'; $changed = true; }
+                        if ($user->profesor_id !== $profId)    { $user->profesor_id = $profId; $changed = true; }
+                        if (!$user->name && $nombre)           { $user->name = $nombre; $changed = true; }
+
+                        // Si el correo cambió, actualiza evitando colisiones
+                        if ($user->email !== $correo) {
+                            $existeOtro = User::where('email', $correo)->where('id', '<>', $user->id)->exists();
+                            if (!$existeOtro) {
+                                $user->email = $correo;
+                                $changed = true;
+                            }
+                            // si hay colisión, lo ignoramos silenciosamente (o puedes lanzar warning flash)
+                        }
+
+                        if ($changed) $user->save();
+                    }
+
                     return true;
                 });
             },

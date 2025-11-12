@@ -16,14 +16,14 @@ class TipoLoginController extends Controller
         $data = $request->validate([
             'email'    => ['required','email'],
             'password' => ['required'],
-            'tipo'     => ['required','in:Administrador,Administrativo,Alumno,Profesor'],
+            'tipo'     => ['required','in:Administrador,Alumno,Profesor'],
         ]);
 
         $remember = $request->boolean('remember');
         $tipo     = $data['tipo'];
 
         // 1) Admin / Administrativo → autenticar contra users con role fijo
-        if (in_array($tipo, ['Administrador','Administrativo'])) {
+        if (in_array($tipo, ['Administrador'])) {
             $ok = Auth::attempt([
                 'email' => $data['email'],
                 'password' => $data['password'],
@@ -151,7 +151,7 @@ class TipoLoginController extends Controller
     {
         switch ((string) $user->role) {
             case 'Administrador':  return redirect()->route('home.admini');   // auth.homeadmin
-            case 'Administrativo': return redirect()->route('home.admin');  // home.blade.php
+            // case 'Administrativo': return redirect()->route('home.admin');  // home.blade.php
             case 'Alumno':         return redirect()->route('home.alumno');  // auth.homealumn
             case 'Profesor':       return redirect()->route('home.profesor'); // si lo habilitas
             default:               return redirect('/home'); // o '/'
