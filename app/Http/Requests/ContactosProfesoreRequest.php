@@ -36,7 +36,14 @@ class ContactosProfesoreRequest extends FormRequest
                 Rule::unique('users','email')->ignore($userIdVinculado),
             ],
             'telefono'   => ['required','string','max:20','regex:/^[0-9\-\+\(\)\s]{7,20}$/'],
-            'direccion'  => ['required','string','max:120'],
+            // Dirección atomizada (ya SIN string en prepareForValidation)
+            'calle'   => 'nullable|max:100',
+            'colonia' => 'nullable|max:100',
+            'num_ext' => 'nullable|max:10',
+            'num_int' => 'nullable|max:10',
+            'cp'      => 'nullable|max:10',
+            'estado'  => 'nullable|max:60',
+            'pais'    => 'nullable|max:60',
             'fk_profesor'=> ['nullable','integer','exists:profesores,id_profesor'], // usa required si quieres forzarlo
         ];
     }

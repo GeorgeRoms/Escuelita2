@@ -166,8 +166,13 @@ class Alumno extends Model
     }
 
     public function getRouteKeyName(): string
-{
-    return 'no_control';
-}
+    {
+        return 'no_control';
+    }
+
+    public function contacto()
+    {
+        return $this->hasOne(\App\Models\ContactosAlumno::class, 'fk_alumno', 'no_control');
+    }
     
 }

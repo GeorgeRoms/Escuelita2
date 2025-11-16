@@ -73,24 +73,36 @@ class ContactosAlumnoController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(ContactosAlumnoRequest $request)
-    {
-        $validated = $request->validated();
+{
+    $validated = $request->validated();
 
-        return Safe::run(
-            function () use ($validated) {
-                return DB::transaction(function () use ($validated) {
-                    // 1) Crea el contacto
-                $contacto = ContactosAlumno::create($validated);
+    return Safe::run(
+        function () use ($validated) {
+            return DB::transaction(function () use ($validated) {
+
+                // 🧱 armamos un payload que ya trae 'direccion' bonita
+                $payload = $validated;
+                $direccion = $this->armarDireccion($payload);
+
+                if ($direccion !== '') {
+                    $payload['direccion'] = $direccion;
+                } else {
+                    // si por alguna razón quieres mantener lo que venía:
+                    $payload['direccion'] = $payload['direccion'] ?? 'N/D';
+                }
+
+                // 1) Crea el contacto con todos los campos (incluyendo calle, colonia, etc.)
+                $contacto = ContactosAlumno::create($payload);
 
                 // 2) Busca al alumno
-                $alumno = Alumno::where('no_control', $validated['fk_alumno'])->first();
+                $alumno = Alumno::where('no_control', $payload['fk_alumno'])->first();
 
-                if ($alumno && !empty($validated['correo'])) {
+                if ($alumno && !empty($payload['correo'])) {
                     $nombre = trim(($alumno->nombre ?? '') . ' ' . ($alumno->apellido_pat ?? '') . ' ' . ($alumno->apellido_mat ?? ''));
 
                     // 3) Crea/asegura el user
                     $user = User::firstOrCreate(
-                        ['email' => $validated['correo']],
+                        ['email' => $payload['correo']],
                         [
                             'name'              => $nombre ?: ('Alumno ' . $alumno->no_control),
                             'password'          => Hash::make($alumno->no_control), // temporal = no_control
@@ -108,16 +120,17 @@ class ContactosAlumnoController extends Controller
                 }
 
                 return $contacto;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'contactos-alumnos.index', 'Contacto creado correctamente.', null, 201);
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
+            });
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'contactos-alumnos.index', 'Contacto creado correctamente.', null, 201);
+        },
+        function ($folio) use ($request) {
+            return Responder::fail($request, $folio, 'error.general');
+        }
+    );
+}
+
 
     /**
      * Display the specified resource.
@@ -173,16 +186,28 @@ class ContactosAlumnoController extends Controller
      * Update the specified resource in storage.
      */
     public function update(ContactosAlumnoRequest $request, ContactosAlumno $contactos_alumno)
-    {
-        $validated = $request->validated();
+{
+    $validated = $request->validated();
 
-        return Safe::run(
-            function () use ($contactos_alumno, $validated) {
-                return DB::transaction(function () use ($contactos_alumno, $validated) {
-                    // 1) Actualiza el contacto
-                $contactos_alumno->update($validated);
+    return Safe::run(
+        function () use ($contactos_alumno, $validated) {
+            return DB::transaction(function () use ($contactos_alumno, $validated) {
 
-                // 2) Sincroniza/asegura el user del alumno
+                // 🧱 armamos dirección a partir de campos atomizados
+                $payload    = $validated;
+                $direccion  = $this->armarDireccion($payload);
+
+                if ($direccion !== '') {
+                    $payload['direccion'] = $direccion;
+                } else {
+                    // si no mandan nada, conservamos la que ya tenía
+                    $payload['direccion'] = $contactos_alumno->direccion;
+                }
+
+                // 1) Actualiza el contacto
+                $contactos_alumno->update($payload);
+
+                // 2) Sincroniza/asegura el user del alumno (igual que ya lo tenías)
                 $noCtrl = $contactos_alumno->fk_alumno;
                 $correo = $contactos_alumno->correo;
 
@@ -200,7 +225,6 @@ class ContactosAlumnoController extends Controller
                 $nombre = trim(($alumno->nombre ?? '') . ' ' . ($alumno->apellido_pat ?? '') . ' ' . ($alumno->apellido_mat ?? ''));
 
                 if (!$user) {
-                    // Si no existe, créalo ahora
                     $user = User::firstOrCreate(
                         ['email' => $correo],
                         [
@@ -211,14 +235,12 @@ class ContactosAlumnoController extends Controller
                         ]
                     );
                 } else {
-                    // Completa/actualiza sin romper contraseñas
                     $changed = false;
 
                     if ($user->role !== 'Alumno') { $user->role = 'Alumno'; $changed = true; }
                     if ($user->alumno_no_control !== $noCtrl) { $user->alumno_no_control = $noCtrl; $changed = true; }
                     if (!$user->name && $nombre) { $user->name = $nombre; $changed = true; }
 
-                    // Si el correo cambió, actualiza evitando colisiones
                     if ($user->email !== $correo) {
                         $existeOtro = User::where('email', $correo)->where('id', '<>', $user->id)->exists();
                         if (!$existeOtro) {
@@ -231,16 +253,17 @@ class ContactosAlumnoController extends Controller
                 }
 
                 return true;
-                });
-            },
-            function () use ($request) {
-                return Responder::ok($request, 'contactos-alumnos.index', 'Contacto actualizado correctamente.');
-            },
-            function ($folio) use ($request) {
-                return Responder::fail($request, $folio, 'error.general');
-            }
-        );
-    }
+            });
+        },
+        function () use ($request) {
+            return Responder::ok($request, 'contactos-alumnos.index', 'Contacto actualizado correctamente.');
+        },
+        function ($folio) use ($request) {
+            return Responder::fail($request, $folio, 'error.general');
+        }
+    );
+}
+
 
     public function destroy($id): RedirectResponse
     {
@@ -261,5 +284,50 @@ class ContactosAlumnoController extends Controller
             }
         );
     }
+
+    private function armarDireccion(array $data): string
+{
+    // helper interno para leer campo como string
+    $get = function (string $key) use ($data): string {
+        if (!array_key_exists($key, $data) || $data[$key] === null) {
+            return '';
+        }
+
+        $val = $data[$key];
+
+        // Si llega como array (por name="campo[]" o algo raro), tomamos el primero
+        if (is_array($val)) {
+            $val = reset($val) ?: '';
+        }
+
+        return trim((string) $val);
+    };
+
+    $calle   = $get('calle');
+    $colonia = $get('colonia');
+    $numExt  = $get('num_ext');
+    $numInt  = $get('num_int');
+    $cp      = $get('cp');
+    $estado  = $get('estado');
+    $pais    = $get('pais');
+
+    $partes = [];
+
+    if ($calle !== '') {
+        $texto = $calle;
+        if ($numExt !== '') $texto .= " #{$numExt}";
+        if ($numInt !== '') $texto .= " Int. {$numInt}";
+        $partes[] = $texto;
+    }
+
+    if ($colonia !== '') $partes[] = "Col. {$colonia}";
+    if ($cp      !== '') $partes[] = "CP {$cp}";
+    if ($estado  !== '') $partes[] = $estado;
+    if ($pais    !== '') $partes[] = $pais;
+
+    return implode(', ', $partes);
+}
+
+
 }
 

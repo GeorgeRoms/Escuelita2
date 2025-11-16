@@ -26,13 +26,25 @@ class ContactosProfesore extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    protected $fillable = ['correo', 'telefono', 'direccion', 'fk_profesor'];
+    protected $fillable = [
+        'correo',
+        'telefono',
+        'direccion',
+        'fk_profesor',
+        'calle',
+        'colonia',
+        'num_ext',
+        'num_int',
+        'cp',
+        'estado',
+        'pais',
+    ];
 
 
     public function profesor()
     {
         // Tu modelo de profesor es "Profesore"
-        return $this->belongsTo(\App\Models\Profesore::class, 'fk_profesor', 'id_profesor');
+        return $this->belongsTo(Profesore::class, 'fk_profesor', 'id_profesor');
     }
 
 }

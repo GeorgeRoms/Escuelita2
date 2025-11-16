@@ -8,9 +8,6 @@ use App\Models\User;
 
 class ContactosAlumnoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
@@ -19,23 +16,25 @@ class ContactosAlumnoRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'correo'   => $this->correo ? mb_strtolower(trim($this->correo)) : null,
-            'telefono' => $this->telefono ? trim($this->telefono) : null,
-            'direccion'=> $this->direccion ? trim($this->direccion) : null,
-            'fk_alumno'=> $this->fk_alumno ? trim($this->fk_alumno) : null,
+            'correo'    => $this->correo    ? mb_strtolower(trim($this->correo))    : null,
+            'telefono'  => $this->telefono  ? trim($this->telefono)                 : null,
+            'calle'     => $this->calle     ? trim($this->calle)                    : null,
+            'colonia'   => $this->colonia   ? trim($this->colonia)                  : null,
+            'num_ext'   => $this->num_ext   ? trim($this->num_ext)                  : null,
+            'num_int'   => $this->num_int   ? trim($this->num_int)                  : null,
+            'cp'        => $this->cp        ? trim($this->cp)                       : null,
+            'estado'    => $this->estado    ? trim($this->estado)                   : null,
+            'pais'      => $this->pais      ? trim($this->pais)                     : null,
+            'fk_alumno' => $this->fk_alumno ? trim($this->fk_alumno)                : null,
         ]);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $idContacto = $this->route('contactos_alumno')?->id_contacto; // binding por ruta
+        $contacto   = $this->route('contactos_alumno');
+        $idContacto = $contacto?->id_contacto;
+        $oldMail    = $contacto?->correo;
 
-        // Si ya existe un user vinculado a este alumno, lo ignoramos en la validación de unique(users,email)
         $userIdVinculado = optional(
             User::where('alumno_no_control', $this->input('fk_alumno'))->first()
         )->id;
@@ -43,26 +42,34 @@ class ContactosAlumnoRequest extends FormRequest
         return [
             'correo' => [
                 'bail','required','email','max:100',
-                // Unicidad dentro de contactos_alumnos (ignorando el propio registro en edición)
                 Rule::unique('contactos_alumnos', 'correo')->ignore($idContacto, 'id_contacto'),
-                // Unicidad cruzada en users.email (ignorando el user ya vinculado a este alumno, si existe)
                 Rule::unique('users', 'email')->ignore($userIdVinculado),
             ],
+
             'telefono' => [
                 'required','string','max:20',
-                // opcional: valida dígitos, espacios, +, -, ().
                 'regex:/^[0-9\-\+\(\)\s]{7,20}$/',
             ],
-            'direccion' => ['required','string','max:120'],
-            'fk_alumno' => ['required','string','max:24','exists:alumnos,no_control'],
+
+            // Dirección atomizada (ya SIN string en prepareForValidation)
+            'calle'   => 'nullable|max:100',
+            'colonia' => 'nullable|max:100',
+            'num_ext' => 'nullable|max:10',
+            'num_int' => 'nullable|max:10',
+            'cp'      => 'nullable|max:10',
+            'estado'  => 'nullable|max:60',
+            'pais'    => 'nullable|max:60',
+
+            'fk_alumno' => 'required|string|max:24|exists:alumnos,no_control',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'correo.unique' => 'Este correo ya está registrado (en contactos o en usuarios).',
-            'telefono.regex' => 'El teléfono solo admite dígitos y símbolos + - ( ) con 7 a 20 caracteres.',
+            'correo.unique'   => 'Este correo ya está registrado (en contactos o en usuarios).',
+            'telefono.regex'  => 'El teléfono solo admite dígitos y símbolos + - ( ) con 7 a 20 caracteres.',
         ];
     }
 }
+

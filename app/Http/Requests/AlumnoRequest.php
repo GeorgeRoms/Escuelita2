@@ -28,6 +28,10 @@ class AlumnoRequest extends FormRequest
         // Si tienes route model binding: Route::resource('alumnos', ...)
         // y la clave es no_control, esto te trae el modelo actual en update.
         $alumno = $this->route('alumno'); // puede ser null en create
+        $contactoId = optional(optional($alumno)->contacto)->id_contacto;
+
+        // Correo anterior del contacto (para ignorarlo en unique de users)
+        $oldMail = optional(optional($alumno)->contacto)->correo;
 
         $noControlRules = ['sometimes','string','max:24'];
         if ($isUpdate && $alumno) {
@@ -55,7 +59,26 @@ class AlumnoRequest extends FormRequest
             // ✅ ahora opcional y va a la pivot alumno_carrera
             'carrera_id'   => ['sometimes','nullable','integer','exists:carreras,id_carrera'],
             'semestre' => ['required','integer','between:1,20'],
-        ];
+
+            // Contacto opcional
+            // Contacto opcional
+            'correo' => [
+                'nullable','email','max:100',
+                // único en contactos_alumnos, ignorando su propio id al editar
+                Rule::unique('contactos_alumnos', 'correo')->ignore($contactoId, 'id_contacto'),
+                // único también en users.email, ignorando el correo previo del contacto al editar
+                Rule::unique('users', 'email')->ignore($oldMail, 'email'),
+            ],
+            'telefono'      => 'nullable|string|max:20',
+            // 🆕 dirección atomizada
+            'calle'   => ['nullable','string','max:100'],
+            'colonia' => ['nullable','string','max:100'],
+            'num_ext' => ['nullable','string','max:10'],
+            'num_int' => ['nullable','string','max:10'],
+            'cp'      => ['nullable','string','max:10'],
+            'estado'  => ['nullable','string','max:60'],
+            'pais'    => ['nullable','string','max:60'],
+            ];
     }
 
     // (Opcional) mensajes en español

@@ -87,8 +87,19 @@ class ContactosProfesoreController extends Controller
         return Safe::run(
             function () use ($validated) {
                 return DB::transaction(function () use ($validated) {
-                    // 1) Crea el contacto de profesor
-                    $contacto = ContactosProfesore::create($validated);
+                    // 🧱 armamos un payload que ya trae 'direccion' bonita
+                    $payload = $validated;
+                    $direccion = $this->armarDireccion($payload);
+
+                    if ($direccion !== '') {
+                        $payload['direccion'] = $direccion;
+                    } else {
+                        // si por alguna razón quieres mantener lo que venía:
+                        $payload['direccion'] = $payload['direccion'] ?? 'N/D';
+                    }
+
+                    // 1) Crea el contacto con todos los campos (incluyendo calle, colonia, etc.)
+                    $contacto = ContactosProfesore::create($payload);
 
                     // 2) Busca al profesor
                     $prof = Profesore::where('id_profesor', $validated['fk_profesor'])->first();
@@ -185,8 +196,19 @@ class ContactosProfesoreController extends Controller
         return Safe::run(
             function () use ($contactos_profesore, $validated) {
                 return DB::transaction(function () use ($contactos_profesore, $validated) {
-                    // 1) Actualiza el contacto
-                    $contactos_profesore->update($validated);
+                    // 🧱 armamos dirección a partir de campos atomizados
+                $payload    = $validated;
+                $direccion  = $this->armarDireccion($payload);
+
+                if ($direccion !== '') {
+                    $payload['direccion'] = $direccion;
+                } else {
+                    // si no mandan nada, conservamos la que ya tenía
+                    $payload['direccion'] = $contactos_profesore->direccion;
+                }
+
+                // 1) Actualiza el contacto
+                $contactos_profesore->update($payload);
 
                     // 2) Datos actuales
                     $profId = $contactos_profesore->fk_profesor;
@@ -268,5 +290,50 @@ class ContactosProfesoreController extends Controller
             }
         );
     }
+
+
+    private function armarDireccion(array $data): string
+{
+    // helper interno para leer campo como string
+    $get = function (string $key) use ($data): string {
+        if (!array_key_exists($key, $data) || $data[$key] === null) {
+            return '';
+        }
+
+        $val = $data[$key];
+
+        // Si llega como array (por name="campo[]" o algo raro), tomamos el primero
+        if (is_array($val)) {
+            $val = reset($val) ?: '';
+        }
+
+        return trim((string) $val);
+    };
+
+    $calle   = $get('calle');
+    $colonia = $get('colonia');
+    $numExt  = $get('num_ext');
+    $numInt  = $get('num_int');
+    $cp      = $get('cp');
+    $estado  = $get('estado');
+    $pais    = $get('pais');
+
+    $partes = [];
+
+    if ($calle !== '') {
+        $texto = $calle;
+        if ($numExt !== '') $texto .= " #{$numExt}";
+        if ($numInt !== '') $texto .= " Int. {$numInt}";
+        $partes[] = $texto;
+    }
+
+    if ($colonia !== '') $partes[] = "Col. {$colonia}";
+    if ($cp      !== '') $partes[] = "CP {$cp}";
+    if ($estado  !== '') $partes[] = $estado;
+    if ($pais    !== '') $partes[] = $pais;
+
+    return implode(', ', $partes);
+}
+
 }
 

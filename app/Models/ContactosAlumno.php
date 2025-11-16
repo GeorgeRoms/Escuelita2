@@ -27,7 +27,19 @@ class ContactosAlumno extends Model
     public $incrementing = true;       // funciona perfecto con AUTO_INCREMENT
     protected $keyType = 'int';
 
-    protected $fillable = ['correo','telefono','direccion','fk_alumno'];
+    protected $fillable = [
+        'correo',
+        'telefono',
+        'direccion',
+        'fk_alumno',
+        'calle',
+        'colonia',
+        'num_ext',
+        'num_int',
+        'cp',
+        'estado',
+        'pais',
+    ];
 
     public function alumno()
     {

@@ -34,25 +34,25 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Código de contacto</th>
+                                    <th>Profesor</th>
+									{{-- <th >Código de contacto</th> --}}
 									<th >Correo</th>
 									<th >Telefono</th>
 									<th >Direccion</th>
-                                    <th>Profesor</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($contactosProfesores as $contactosProfesore)
                                         <tr>
-										<td >{{ $contactosProfesore->id_contacto }}</td>
-										<td >{{ $contactosProfesore->correo }}</td>
-										<td >{{ $contactosProfesore->telefono }}</td>
-										<td >{{ $contactosProfesore->direccion }}</td>
                                         <td>
                                             @php($p = $contactosProfesore->profesor)
                                             {{ $p ? trim($p->nombre.' '.$p->apellido_pat.' '.($p->apellido_mat ?? '')) : '—' }}
                                         </td>
+										{{-- <td >{{ $contactosProfesore->id_contacto }}</td> --}}
+										<td >{{ $contactosProfesore->correo }}</td>
+										<td >{{ $contactosProfesore->telefono }}</td>
+										<td >{{ $contactosProfesore->direccion }}</td>
 
                                             <td>
                                                 <form action="{{ route('contactos-profesores.destroy', $contactosProfesore->id_contacto) }}" method="POST">

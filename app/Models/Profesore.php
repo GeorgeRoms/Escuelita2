@@ -23,14 +23,14 @@ use App\Models\Concerns\HasCustomPrimaryKey; // Mantengo tu use statement
 class Profesore extends Model
 {
     // PROPIEDAD DE VALIDACIÓN (Añadida para resolver el error "Access to undeclared static property")
-    public static $rules = [
-        'nombre'       => 'required|string|max:100',
-        'apellido_pat' => 'required|string|max:100',
-        'apellido_mat' => 'required|string|max:100',
-        // Uso 'Area::class' basado en tu método 'area()', asumiendo que este es el modelo correcto para la tabla catal_areas
-        'fk_area'      => 'required|integer|exists:areas,id_area', 
-        'tipo'         => 'required|in:Tiempo completo,Medio Tiempo,Asignatura',
-    ];
+    // public static $rules = [
+    //     'nombre'       => 'required|string|max:100',
+    //     'apellido_pat' => 'required|string|max:100',
+    //     'apellido_mat' => 'required|string|max:100',
+    //     // Uso 'Area::class' basado en tu método 'area()', asumiendo que este es el modelo correcto para la tabla catal_areas
+    //     'fk_area'      => 'required|integer|exists:areas,id_area', 
+    //     'tipo'         => 'required|in:Tiempo completo,Medio Tiempo,Asignatura',
+    // ];
 
     use HasCustomPrimaryKey;
 
@@ -54,6 +54,12 @@ class Profesore extends Model
         // Asegúrate de que el modelo 'Area' o 'CatalArea' haga referencia a esa tabla.
         return $this->belongsTo(\App\Models\Area::class, 'fk_area', 'id_area');
     }
+
+    public function contacto()
+    {
+        return $this->hasOne(\App\Models\ContactosProfesore::class, 'fk_profesor', 'id_profesor');
+    }
+
 
 
 }
