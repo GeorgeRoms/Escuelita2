@@ -47,19 +47,24 @@ class CursoRequest extends FormRequest
                 Rule::in($diasValidos) // Usa la lista definida arriba
             ],
 
-            'hora_inicio' => ['required', 'date_format:H:i'],
-            'hora_fin'    => ['required', 'date_format:H:i', 'after:hora_inicio'],
+            'hora_inicio' => ['required','date_format:H:i','after_or_equal:07:00','before_or_equal:19:00'], // 2 h → máximo termina a las 21:00
+            'hora_fin' => ['required','date_format:H:i','after:hora_inicio','before_or_equal:21:00'],
             'dia_1h' => ['nullable','string','max:20'],
-            'hora_inicio_1h' => ['nullable','date_format:H:i'],
-            'hora_fin_1h' => ['nullable','date_format:H:i'],
+            'hora_inicio_1h' => ['nullable','date_format:H:i','after_or_equal:07:00','before_or_equal:20:00'], // 1 h → máximo termina a las 21:00
+            'hora_fin_1h' => ['nullable','date_format:H:i','before_or_equal:21:00',],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'hora_fin.after' => 'La hora de fin debe ser mayor que la hora de inicio.',
-            'dia_semana.in'  => 'El día de la semana seleccionado no es una combinación válida.',
+            'hora_inicio.after_or_equal'   => 'La clase no puede empezar antes de las 07:00.',
+            'hora_inicio.before_or_equal'  => 'La clase de 2 horas no puede empezar después de las 19:00.',
+            'hora_inicio_1h.before_or_equal' => 'La clase de 1 hora no puede empezar después de las 20:00.',
+            'hora_fin.before_or_equal'     => 'La clase no puede terminar después de las 21:00.',
+            'hora_fin_1h.before_or_equal'  => 'La clase no puede terminar después de las 21:00.',
+            'hora_fin.after'               => 'La hora de fin debe ser mayor que la hora de inicio.',
+            'dia_semana.in'                => 'El día de la semana seleccionado no es una combinación válida.',
         ];
     }
 

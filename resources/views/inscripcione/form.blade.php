@@ -57,6 +57,9 @@
             {{-- En creación: calcular dinámicamente --}}
             <input type="hidden" id="intento_url" value="{{ route('inscripciones.intento') }}">
             <input type="text" id="intento_preview" class="form-control" value="—" readonly>
+            @error('intento')
+            <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
             @endif
         </div>
         
@@ -87,28 +90,50 @@
     </div>
 </div>
 
+@if(!$isEdit)
 <script>
 (function(){
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', arguments.callee);
     return;
   }
+
   const alumnoSel = document.querySelector('[name="alumno_no_control"]');
   const cursoSel  = document.querySelector('[name="curso_id"]');
   const preview   = document.getElementById('intento_preview');
   const url       = document.getElementById('intento_url')?.value;
+  const submitBtn = document.querySelector('button[type="submit"]');
+
+  function actualizarBoton() {
+    if (preview.value === 'APROBADA') {
+      submitBtn?.setAttribute('disabled', 'disabled');
+    } else {
+      submitBtn?.removeAttribute('disabled');
+    }
+  }
 
   async function actualizarIntento(){
     const alumno = alumnoSel?.value?.trim();
     const curso  = cursoSel?.value?.trim();
-    if (!alumno || !curso || !url) { preview.value = '—'; return; }
+
+    if (!alumno || !curso || !url) {
+      preview.value = '—';
+      actualizarBoton();
+      return;
+    }
 
     try{
       const qs  = new URLSearchParams({ alumno_no_control: alumno, curso_id: curso });
-      const res = await fetch(`${url}?${qs.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+      const res = await fetch(`${url}?${qs.toString()}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      });
       const data = res.ok ? await res.json() : null;
       preview.value = data?.intento ?? '—';
-    }catch(_){ preview.value = '—'; }
+    }catch(_){
+      preview.value = '—';
+    }
+
+    actualizarBoton();
   }
 
   alumnoSel?.addEventListener('change', actualizarIntento);
@@ -116,34 +141,4 @@
   actualizarIntento(); // inicial
 })();
 </script>
-
-@if(!$isEdit)
-  <script>
-  (function(){
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', arguments.callee);
-      return;
-    }
-    const alumnoSel = document.querySelector('[name="alumno_no_control"]');
-    const cursoSel  = document.querySelector('[name="curso_id"]');
-    const preview   = document.getElementById('intento_preview');
-    const url       = document.getElementById('intento_url')?.value;
-
-    async function actualizarIntento(){
-      const alumno = alumnoSel?.value?.trim();
-      const curso  = cursoSel?.value?.trim();
-      if (!alumno || !curso || !url) { preview.value = '—'; return; }
-      try{
-        const qs  = new URLSearchParams({ alumno_no_control: alumno, curso_id: curso });
-        const res = await fetch(`${url}?${qs.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
-        const data = res.ok ? await res.json() : null;
-        preview.value = data?.intento ?? '—';
-      }catch(_){ preview.value = '—'; }
-    }
-
-    alumnoSel?.addEventListener('change', actualizarIntento);
-    cursoSel?.addEventListener('change', actualizarIntento);
-    actualizarIntento();
-  })();
-  </script>
 @endif

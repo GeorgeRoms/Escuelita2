@@ -1,3 +1,12 @@
+@if($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach($errors->all() as $msg)
+                <li>{{ $msg }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 <div class="row padding-1 p-1">
   <div class="col-md-12">
 
@@ -105,17 +114,64 @@
       @error('hora_fin') <div class="invalid-feedback">{{ $message }}</div> @enderror
     </div> --}}
     
-    <div class="row g-3">
-      <div class="col-md-6">
-        <label for="hora_inicio" class="form-label">Hora inicio (bloque 2 h)</label>
-        <input type="time" name="hora_inicio" id="hora_inicio" class="form-control" required>
-      </div>
-      <div class="col-md-6">
-        <label for="hora_fin" class="form-label">Hora fin (bloque 2 h)</label>
-        <input type="time" name="hora_fin" id="hora_fin" class="form-control" required>
-      </div>
-    </div>
+    @php
+    // Para modo edición, formateamos las horas a HH:MM
+    $horaInicio = old('hora_inicio');
+    $horaFin    = old('hora_fin');
+
+    if (!$horaInicio && isset($curso) && $curso->hora_inicio) {
+        // con el cast de Eloquent a datetime:H:i ya es Carbon
+        $horaInicio = optional($curso->hora_inicio)->format('H:i');
+    }
+
+    if (!$horaFin && isset($curso) && $curso->hora_fin) {
+        $horaFin = optional($curso->hora_fin)->format('H:i');
+    }
+@endphp
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <label for="hora_inicio" class="form-label">Hora inicio (bloque 2 h)</label>
+    <input
+        type="time"
+        name="hora_inicio"
+        id="hora_inicio"
+        class="form-control @error('hora_inicio') is-invalid @enderror"
+        value="{{ $horaInicio }}"
+        required
+        min="07:00"
+        max="19:00"  {{-- 19:00 + 2h = 21:00 --}}
+    >
+    @error('hora_inicio') <div class="invalid-feedback">{{ $message }}</div> @enderror
+  </div>
+  <div class="col-md-6">
+    <label for="hora_fin" class="form-label">Hora fin (bloque 2 h)</label>
+    <input
+        type="time"
+        name="hora_fin"
+        id="hora_fin"
+        class="form-control @error('hora_fin') is-invalid @enderror"
+        value="{{ $horaFin }}"
+        readonly  {{-- ⚠️ antes estaba "disabled" --}}
+    >
+    @error('hora_fin') <div class="invalid-feedback">{{ $message }}</div> @enderror
+  </div>
+</div>
+
     <small class="text-muted d-block mt-1">Sugerencia: fija aquí el bloque de <b>2 horas</b> (p. ej. 07:00–09:00).</small>
+
+@php
+    $horaInicio1h = old('hora_inicio_1h');
+    $horaFin1h    = old('hora_fin_1h');
+
+    if (!$horaInicio1h && isset($curso) && $curso->hora_inicio_1h) {
+        $horaInicio1h = \Illuminate\Support\Carbon::parse($curso->hora_inicio_1h)->format('H:i');
+    }
+    if (!$horaFin1h && isset($curso) && $curso->hora_fin_1h) {
+        $horaFin1h = \Illuminate\Support\Carbon::parse($curso->hora_fin_1h)->format('H:i');
+    }
+@endphp
+
 
     <input type="hidden" name="dia_1h" id="dia_1h" value="{{ old('dia_1h', $curso->dia_1h ?? '') }}">
 
@@ -126,13 +182,28 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label for="hora_inicio_1h" class="form-label">Hora inicio (1 h)</label>
-          <input type="time" name="hora_inicio_1h" id="hora_inicio_1h" class="form-control"
-                value="{{ old('hora_inicio_1h', $curso->hora_inicio_1h ?? '') }}">
+          <input
+    type="time"
+    name="hora_inicio_1h"
+    id="hora_inicio_1h"
+    class="form-control @error('hora_inicio_1h') is-invalid @enderror"
+    value="{{ $horaInicio1h }}"
+    min="07:00"
+    max="20:00" {{-- 20:00 + 1h = 21:00 --}}
+>
+@error('hora_inicio_1h') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
         <div class="col-md-6">
           <label for="hora_fin_1h" class="form-label">Hora fin (1 h)</label>
-          <input type="time" name="hora_fin_1h" id="hora_fin_1h" class="form-control"
-                value="{{ old('hora_fin_1h', $curso->hora_fin_1h ?? '') }}">
+          <input
+    type="time"
+    name="hora_fin_1h"
+    id="hora_fin_1h"
+    class="form-control @error('hora_fin_1h') is-invalid @enderror"
+    value="{{ $horaFin1h }}"
+    readonly  {{-- igual que arriba: NO disabled --}}
+>
+@error('hora_fin_1h') <div class="invalid-feedback">{{ $message }}</div> @enderror
         </div>
       </div>
       <small class="text-muted d-block mt-1">Este bloque solo aplica cuando el patrón incluye <b>un día de 1 h</b> (créditos 5 o 3).</small>
@@ -267,5 +338,61 @@
     refrescarBloque1h();
     validarHoras();
   })();
+
+  // === util: sumar minutos a una 'HH:MM' ===
+function addMinutes(hhmm, minutes) {
+  if (!hhmm) return '';
+  const [h, m] = hhmm.split(':').map(Number);
+  let total = h * 60 + m + minutes;
+  // normaliza a 0..1439 por si se cruza de día
+  total = ((total % 1440) + 1440) % 1440;
+  const H = String(Math.floor(total / 60)).padStart(2, '0');
+  const M = String(total % 60).padStart(2, '0');
+  return `${H}:${M}`;
+}
+
+// === auto-sync fin (2 h) cuando cambia inicio (2 h) ===
+function syncFin2h() {
+  if (!hora2Ini) return;
+  if (hora2Ini.value) {
+    hora2Fin.value = addMinutes(hora2Ini.value, 120);
+  } else {
+    hora2Fin.value = '';
+  }
+  validarHoras();
+}
+
+// === auto-sync fin (1 h) cuando cambia inicio (1 h) ===
+function syncFin1h() {
+  if (!hora1Ini || !hora1Fin) return;
+  if (hora1Ini.value) {
+    hora1Fin.value = addMinutes(hora1Ini.value, 60);
+  } else {
+    hora1Fin.value = '';
+  }
+  validarHoras();
+}
+
+// listeners nuevos
+hora2Ini?.addEventListener('change', syncFin2h);
+hora1Ini?.addEventListener('change', syncFin1h);
+
+// cuando se muestre/oculte el bloque de 1 h, autollenar si aplica
+const _refrescarBloque1h_original = refrescarBloque1h;
+refrescarBloque1h = function () {
+  _refrescarBloque1h_original();   // corre tu lógica actual
+  // si el bloque 1 h está visible y hay inicio, autocalcula fin
+  if (!bloque1h.classList.contains('d-none') && hora1Ini?.value && !hora1Fin?.value) {
+    syncFin1h();
+  }
+};
+
+// también al iniciar (modo edición) sincroniza por si ya viene inicio
+document.addEventListener('DOMContentLoaded', () => {
+  if (hora2Ini?.value && !hora2Fin?.value) syncFin2h();
+  if (!bloque1h.classList.contains('d-none') && hora1Ini?.value && !hora1Fin?.value) syncFin1h();
+});
+
+
 })();
 </script>

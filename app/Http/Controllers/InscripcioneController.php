@@ -83,6 +83,11 @@ class InscripcioneController extends Controller
                     (int)$solo['curso_id']
                 );
 
+                // Si ya está aprobada, NO dejamos inscribir
+                if ($intento === 'APROBADA') {
+                    throw new \RuntimeException('aprobada'); // la capturamos abajo
+                    }
+
                 // Promedio por defecto = 100 si no lo enviaron o viene vacío
                 $promedio = (array_key_exists('promedio', $solo) && $solo['promedio'] !== null && $solo['promedio'] !== '')
                     ? $solo['promedio']
@@ -112,6 +117,12 @@ class InscripcioneController extends Controller
         function ($folio, $e) use ($request) {
             if ($e instanceof \RuntimeException && str_contains($e->getMessage(), 'inscrito')) {
                 return back()->withErrors('El alumno ya está inscrito en ese curso.')->withInput();
+            }
+
+            if (str_contains($e->getMessage(), 'aprobada')) {
+            return back()
+                ->withErrors(['intento' => 'El alumno ya aprobó la materia y no puede inscribirse de nuevo.'])
+                ->withInput();
             }
             return Responder::fail($request, $folio, 'error.general');
         }
@@ -293,7 +304,7 @@ class InscripcioneController extends Controller
     private function calcularIntento(string $noControl, int $cursoId): string
 {
     // Trae solo lo necesario y usa fk_materia
-    $curso = Curso::select('id_curso','fk_materia')->findOrFail($cursoId);
+    $curso     = Curso::select('id_curso','fk_materia')->findOrFail($cursoId);
     $materiaId = $curso->fk_materia;
 
     if (empty($materiaId)) {
@@ -301,7 +312,21 @@ class InscripcioneController extends Controller
         return 'Normal';
     }
 
-    // Máximo intento previo para la MISMA materia
+    // 1) ¿Ya tiene la MATERIA APROBADA? (cualquier curso de esa materia)
+    $yaAprobada = Inscripcione::query()
+        ->join('cursos', 'cursos.id_curso', '=', 'inscripciones.curso_id')
+        ->where('inscripciones.alumno_no_control', $noControl)
+        ->where('cursos.fk_materia', $materiaId)
+        ->where('inscripciones.promedio', '>=', 70)
+        ->exists();
+
+    if ($yaAprobada) {
+        // OJO: esto NO se guarda en la BD (enum),
+        // solo se usa para el preview y para bloquear el store()
+        return 'APROBADA';
+    }
+
+    // 2) Si no está aprobada, calculamos el siguiente intento Normal/Repite/Especial
     $maxPrev = Inscripcione::query()
         ->join('cursos', 'cursos.id_curso', '=', 'inscripciones.curso_id')
         ->where('inscripciones.alumno_no_control', $noControl)
@@ -316,10 +341,13 @@ class InscripcioneController extends Controller
         "));
 
     $maxPrev = (int)($maxPrev ?? 0);
-    $next = min(3, $maxPrev + 1);
+    $next    = min(3, $maxPrev + 1);
 
-    return $next === 1 ? 'Normal' : ($next === 2 ? 'Repite' : 'Especial');
+    return $next === 1 ? 'Normal'
+         : ($next === 2 ? 'Repite'
+         : 'Especial');
 }
+
 
 }
 
