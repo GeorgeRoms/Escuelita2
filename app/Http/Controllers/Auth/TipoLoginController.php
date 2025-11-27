@@ -152,7 +152,7 @@ class TipoLoginController extends Controller
         switch ((string) $user->role) {
             case 'Administrador':  return redirect()->route('home.admini');   // auth.homeadmin
             // case 'Administrativo': return redirect()->route('home.admin');  // home.blade.php
-            case 'Alumno':         return redirect()->route('home.alumno');  // auth.homealumn
+            case 'Alumno':         return redirect()->route('alumno.home');  // auth.homealumn
             case 'Profesor':       return redirect()->route('home.profesor'); // si lo habilitas
             default:               return redirect('/home'); // o '/'
         }

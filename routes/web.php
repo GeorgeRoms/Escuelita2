@@ -28,6 +28,7 @@ use App\Http\Controllers\ReporteAlumnoController;
 use App\Http\Controllers\ReporteCarreraPeriodoController;
 use App\Http\Controllers\ReporteTopAlumnosController;
 use App\Http\Controllers\Auth\TipoLoginController;
+use App\Http\Controllers\AlumnoHomeController;
 
 // 🔐 Reemplaza el POST /login para que use TipoLoginController
 Route::post('/login/tipo', [TipoLoginController::class, 'login'])->name('login.tipo');
@@ -50,9 +51,9 @@ Route::get('/panel/administrador', function () {
 })->name('panel.administrador');
 
 Route::get('/panel/alumno', function () {
-    // Carga la vista del alumno 
-    return view('auth.homealumn'); 
+    return redirect()->route('alumno.home');
 })->name('panel.alumno');
+
 
 Route::get('/panel/profesor', fn() => view('auth.homeprofe'))->name('panel.profesor');
 // ----------------------------------------------------------------------
@@ -64,7 +65,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Route::get('/admin/home',   fn () => view('auth.homeadmin'))->name('home.admin');   // Admin
     Route::get('/staff/home',   fn () => view('home'))->name('home.admini');            // Administrativo (tu home.blade.php)
-    Route::get('/alumno/home',  fn () => view('auth.homealumn'))->name('home.alumno');  // Alumno
     Route::get('/profe/home',   fn() => view('auth.homeprofe'))->name('home.profesor');
     // Dashboard principal para usuarios logueados
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -98,6 +98,15 @@ Route::resource('inscripciones', InscripcioneController::class)
 Route::resource('asignaciones', AsignacionClaseController::class);
 
 Route::view('/error/general', 'error.general')->name('error.general');
+
+//RUTAS VISTAS ALUMNOS
+Route::get('/alumno/home',         [AlumnoHomeController::class, 'index'])->name('alumno.home');
+    Route::get('/alumno/kardex',       [AlumnoHomeController::class, 'kardex'])->name('alumno.kardex');
+    Route::get('/alumno/horarios',     [AlumnoHomeController::class, 'horarios'])->name('alumno.horarios');
+    Route::get('/alumno/calificaciones',[AlumnoHomeController::class, 'calificaciones'])->name('alumno.calificaciones');
+    Route::get('/alumno/datos',        [AlumnoHomeController::class, 'datos'])->name('alumno.datos_personales');
+    Route::get('/alumno/cursos-activos',[AlumnoHomeController::class, 'cursosActivos'])->name('alumno.cursos_activos');
+    Route::get('/alumno/plan-materias',[AlumnoHomeController::class, 'planMaterias'])->name('alumno.plan_materias');
 
 // Grupo de Rutas de Reportes
 Route::prefix('reportes')->group(function () {

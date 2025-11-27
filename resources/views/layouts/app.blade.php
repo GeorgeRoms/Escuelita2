@@ -142,6 +142,15 @@
                     {{-- Left --}}
                     <ul class="navbar-nav me-auto">
                         @auth
+        {{-- Aquí se insertarán los enlaces. Por defecto, si no se define 'nav_links' en una vista,
+             se mostrará la lista de enlaces de administración, pero la vista 'homealumn' los anulará. --}}
+        @yield('nav_links')
+
+        {{-- Fallback: Si la vista no define 'nav_links', se muestran los enlaces de administración por defecto. --}}
+        @hasSection('nav_links')
+        @else
+        
+            @if(Auth::user()->role !== 'alumno')
                         <li class="nav-item"><a class="nav-link" href="{{ url('/home') }}">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/carreras') }}">Carreras</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url('/alumnos') }}">Alumnos</a></li>
@@ -159,6 +168,8 @@
                                 {{ __('Reportes') }}
                             </a>
                         </li>
+                        @endif
+                        @endif
                         @endauth
                     </ul>
 
