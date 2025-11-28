@@ -29,6 +29,7 @@ use App\Http\Controllers\ReporteCarreraPeriodoController;
 use App\Http\Controllers\ReporteTopAlumnosController;
 use App\Http\Controllers\Auth\TipoLoginController;
 use App\Http\Controllers\AlumnoHomeController;
+use App\Http\Controllers\ProfesorHomeController;
 
 // 🔐 Reemplaza el POST /login para que use TipoLoginController
 Route::post('/login/tipo', [TipoLoginController::class, 'login'])->name('login.tipo');
@@ -54,8 +55,9 @@ Route::get('/panel/alumno', function () {
     return redirect()->route('alumno.home');
 })->name('panel.alumno');
 
-
-Route::get('/panel/profesor', fn() => view('auth.homeprofe'))->name('panel.profesor');
+Route::get('/panel/profesor', function () {
+    return redirect()->route('home.profesor');
+})->name('panel.profesor');
 // ----------------------------------------------------------------------
 
 
@@ -64,8 +66,9 @@ Route::get('/panel/profesor', fn() => view('auth.homeprofe'))->name('panel.profe
 Route::middleware(['auth'])->group(function () {
 
     // Route::get('/admin/home',   fn () => view('auth.homeadmin'))->name('home.admin');   // Admin
-    Route::get('/staff/home',   fn () => view('home'))->name('home.admini');            // Administrativo (tu home.blade.php)
-    Route::get('/profe/home',   fn() => view('auth.homeprofe'))->name('home.profesor');
+    Route::get('/staff/home',   fn () => view('home'))->name('home.admini');        // Administrativo (tu home.blade.php)
+    Route::get('/profe/home', [ProfesorHomeController::class, 'index'])
+    ->name('home.profesor');
     // Dashboard principal para usuarios logueados
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -107,6 +110,17 @@ Route::get('/alumno/home',         [AlumnoHomeController::class, 'index'])->name
     Route::get('/alumno/datos',        [AlumnoHomeController::class, 'datos'])->name('alumno.datos_personales');
     Route::get('/alumno/cursos-activos',[AlumnoHomeController::class, 'cursosActivos'])->name('alumno.cursos_activos');
     Route::get('/alumno/plan-materias',[AlumnoHomeController::class, 'planMaterias'])->name('alumno.plan_materias');
+
+// Grupo de rutas del profesor
+Route::prefix('profesor')->name('profesor.')->group(function () {
+    Route::get('cursos-vigentes',  [ProfesorHomeController::class, 'cursosVigentes'])->name('cursos.vigentes');
+    Route::get('cursos-historial',[ProfesorHomeController::class, 'cursosHistorial'])->name('cursos.historial');
+    Route::get('datos', [ProfesorHomeController::class, 'datosPersonales'])->name('datos_personales');
+
+    Route::get('curso/{curso}/lista',           [ProfesorHomeController::class, 'listaAlumnos'])->name('curso.lista');
+    Route::get('curso/{curso}/calificaciones',  [ProfesorHomeController::class, 'formCalificaciones'])->name('curso.calificaciones');
+    Route::post('curso/{curso}/calificaciones', [ProfesorHomeController::class, 'guardarCalificaciones'])->name('curso.calificaciones.guardar');
+});
 
 // Grupo de Rutas de Reportes
 Route::prefix('reportes')->group(function () {

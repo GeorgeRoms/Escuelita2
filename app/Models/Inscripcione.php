@@ -74,5 +74,13 @@ class Inscripcione extends Model
         });
     }
 
+        public function getPromedioTextoAttribute()
+    {
+        return is_null($this->promedio)
+            ? 'En curso...'
+            : $this->promedio;
+    }
+
+
     
 }

@@ -66,7 +66,7 @@
                                         </td>
                                         <td >{{ $ins->estado }}</td>
                                         <td >{{ $ins->intento }}</td>
-                                        <td >{{ $ins->promedio }}</td>
+                                        <td >{{ $ins->promedio_texto }}</td>
 
                                             <td>
                                                 <form action="{{ route('inscripciones.destroy', $ins->id) }}" method="POST">

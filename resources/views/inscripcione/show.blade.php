@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Promedio:</strong>
-                                    {{ $inscripcione->promedio }}
+                                    {{ $inscripcione->promedio_texto }}
                                 </div>
 
                     </div>

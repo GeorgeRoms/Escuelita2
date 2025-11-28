@@ -71,7 +71,6 @@ class InscripcioneController extends Controller
     $solo = Arr::only($data, [
         'alumno_no_control',
         'curso_id',
-        'promedio', // nuevo
     ]);
 
     return Safe::run(
@@ -88,11 +87,6 @@ class InscripcioneController extends Controller
                     throw new \RuntimeException('aprobada'); // la capturamos abajo
                     }
 
-                // Promedio por defecto = 100 si no lo enviaron o viene vacío
-                $promedio = (array_key_exists('promedio', $solo) && $solo['promedio'] !== null && $solo['promedio'] !== '')
-                    ? $solo['promedio']
-                    : 100;
-
                 // Unicidad por (alumno_no_control, curso_id)
                 $ins = Inscripcione::firstOrCreate(
                     [
@@ -101,7 +95,7 @@ class InscripcioneController extends Controller
                     ],
                     [
                         'intento'  => $intento,
-                        'promedio' => $promedio,
+                        'promedio' => null,
                     ]
                 );
 
@@ -179,7 +173,7 @@ class InscripcioneController extends Controller
     $solo = Arr::only($data, [
         'alumno_no_control',
         'curso_id',
-        'promedio',
+        'promedio'
     ]);
 
     return Safe::run(
@@ -201,9 +195,7 @@ class InscripcioneController extends Controller
                 }
 
                 // Promedio: si no viene, mantener el actual (o 100 si no hubiera)
-                $promedio = (array_key_exists('promedio', $solo) && $solo['promedio'] !== null && $solo['promedio'] !== '')
-                    ? $solo['promedio']
-                    : ($inscripcione->promedio ?? 100);
+                $promedio = $solo['promedio'];
 
                 // Armar payload final sin cambiar tus nombres
                 $payload = array_merge($solo, [

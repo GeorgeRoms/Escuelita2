@@ -64,17 +64,15 @@
         </div>
         
         @if($isEdit)
-        <div class="form-group mb-2 mb20">
-            <label class="form-label">Promedio</label>
-            <input type="number" step="0.01" min="0" max="100"
-            name="promedio"
-            class="form-control @error('promedio') is-invalid @enderror"
-            value="{{ old('promedio', $inscripcione->promedio) }}">
-            {!! $errors->first('promedio', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
-        </div>
-        @else
-        <input type="hidden" name="promedio" value="{{ old('promedio', 100) }}">
-        @endif
+    <div class="form-group mb-2 mb20">
+        <label class="form-label">Promedio</label>
+        <input type="number" step="0.01" min="0" max="100"
+               name="promedio"
+               class="form-control @error('promedio') is-invalid @enderror"
+               value="{{ old('promedio', $inscripcione->promedio) }}">
+        {!! $errors->first('promedio', '<div class="invalid-feedback"><strong>:message</strong></div>') !!}
+    </div>
+@endif
 
         {{-- <div class="form-group mb-2 mb20">
             <label class="form-label">Semestre</label>
