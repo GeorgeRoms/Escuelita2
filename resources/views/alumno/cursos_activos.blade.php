@@ -48,6 +48,7 @@
                 </div>
             @endforeach
         </div>
+        <br><a href="{{ route('alumno.home') }}" class="btn btn-outline-secondary mb-3">&larr; Volver</a>
     @endif
 </div>
 @endsection

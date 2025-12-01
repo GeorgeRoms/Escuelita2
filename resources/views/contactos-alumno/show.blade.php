@@ -17,10 +17,10 @@
 
                     <div class="card-body bg-white">
                         
-                                <div class="form-group mb-2 mb20">
+                                {{-- <div class="form-group mb-2 mb20">
                                     <strong>Código de contacto:</strong>
                                     {{ $contactosAlumno->id_contacto }}
-                                </div>
+                                </div> --}}
                                 <div class="form-group mb-2 mb20">
                                     <strong>Correo:</strong>
                                     {{ $contactosAlumno->correo }}

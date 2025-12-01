@@ -34,7 +34,7 @@
                             <table class="table table-striped table-hover">
                                 <thead class="thead">
                                     <tr>
-									<th >Id Contacto</th>
+									{{-- <th >Id Contacto</th> --}}
 									<th >Correo</th>
 									<th >Telefono</th>
 									<th >Dirección</th>
@@ -46,7 +46,7 @@
                                 <tbody>
                                     @foreach ($contactosAlumnos as $contactosAlumno)
                                         <tr>
-										<td >{{ $contactosAlumno->id_contacto }}</td>
+										{{-- <td >{{ $contactosAlumno->id_contacto }}</td> --}}
 										<td >{{ $contactosAlumno->correo }}</td>
 										<td >{{ $contactosAlumno->telefono }}</td>
 										<td >{{ $contactosAlumno->direccion }}</td>
